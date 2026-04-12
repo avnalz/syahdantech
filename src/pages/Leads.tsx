@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { LeadsList } from "@/components/leads/LeadsList";
@@ -36,12 +37,13 @@ export interface ChatMessage {
 }
 
 export default function Leads() {
+  const [searchParams] = useSearchParams();
   const { tenantId } = useAuth();
   const isMobile = useIsMobile();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<string>("all");
+  const [filter, setFilter] = useState<string>(searchParams.get("filter") || "all");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
 
