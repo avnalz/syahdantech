@@ -21,9 +21,10 @@ interface LeadChatProps {
   tenantId: number | null;
   onBack: () => void;
   isMobile?: boolean;
+  hideHeader?: boolean;
 }
 
-export function LeadChat({ contact, messages, tenantId, onBack, isMobile }: LeadChatProps) {
+export function LeadChat({ contact, messages, tenantId, onBack, isMobile, hideHeader }: LeadChatProps) {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [humanMode, setHumanMode] = useState(contact.mode === "human_mode");
@@ -90,29 +91,31 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile }: Lead
 
   return (
     <div className={`flex flex-col ${isMobile ? "h-screen" : "h-full"} bg-background`}>
-      {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
-        <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center text-primary shrink-0">
-          <User className="h-4 w-4" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-sm truncate">{contact.name || contact.phone_number}</span>
-            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${labelColors[contact.lead_label] || ""}`}>
-              {contact.lead_label}
-            </Badge>
-            <span className="text-xs text-muted-foreground font-medium">Score: {contact.lead_score}</span>
+      {/* Header - hidden when embedded in LeadDetail */}
+      {!hideHeader && (
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
+          <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center text-primary shrink-0">
+            <User className="h-4 w-4" />
           </div>
-          <p className="text-xs text-muted-foreground truncate">{contact.phone_number}</p>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-sm truncate">{contact.name || contact.phone_number}</span>
+              <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${labelColors[contact.lead_label] || ""}`}>
+                {contact.lead_label}
+              </Badge>
+              <span className="text-xs text-muted-foreground font-medium">Score: {contact.lead_score}</span>
+            </div>
+            <p className="text-xs text-muted-foreground truncate">{contact.phone_number}</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs text-muted-foreground">Human</span>
+            <Switch checked={humanMode} onCheckedChange={toggleHumanMode} />
+          </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-xs text-muted-foreground">Human</span>
-          <Switch checked={humanMode} onCheckedChange={toggleHumanMode} />
-        </div>
-      </div>
+      )}
 
       {/* Chat Area */}
       <ScrollArea className="flex-1 p-4" ref={scrollRef}>
