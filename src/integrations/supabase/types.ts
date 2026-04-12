@@ -57,6 +57,13 @@ export type Database = {
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "chat_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       contacts: {
@@ -135,6 +142,13 @@ export type Database = {
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "contacts_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       drip_logs: {
@@ -183,6 +197,13 @@ export type Database = {
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "drip_logs_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       history: {
@@ -217,18 +238,36 @@ export type Database = {
           id: number
           message: Json
           session_id: string
+          tenant_id: number | null
         }
         Insert: {
           id?: number
           message: Json
           session_id: string
+          tenant_id?: number | null
         }
         Update: {
           id?: number
           message?: Json
           session_id?: string
+          tenant_id?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "history_v2_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "history_v2_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_safe"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -314,6 +353,13 @@ export type Database = {
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "properties_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       tenants: {
@@ -388,11 +434,41 @@ export type Database = {
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "users_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      tenants_safe: {
+        Row: {
+          ai_model: string | null
+          created_at: string | null
+          id: number | null
+          is_active: boolean | null
+          name: string | null
+        }
+        Insert: {
+          ai_model?: string | null
+          created_at?: string | null
+          id?: number | null
+          is_active?: boolean | null
+          name?: string | null
+        }
+        Update: {
+          ai_model?: string | null
+          created_at?: string | null
+          id?: number | null
+          is_active?: boolean | null
+          name?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
