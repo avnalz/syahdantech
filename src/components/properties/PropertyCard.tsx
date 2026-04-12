@@ -18,8 +18,8 @@ function formatRupiah(value: number | null) {
 export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) {
   const statusColor =
     property.status === "sold"
-      ? "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30"
-      : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30";
+      ? "bg-destructive/15 text-destructive border-destructive/30"
+      : "bg-primary/15 text-primary border-primary/30";
 
   const statusLabel = property.status === "sold" ? "Terjual" : "Tersedia";
 
