@@ -1,0 +1,84 @@
+import { MapPin, Pencil, Trash2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import type { Property } from "@/pages/Properties";
+
+interface PropertyCardProps {
+  property: Property;
+  onEdit: (p: Property) => void;
+  onDelete: (id: number) => void;
+}
+
+function formatRupiah(value: number | null) {
+  if (!value) return "—";
+  return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
+}
+
+export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) {
+  const statusColor =
+    property.status === "sold"
+      ? "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30"
+      : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30";
+
+  const statusLabel = property.status === "sold" ? "Terjual" : "Tersedia";
+
+  return (
+    <Card className="overflow-hidden group">
+      {/* Image */}
+      <div className="relative h-48 bg-muted">
+        {property.img_url ? (
+          <img
+            src={property.img_url}
+            alt={property.kode || property.lokasi}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
+            Tidak ada foto
+          </div>
+        )}
+        <Badge variant="outline" className={`absolute top-3 right-3 ${statusColor}`}>
+          {statusLabel}
+        </Badge>
+      </div>
+
+      <CardContent className="p-4 space-y-2">
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <h3 className="font-semibold text-sm">
+              {property.kode || property.lokasi}
+            </h3>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+              <MapPin className="h-3 w-3" />
+              <span>{property.lokasi}</span>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-primary font-bold text-lg">{formatRupiah(property.harga)}</p>
+
+        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+          {property.luas_tanah && <span>LT: {property.luas_tanah}</span>}
+          {property.kamar && <span>KT: {property.kamar}</span>}
+          {property.stok > 0 && <span>Stok: {property.stok}</span>}
+        </div>
+
+        <div className="flex gap-2 pt-2">
+          <Button variant="outline" size="sm" className="flex-1" onClick={() => onEdit(property)}>
+            <Pencil className="h-3.5 w-3.5 mr-1" />
+            Edit
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+            onClick={() => onDelete(property.id)}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

@@ -1,4 +1,4 @@
-import { Home, Users, MessageSquare, Building2, LogOut } from "lucide-react";
+import { Home, Users, MessageSquare, Building2, Bot, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 const menuItems = [
   { title: "Dashboard", url: "/", icon: Home },
   { title: "Leads", url: "/leads", icon: MessageSquare },
-  { title: "Kontak", url: "/contacts", icon: Users },
+  { title: "AI Manager", url: "/ai-manager", icon: Bot },
   { title: "Properti", url: "/properties", icon: Building2 },
 ];
 
