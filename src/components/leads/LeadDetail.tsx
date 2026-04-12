@@ -38,6 +38,7 @@ interface LeadDetailProps {
   messages: ChatMessage[];
   tenantId: number | null;
   onBack: () => void;
+  onModeChange?: (contactId: number, newMode: string) => void;
   isMobile?: boolean;
 }
 
@@ -65,7 +66,7 @@ function formatCurrency(value: number | null) {
   return new Intl.NumberFormat("id-ID").format(value);
 }
 
-export function LeadDetail({ contact, messages, tenantId, onBack, isMobile }: LeadDetailProps) {
+export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, isMobile }: LeadDetailProps) {
   const [dripLogs, setDripLogs] = useState<DripLog[]>([]);
   const [humanMode, setHumanMode] = useState(contact.mode === "human_mode");
 
@@ -77,6 +78,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, isMobile }: Le
     const newMode = humanMode ? "ai_mode" : "human_mode";
     await supabase.from("contacts").update({ mode: newMode }).eq("id", contact.id);
     setHumanMode(!humanMode);
+    onModeChange?.(contact.id, newMode);
   };
 
   const fetchDripLogs = useCallback(async () => {
