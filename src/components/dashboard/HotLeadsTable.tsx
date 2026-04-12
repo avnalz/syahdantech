@@ -1,4 +1,5 @@
 import { MessageSquare } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -17,6 +18,7 @@ interface HotLeadsTableProps {
 }
 
 export function HotLeadsTable({ leads }: HotLeadsTableProps) {
+  const navigate = useNavigate();
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleString("id-ID", {
       day: "2-digit",
@@ -69,7 +71,7 @@ export function HotLeadsTable({ leads }: HotLeadsTableProps) {
                     {formatDate(lead.last_chat_at)}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" onClick={() => navigate("/leads")}>
                       <MessageSquare className="h-3.5 w-3.5 mr-1" />
                       Balas
                     </Button>
