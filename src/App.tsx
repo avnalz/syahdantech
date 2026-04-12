@@ -9,6 +9,8 @@ import { AppLayout } from "@/components/AppLayout";
 import Login from "./pages/Login";
 import Index from "./pages/Index";
 import Leads from "./pages/Leads";
+import AiManager from "./pages/AiManager";
+import Properties from "./pages/Properties";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +40,26 @@ const App = () => (
                   <ProtectedRoute>
                     <AppLayout>
                       <Leads />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ai-manager"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <AiManager />
+                    </AppLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/properties"
+                element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Properties />
                     </AppLayout>
                   </ProtectedRoute>
                 }
