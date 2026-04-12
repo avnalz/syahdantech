@@ -3,8 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks } from "lucide-react";
+import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks, ArrowLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { LeadChat } from "./LeadChat";
 import type { Contact, ChatMessage } from "@/pages/Leads";
@@ -66,6 +67,17 @@ function formatCurrency(value: number | null) {
 
 export function LeadDetail({ contact, messages, tenantId, onBack, isMobile }: LeadDetailProps) {
   const [dripLogs, setDripLogs] = useState<DripLog[]>([]);
+  const [humanMode, setHumanMode] = useState(contact.mode === "human_mode");
+
+  useEffect(() => {
+    setHumanMode(contact.mode === "human_mode");
+  }, [contact]);
+
+  const toggleHumanMode = async () => {
+    const newMode = humanMode ? "ai_mode" : "human_mode";
+    await supabase.from("contacts").update({ mode: newMode }).eq("id", contact.id);
+    setHumanMode(!humanMode);
+  };
 
   const fetchDripLogs = useCallback(async () => {
     if (!tenantId) return;
@@ -85,37 +97,42 @@ export function LeadDetail({ contact, messages, tenantId, onBack, isMobile }: Le
   return (
     <div className={`flex flex-col ${isMobile ? "h-screen" : "h-full"} bg-background`}>
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
-        <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center text-primary shrink-0">
-          <User className="h-4 w-4" />
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-border bg-card">
+        {isMobile && (
+          <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
+        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-semibold text-sm shrink-0">
+          {(contact.name || contact.phone_number).charAt(0).toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-sm truncate">{contact.name || contact.phone_number}</span>
-            <Badge className={`text-[10px] px-1.5 py-0 ${labelColors[contact.lead_label] || "bg-muted text-muted-foreground"}`}>
-              {contact.lead_label?.toUpperCase()}
-            </Badge>
-          </div>
-          <p className="text-xs text-muted-foreground truncate">
-            {contact.phone_number}
-          </p>
+          <span className="font-semibold text-base truncate block">{contact.name || contact.phone_number}</span>
+          <p className="text-xs text-muted-foreground">{contact.phone_number}</p>
         </div>
+        <Badge variant="outline" className="text-xs px-3 py-1 rounded-full shrink-0">
+          {contact.lead_label ? contact.lead_label.charAt(0).toUpperCase() + contact.lead_label.slice(1) : "N/A"}
+        </Badge>
+        <button
+          onClick={toggleHumanMode}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-xs font-medium hover:bg-accent transition-colors shrink-0"
+        >
+          <ArrowLeftRight className="h-3.5 w-3.5" />
+          {humanMode ? "Human Mode" : "AI Mode"}
+        </button>
       </div>
 
       {/* Tabs */}
       <Tabs defaultValue="detail" className="flex-1 flex flex-col overflow-hidden">
-        <TabsList className="w-full justify-start rounded-none border-b border-border bg-card px-4 h-auto py-0">
-          <TabsTrigger value="percakapan" className="gap-1.5 text-xs data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none py-2.5">
+        <TabsList className="w-full grid grid-cols-3 rounded-none border-b border-border bg-muted/30 h-auto p-1 mx-0">
+          <TabsTrigger value="percakapan" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2">
             <MessageSquare className="h-3.5 w-3.5" /> Percakapan
           </TabsTrigger>
-          <TabsTrigger value="detail" className="gap-1.5 text-xs data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none py-2.5">
+          <TabsTrigger value="detail" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2">
             <UserCircle className="h-3.5 w-3.5" /> Detail
           </TabsTrigger>
-          <TabsTrigger value="drip" className="gap-1.5 text-xs data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none py-2.5">
-            <ListChecks className="h-3.5 w-3.5" /> Drip Log
+          <TabsTrigger value="drip" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2">
+            <ListChecks className="h-3.5 w-3.5" /> Drip
           </TabsTrigger>
         </TabsList>
 
