@@ -71,6 +71,7 @@ export type Database = {
           ai_summary: string
           assigned_to: number | null
           budget: number | null
+          chat_id: string | null
           created_at: string
           id: number
           last_chat_at: string
@@ -91,6 +92,7 @@ export type Database = {
           ai_summary?: string
           assigned_to?: number | null
           budget?: number | null
+          chat_id?: string | null
           created_at?: string
           id?: number
           last_chat_at?: string
@@ -111,6 +113,7 @@ export type Database = {
           ai_summary?: string
           assigned_to?: number | null
           budget?: number | null
+          chat_id?: string | null
           created_at?: string
           id?: number
           last_chat_at?: string

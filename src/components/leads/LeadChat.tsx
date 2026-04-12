@@ -51,10 +51,11 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile, hideHe
     setSending(true);
 
     const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
+    console.log('Sending to webhook:', { url: webhookUrl, phone_number: contact.phone_number, message: input.trim() });
 
     try {
       if (webhookUrl) {
-        await fetch(webhookUrl, {
+        const res = await fetch(webhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -63,6 +64,12 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile, hideHe
             session: "web-admin",
           }),
         });
+        try {
+          const resData = await res.json();
+          console.log('Webhook response:', resData);
+        } catch {
+          console.log('Webhook response status:', res.status, res.statusText);
+        }
       }
 
       await supabase.from("chat_logs").insert({
