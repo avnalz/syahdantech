@@ -53,7 +53,7 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile }: Lead
 
     try {
       if (webhookUrl) {
-        await fetch(`${webhookUrl}/webhook/reply-chat`, {
+        await fetch(webhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
