@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, User, MessageSquare, UserCircle, Home, ListChecks } from "lucide-react";
+import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { LeadChat } from "./LeadChat";
