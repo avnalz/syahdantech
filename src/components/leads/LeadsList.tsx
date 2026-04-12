@@ -133,6 +133,16 @@ export function LeadsList({
                     >
                       {contact.lead_label}
                     </Badge>
+                    <Badge
+                      variant="outline"
+                      className={`text-[10px] px-1.5 py-0 ${
+                        contact.mode === "human_mode"
+                          ? "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/30"
+                          : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                      }`}
+                    >
+                      {contact.mode === "human_mode" ? "Human" : "AI"}
+                    </Badge>
                     <span className="text-xs text-muted-foreground font-medium">
                       {contact.lead_score}
                     </span>
