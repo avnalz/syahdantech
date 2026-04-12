@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { LeadsList } from "@/components/leads/LeadsList";
-import { LeadChat } from "@/components/leads/LeadChat";
+import { LeadDetail } from "@/components/leads/LeadDetail";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface Contact {
@@ -11,10 +11,18 @@ export interface Contact {
   phone_number: string;
   lead_label: string;
   lead_score: number;
+  lead_score_signals: string;
   mode: string;
   last_chat_at: string;
   ai_summary: string;
   tenant_id: number;
+  pipeline_stage: string;
+  sentimen: string;
+  budget: number | null;
+  timeline: string | null;
+  properti_diminati: string[] | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ChatMessage {
@@ -42,7 +50,7 @@ export default function Leads() {
     if (!tenantId) return;
     const { data } = await supabase
       .from("contacts")
-      .select("id, name, phone_number, lead_label, lead_score, mode, last_chat_at, ai_summary, tenant_id")
+      .select("*")
       .eq("tenant_id", tenantId)
       .order("last_chat_at", { ascending: false });
     if (data) setContacts(data);
@@ -122,7 +130,7 @@ export default function Leads() {
   // Mobile: show chat if contact selected
   if (isMobile && selectedContact) {
     return (
-      <LeadChat
+      <LeadDetail
         contact={selectedContact}
         messages={messages}
         tenantId={tenantId}
@@ -153,7 +161,7 @@ export default function Leads() {
       {!isMobile && (
         <div className="flex-1 flex flex-col">
           {selectedContact ? (
-            <LeadChat
+            <LeadDetail
               contact={selectedContact}
               messages={messages}
               tenantId={tenantId}
