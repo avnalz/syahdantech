@@ -18,8 +18,8 @@ import { Button } from "@/components/ui/button";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: Home },
+  { title: "Leads", url: "/leads", icon: MessageSquare },
   { title: "Kontak", url: "/contacts", icon: Users },
-  { title: "Chat", url: "/chat", icon: MessageSquare },
   { title: "Properti", url: "/properties", icon: Building2 },
 ];
 
