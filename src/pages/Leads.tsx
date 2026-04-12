@@ -50,7 +50,7 @@ export default function Leads() {
     if (!tenantId) return;
     const { data } = await supabase
       .from("contacts")
-      .select("id, name, phone_number, lead_label, lead_score, mode, last_chat_at, ai_summary, tenant_id")
+      .select("*")
       .eq("tenant_id", tenantId)
       .order("last_chat_at", { ascending: false });
     if (data) setContacts(data);
@@ -130,7 +130,7 @@ export default function Leads() {
   // Mobile: show chat if contact selected
   if (isMobile && selectedContact) {
     return (
-      <LeadChat
+      <LeadDetail
         contact={selectedContact}
         messages={messages}
         tenantId={tenantId}
@@ -161,7 +161,7 @@ export default function Leads() {
       {!isMobile && (
         <div className="flex-1 flex flex-col">
           {selectedContact ? (
-            <LeadChat
+            <LeadDetail
               contact={selectedContact}
               messages={messages}
               tenantId={tenantId}
