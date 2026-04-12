@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, User, MessageSquare, UserCircle, Home, ListChecks } from "lucide-react";
+import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { LeadChat } from "./LeadChat";
@@ -114,9 +114,6 @@ export function LeadDetail({ contact, messages, tenantId, onBack, isMobile }: Le
           <TabsTrigger value="detail" className="gap-1.5 text-xs data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none py-2.5">
             <UserCircle className="h-3.5 w-3.5" /> Detail
           </TabsTrigger>
-          <TabsTrigger value="properti" className="gap-1.5 text-xs data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none py-2.5">
-            <Home className="h-3.5 w-3.5" /> Properti
-          </TabsTrigger>
           <TabsTrigger value="drip" className="gap-1.5 text-xs data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none py-2.5">
             <ListChecks className="h-3.5 w-3.5" /> Drip Log
           </TabsTrigger>
@@ -205,26 +202,6 @@ export function LeadDetail({ contact, messages, tenantId, onBack, isMobile }: Le
           </ScrollArea>
         </TabsContent>
 
-        {/* Properti Tab */}
-        <TabsContent value="properti" className="flex-1 mt-0 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-4 max-w-3xl">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Properti Diminati</h3>
-              {contact.properti_diminati && contact.properti_diminati.length > 0 ? (
-                <div className="space-y-2">
-                  {contact.properti_diminati.map((prop, i) => (
-                    <div key={i} className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                      <Home className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{prop}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">Belum ada properti diminati.</p>
-              )}
-            </div>
-          </ScrollArea>
-        </TabsContent>
 
         {/* Drip Log Tab */}
         <TabsContent value="drip" className="flex-1 mt-0 overflow-hidden">
