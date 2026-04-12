@@ -64,11 +64,7 @@ export default function AiManager() {
         ]);
       }
     } catch {
-      toast({
-        title: "Gagal menghubungi AI",
-        description: "Pastikan webhook URL sudah dikonfigurasi.",
-        variant: "destructive",
-      });
+      toast.error("Gagal menghubungi AI. Pastikan webhook URL sudah dikonfigurasi.");
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: "⚠️ Gagal menghubungi server AI. Silakan coba lagi." },
