@@ -6,12 +6,19 @@ import type { Tables } from "@/integrations/supabase/types";
 type Contact = Tables<"contacts">;
 
 export function useDashboardData() {
-  const { tenantId } = useAuth();
+  const { tenantId, loading: authLoading } = useAuth();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchContacts = useCallback(async () => {
-    if (!tenantId) return;
+    if (!tenantId) {
+      setContacts([]);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+
     const { data, error } = await supabase
       .from("contacts")
       .select("*")
@@ -19,20 +26,24 @@ export function useDashboardData() {
 
     if (!error && data) {
       setContacts(data);
+    } else {
+      setContacts([]);
     }
+
     setLoading(false);
   }, [tenantId]);
 
   useEffect(() => {
-    fetchContacts();
-  }, [fetchContacts]);
+    if (authLoading) return;
+    void fetchContacts();
+  }, [authLoading, fetchContacts]);
 
   // Realtime subscription
   useEffect(() => {
     if (!tenantId) return;
 
     const channel = supabase
-      .channel("contacts-realtime")
+      .channel(`contacts-realtime-${tenantId}`)
       .on(
         "postgres_changes",
         {
@@ -42,13 +53,13 @@ export function useDashboardData() {
           filter: `tenant_id=eq.${tenantId}`,
         },
         () => {
-          fetchContacts();
+          void fetchContacts();
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      void supabase.removeChannel(channel);
     };
   }, [tenantId, fetchContacts]);
 
