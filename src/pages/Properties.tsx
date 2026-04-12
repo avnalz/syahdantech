@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { PropertyFormDialog } from "@/components/properties/PropertyFormDialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type Property = Tables<"properties">;
@@ -17,6 +18,8 @@ export default function Properties() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
+  const [filterArea, setFilterArea] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
 
   const fetchProperties = useCallback(async () => {
     if (!tenantId) return;
@@ -29,9 +32,7 @@ export default function Properties() {
     setLoading(false);
   }, [tenantId]);
 
-  useEffect(() => {
-    fetchProperties();
-  }, [fetchProperties]);
+  useEffect(() => { fetchProperties(); }, [fetchProperties]);
 
   const handleDelete = async (id: number) => {
     const { error } = await supabase.from("properties").delete().eq("id", id);
@@ -59,6 +60,16 @@ export default function Properties() {
     fetchProperties();
   };
 
+  // Get unique areas
+  const areas = [...new Set(properties.map((p) => p.area).filter(Boolean))] as string[];
+
+  // Filter
+  const filtered = properties.filter((p) => {
+    if (filterArea !== "all" && p.area !== filterArea) return false;
+    if (filterStatus !== "all" && p.status !== filterStatus) return false;
+    return true;
+  });
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -82,8 +93,8 @@ export default function Properties() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Properti</h1>
-          <p className="text-muted-foreground text-sm">Kelola daftar properti Anda</p>
+          <h1 className="text-2xl font-bold">Properties</h1>
+          <p className="text-muted-foreground text-sm">Kelola listing properti Anda</p>
         </div>
         <Button onClick={handleAdd}>
           <Plus className="h-4 w-4 mr-2" />
@@ -91,7 +102,34 @@ export default function Properties() {
         </Button>
       </div>
 
-      {properties.length === 0 ? (
+      {/* Filters */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <Select value={filterArea} onValueChange={setFilterArea}>
+          <SelectTrigger>
+            <SelectValue placeholder="Semua Area" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Semua Area</SelectItem>
+            {areas.map((a) => (
+              <SelectItem key={a} value={a}>{a}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger>
+            <SelectValue placeholder="Semua Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Semua Status</SelectItem>
+            <SelectItem value="available">Tersedia</SelectItem>
+            <SelectItem value="sold">Terjual</SelectItem>
+            <SelectItem value="reserved">Reserved</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
           <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
             <Building2 className="h-8 w-8" />
@@ -101,7 +139,7 @@ export default function Properties() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {properties.map((property) => (
+          {filtered.map((property) => (
             <PropertyCard
               key={property.id}
               property={property}

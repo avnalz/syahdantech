@@ -1,20 +1,27 @@
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { LeadLabelChart } from "@/components/dashboard/LeadLabelChart";
-import { LeadScoreChart } from "@/components/dashboard/LeadScoreChart";
+import { LeadLabelSummary } from "@/components/dashboard/LeadLabelSummary";
 import { HotLeadsTable } from "@/components/dashboard/HotLeadsTable";
+import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { Skeleton } from "@/components/ui/skeleton";
-import { BarChart3, Users } from "lucide-react";
+import { Users } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Index() {
+  const { tenantId } = useAuth();
   const {
     loading,
     totalLeads,
     leadsToday,
     hotLeadsUnreplied,
     labelDistribution,
-    avgScorePerDay,
     hotLeads,
+    hotCount,
+    warmCount,
+    coldCount,
+    convertedCount,
+    totalWeek,
   } = useDashboardData();
 
   if (loading) {
@@ -24,15 +31,12 @@ export default function Index() {
           <Skeleton className="h-8 w-40" />
           <Skeleton className="h-4 w-56 mt-2" />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 3 }).map((_, i) => (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-28 rounded-lg" />
           ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <Skeleton className="h-64 rounded-lg" />
-          <Skeleton className="h-64 rounded-lg" />
-        </div>
+        <Skeleton className="h-64 rounded-lg" />
         <Skeleton className="h-48 rounded-lg" />
       </div>
     );
@@ -43,9 +47,9 @@ export default function Index() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground text-sm">Ringkasan aktivitas lead Anda</p>
+          <p className="text-muted-foreground text-sm">Overview real-time bisnis properti Anda</p>
         </div>
-        <DashboardStats totalLeads={0} leadsToday={0} hotLeadsUnreplied={0} />
+        <DashboardStats totalLeads={0} leadsToday={0} hotLeadsUnreplied={0} convertedCount={0} />
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
           <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
             <Users className="h-8 w-8" />
@@ -61,21 +65,23 @@ export default function Index() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground text-sm">Ringkasan aktivitas lead Anda</p>
+        <p className="text-muted-foreground text-sm">Overview real-time bisnis properti Anda</p>
       </div>
 
       <DashboardStats
         totalLeads={totalLeads}
         leadsToday={leadsToday}
         hotLeadsUnreplied={hotLeadsUnreplied}
+        convertedCount={convertedCount}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <LeadLabelChart data={labelDistribution} />
-        <LeadScoreChart data={avgScorePerDay} />
-      </div>
+      <LeadLabelChart data={labelDistribution} totalWeek={totalWeek} />
+
+      <LeadLabelSummary hot={hotCount} warm={warmCount} cold={coldCount} />
 
       <HotLeadsTable leads={hotLeads} />
+
+      <RecentActivity tenantId={tenantId} />
     </div>
   );
 }

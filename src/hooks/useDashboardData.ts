@@ -18,7 +18,6 @@ export function useDashboardData() {
     }
 
     setLoading(true);
-
     const { data, error } = await supabase
       .from("contacts")
       .select("*")
@@ -29,7 +28,6 @@ export function useDashboardData() {
     } else {
       setContacts([]);
     }
-
     setLoading(false);
   }, [tenantId]);
 
@@ -38,29 +36,15 @@ export function useDashboardData() {
     void fetchContacts();
   }, [authLoading, fetchContacts]);
 
-  // Realtime subscription
   useEffect(() => {
     if (!tenantId) return;
-
     const channel = supabase
       .channel(`contacts-realtime-${tenantId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "contacts",
-          filter: `tenant_id=eq.${tenantId}`,
-        },
-        () => {
-          void fetchContacts();
-        }
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "contacts", filter: `tenant_id=eq.${tenantId}` }, () => {
+        void fetchContacts();
+      })
       .subscribe();
-
-    return () => {
-      void supabase.removeChannel(channel);
-    };
+    return () => { void supabase.removeChannel(channel); };
   }, [tenantId, fetchContacts]);
 
   const today = new Date();
@@ -76,13 +60,14 @@ export function useDashboardData() {
 
   const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const hotLeadsUnreplied = contacts.filter(
-    (c) =>
-      c.lead_label === "hot" &&
-      c.mode !== "human" &&
-      new Date(c.last_chat_at) < twentyFourHoursAgo
+    (c) => c.lead_label === "hot" && c.mode !== "human" && new Date(c.last_chat_at) < twentyFourHoursAgo
   ).length;
 
-  // Chart data: lead label distribution last 7 days
+  const hotCount = contacts.filter((c) => c.lead_label === "hot").length;
+  const warmCount = contacts.filter((c) => c.lead_label === "warm").length;
+  const coldCount = contacts.filter((c) => c.lead_label === "cold").length;
+  const convertedCount = contacts.filter((c) => c.pipeline_stage === "converted").length;
+
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
@@ -90,8 +75,10 @@ export function useDashboardData() {
     return d;
   });
 
+  const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+
   const labelDistribution = last7Days.map((day) => {
-    const dayStr = day.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
+    const dayStr = dayNames[day.getDay()];
     const dayContacts = contacts.filter((c) => {
       const cd = new Date(c.last_chat_at);
       cd.setHours(0, 0, 0, 0);
@@ -105,22 +92,21 @@ export function useDashboardData() {
     };
   });
 
-  // Chart data: average lead score per day last 7 days
+  const totalWeek = labelDistribution.reduce((sum, d) => sum + d.cold + d.warm + d.hot, 0);
+
   const avgScorePerDay = last7Days.map((day) => {
-    const dayStr = day.toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
+    const dayStr = dayNames[day.getDay()];
     const dayContacts = contacts.filter((c) => {
       const cd = new Date(c.last_chat_at);
       cd.setHours(0, 0, 0, 0);
       return cd.getTime() === day.getTime();
     });
-    const avg =
-      dayContacts.length > 0
-        ? Math.round(dayContacts.reduce((sum, c) => sum + c.lead_score, 0) / dayContacts.length)
-        : 0;
+    const avg = dayContacts.length > 0
+      ? Math.round(dayContacts.reduce((sum, c) => sum + c.lead_score, 0) / dayContacts.length)
+      : 0;
     return { date: dayStr, score: avg };
   });
 
-  // Hot leads for table
   const hotLeads = contacts
     .filter((c) => c.lead_label === "hot")
     .sort((a, b) => new Date(b.last_chat_at).getTime() - new Date(a.last_chat_at).getTime())
@@ -134,5 +120,10 @@ export function useDashboardData() {
     labelDistribution,
     avgScorePerDay,
     hotLeads,
+    hotCount,
+    warmCount,
+    coldCount,
+    convertedCount,
+    totalWeek,
   };
 }
