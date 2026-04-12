@@ -51,7 +51,7 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile, hideHe
     setSending(true);
 
     const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
-    console.log('Sending to webhook:', { url: webhookUrl, phone_number: contact.phone_number, chat_id: contact.chat_id, message: input.trim() });
+    console.log('Sending to webhook:', { url: webhookUrl, phone_number: contact.phone_number, message: input.trim() });
 
     try {
       if (webhookUrl) {
