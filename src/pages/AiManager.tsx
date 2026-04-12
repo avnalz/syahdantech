@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, Send, User } from "lucide-react";
+import { Bot, Send, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,14 +13,16 @@ interface ChatMessage {
 }
 
 const QUICK_PROMPTS = [
-  "Berapa total hot lead hari ini?",
-  "Lead mana yang belum dibalas lebih dari 24 jam?",
-  "Ringkasan performa bisnis minggu ini",
+  "Siapa leads HOT hari ini?",
+  "Berapa total inquiry minggu ini?",
+  "Siapa yang belum difollow up 3 hari?",
+  "Properti mana yang paling diminati?",
+  "Leads mana yang hampir converted?",
+  "Ringkasan performa hari ini",
 ];
 
 export default function AiManager() {
   const { tenantId } = useAuth();
-  
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,7 +36,6 @@ export default function AiManager() {
 
   const sendMessage = async (question: string) => {
     if (!question.trim() || !tenantId) return;
-
     const userMsg: ChatMessage = { role: "user", content: question.trim() };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
@@ -43,9 +44,7 @@ export default function AiManager() {
     const webhookUrl = import.meta.env.VITE_N8N_AI_MANAGER_URL;
 
     try {
-      if (!webhookUrl) {
-        throw new Error("VITE_N8N_AI_MANAGER_URL belum dikonfigurasi");
-      }
+      if (!webhookUrl) throw new Error("VITE_N8N_AI_MANAGER_URL belum dikonfigurasi");
 
       const res = await fetch(webhookUrl, {
         method: "POST",
@@ -84,26 +83,39 @@ export default function AiManager() {
   return (
     <div className="flex flex-col h-[calc(100vh-3.5rem)]">
       {/* Header */}
-      <div className="border-b border-border px-6 py-4 bg-card">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-primary/15 flex items-center justify-center">
-            <Bot className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold">AI Manager</h1>
-            <p className="text-sm text-muted-foreground">Tanya apapun tentang bisnis properti kamu</p>
-          </div>
-        </div>
+      <div className="px-6 py-4">
+        <p className="text-xs text-muted-foreground flex items-center gap-1">
+          Tanya apa saja 💬
+        </p>
+        <h1 className="text-2xl font-bold">AI Manager</h1>
       </div>
 
       {/* Chat Area */}
       <ScrollArea className="flex-1 px-4 py-6" ref={scrollRef}>
         <div className="max-w-3xl mx-auto space-y-4">
           {messages.length === 0 && !loading && (
-            <div className="text-center py-16 text-muted-foreground">
-              <Bot className="h-12 w-12 mx-auto mb-4 text-primary/40" />
-              <p className="text-lg font-medium">Halo! Saya AI Manager Anda</p>
-              <p className="text-sm mt-1">Tanyakan tentang lead, performa, atau strategi bisnis Anda</p>
+            <div className="text-center py-20">
+              <div className="h-14 w-14 mx-auto mb-5 rounded-2xl bg-muted flex items-center justify-center">
+                <Sparkles className="h-7 w-7 text-muted-foreground" />
+              </div>
+              <p className="text-lg font-bold">Halo! 👋</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Saya AI Manager. Tanya saya tentang leads, properti, atau performa penjualan Anda.
+              </p>
+
+              {/* Quick Prompts */}
+              <div className="flex flex-wrap justify-center gap-2 mt-6 max-w-lg mx-auto">
+                {QUICK_PROMPTS.map((prompt) => (
+                  <button
+                    key={prompt}
+                    onClick={() => sendMessage(prompt)}
+                    disabled={loading}
+                    className="text-xs px-3.5 py-2 rounded-full border border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-50"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -129,11 +141,6 @@ export default function AiManager() {
                   <p className="whitespace-pre-wrap">{msg.content}</p>
                 )}
               </div>
-              {msg.role === "user" && (
-                <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0 mt-1">
-                  <User className="h-4 w-4" />
-                </div>
-              )}
             </div>
           ))}
 
@@ -154,42 +161,26 @@ export default function AiManager() {
         </div>
       </ScrollArea>
 
-      {/* Quick Prompts + Input */}
+      {/* Input */}
       <div className="border-t border-border bg-card p-4">
-        <div className="max-w-3xl mx-auto">
-          {messages.length === 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {QUICK_PROMPTS.map((prompt) => (
-                <button
-                  key={prompt}
-                  onClick={() => sendMessage(prompt)}
-                  disabled={loading}
-                  className="text-xs px-3 py-1.5 rounded-full border border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-50"
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="flex gap-2">
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ketik pertanyaan..."
-              className="min-h-[44px] max-h-[120px] resize-none"
-              rows={1}
-              disabled={loading}
-            />
-            <Button
-              onClick={() => sendMessage(input)}
-              disabled={!input.trim() || loading}
-              size="icon"
-              className="shrink-0 self-end"
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
+        <div className="max-w-3xl mx-auto flex gap-2">
+          <Textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Tanya tentang leads, properti, performa..."
+            className="min-h-[44px] max-h-[120px] resize-none"
+            rows={1}
+            disabled={loading}
+          />
+          <Button
+            onClick={() => sendMessage(input)}
+            disabled={!input.trim() || loading}
+            size="icon"
+            className="shrink-0 self-end"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>

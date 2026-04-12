@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, Building2, Mail, Lock, Bell, CreditCard } from "lucide-react";
+import { Loader2, Building2, Mail, Lock, Bell, CreditCard, Settings2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Settings() {
   const { user, tenantId, tenantUser } = useAuth();
@@ -18,18 +19,12 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Password
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
 
-  // Notification toggles (local state — no DB column yet)
-  const [notifHotLead, setNotifHotLead] = useState(() => {
-    return localStorage.getItem("notif_hot_lead") !== "false";
-  });
-  const [notifUnreplied, setNotifUnreplied] = useState(() => {
-    return localStorage.getItem("notif_unreplied") !== "false";
-  });
+  const [notifHotLead, setNotifHotLead] = useState(() => localStorage.getItem("notif_hot_lead") !== "false");
+  const [notifUnreplied, setNotifUnreplied] = useState(() => localStorage.getItem("notif_unreplied") !== "false");
 
   useEffect(() => {
     const fetchTenant = async () => {
@@ -53,35 +48,19 @@ export default function Settings() {
   const handleSaveTenantName = async () => {
     if (!tenantId || !tenantName.trim()) return;
     setSaving(true);
-    const { error } = await supabase
-      .from("tenants")
-      .update({ name: tenantName.trim() })
-      .eq("id", tenantId);
-    if (error) {
-      toast.error("Gagal menyimpan nama");
-    } else {
-      toast.success("Pengaturan disimpan");
-    }
+    const { error } = await supabase.from("tenants").update({ name: tenantName.trim() }).eq("id", tenantId);
+    if (error) { toast.error("Gagal menyimpan nama"); } else { toast.success("Pengaturan disimpan"); }
     setSaving(false);
   };
 
   const handleChangePassword = async () => {
-    if (newPassword.length < 6) {
-      toast.error("Password minimal 6 karakter");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      toast.error("Password tidak cocok");
-      return;
-    }
+    if (newPassword.length < 6) { toast.error("Password minimal 6 karakter"); return; }
+    if (newPassword !== confirmPassword) { toast.error("Password tidak cocok"); return; }
     setChangingPassword(true);
     const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) {
-      toast.error("Gagal mengganti password");
-    } else {
+    if (error) { toast.error("Gagal mengganti password"); } else {
       toast.success("Password berhasil diubah");
-      setNewPassword("");
-      setConfirmPassword("");
+      setNewPassword(""); setConfirmPassword("");
     }
     setChangingPassword(false);
   };
@@ -95,7 +74,7 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-2xl mx-auto">
+      <div className="space-y-6 max-w-3xl mx-auto">
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-4 w-64" />
         <div className="space-y-4">
@@ -108,140 +87,128 @@ export default function Settings() {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold">Pengaturan</h1>
-        <p className="text-muted-foreground text-sm">Kelola profil dan preferensi Anda</p>
+    <div className="max-w-3xl mx-auto">
+      <div className="mb-6">
+        <p className="text-xs text-muted-foreground flex items-center gap-1">
+          Konfigurasi & preferensi <Settings2 className="h-3 w-3" />
+        </p>
+        <h1 className="text-2xl font-bold">Settings</h1>
       </div>
 
-      {/* Profil Bisnis */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Building2 className="h-5 w-5 text-primary" />
-            Profil Bisnis
-          </CardTitle>
-          <CardDescription>Informasi dasar tentang bisnis Anda</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="tenantName">Nama Agency / Developer</Label>
-            <div className="flex gap-2">
-              <Input
-                id="tenantName"
-                value={tenantName}
-                onChange={(e) => setTenantName(e.target.value)}
-                placeholder="Nama bisnis Anda"
-              />
-              <Button onClick={handleSaveTenantName} disabled={saving}>
-                {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                Simpan
-              </Button>
-            </div>
-          </div>
+      <Tabs defaultValue="profil" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="profil">Profil</TabsTrigger>
+          <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
+          <TabsTrigger value="tentang">Tentang</TabsTrigger>
+        </TabsList>
 
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-muted-foreground" />
-              Email Admin
-            </Label>
-            <Input value={user?.email || ""} disabled className="bg-muted" />
-          </div>
+        {/* Profil Tab */}
+        <TabsContent value="profil" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Building2 className="h-5 w-5 text-primary" />
+                Profil Bisnis
+              </CardTitle>
+              <CardDescription>Informasi dasar tentang bisnis Anda</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="tenantName">Nama Agency / Developer</Label>
+                <div className="flex gap-2">
+                  <Input id="tenantName" value={tenantName} onChange={(e) => setTenantName(e.target.value)} placeholder="Nama bisnis Anda" />
+                  <Button onClick={handleSaveTenantName} disabled={saving}>
+                    {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                    Simpan
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  Email Admin
+                </Label>
+                <Input value={user?.email || ""} disabled className="bg-muted" />
+              </div>
+              <Separator />
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Lock className="h-4 w-4 text-muted-foreground" />
+                  Ganti Password
+                </Label>
+                <Input type="password" placeholder="Password baru" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                <Input type="password" placeholder="Konfirmasi password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                <Button variant="outline" onClick={handleChangePassword} disabled={changingPassword || !newPassword}>
+                  {changingPassword && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  Ubah Password
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-          <Separator />
-
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Lock className="h-4 w-4 text-muted-foreground" />
-              Ganti Password
-            </Label>
-            <Input
-              type="password"
-              placeholder="Password baru"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-            <Input
-              type="password"
-              placeholder="Konfirmasi password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-            <Button
-              variant="outline"
-              onClick={handleChangePassword}
-              disabled={changingPassword || !newPassword}
-            >
-              {changingPassword && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Ubah Password
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Notifikasi */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Bell className="h-5 w-5 text-primary" />
-            Notifikasi
-          </CardTitle>
-          <CardDescription>Atur notifikasi yang ingin Anda terima</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">Notifikasi Hot Lead</p>
-              <p className="text-xs text-muted-foreground">Ketika label lead berubah menjadi "hot"</p>
-            </div>
-            <Switch
-              checked={notifHotLead}
-              onCheckedChange={(v) => handleToggleNotif("notif_hot_lead", v)}
-            />
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">Lead Belum Dibalas 24 Jam</p>
-              <p className="text-xs text-muted-foreground">Notifikasi jika ada lead yang belum direspons</p>
-            </div>
-            <Switch
-              checked={notifUnreplied}
-              onCheckedChange={(v) => handleToggleNotif("notif_unreplied", v)}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Informasi Paket */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <CreditCard className="h-5 w-5 text-primary" />
-            Informasi Paket
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Paket Saat Ini</span>
-            <span className="text-sm font-semibold text-primary">Pro Plan</span>
-          </div>
-          <Separator />
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Tanggal Bergabung</span>
-            <span className="text-sm font-medium">{joinDate || "—"}</span>
-          </div>
-          {tenantUser && (
-            <>
+        {/* Notifikasi Tab */}
+        <TabsContent value="notifikasi">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Bell className="h-5 w-5 text-primary" />
+                Notifikasi
+              </CardTitle>
+              <CardDescription>Atur notifikasi yang ingin Anda terima</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">Notifikasi Hot Lead</p>
+                  <p className="text-xs text-muted-foreground">Ketika label lead berubah menjadi "hot"</p>
+                </div>
+                <Switch checked={notifHotLead} onCheckedChange={(v) => handleToggleNotif("notif_hot_lead", v)} />
+              </div>
               <Separator />
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Role</span>
-                <span className="text-sm font-medium capitalize">{tenantUser.role}</span>
+                <div>
+                  <p className="text-sm font-medium">Lead Belum Dibalas 24 Jam</p>
+                  <p className="text-xs text-muted-foreground">Notifikasi jika ada lead yang belum direspons</p>
+                </div>
+                <Switch checked={notifUnreplied} onCheckedChange={(v) => handleToggleNotif("notif_unreplied", v)} />
               </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tentang Tab */}
+        <TabsContent value="tentang">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <CreditCard className="h-5 w-5 text-primary" />
+                Informasi Paket
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Paket Saat Ini</span>
+                <span className="text-sm font-semibold text-primary">Pro Plan</span>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Tanggal Bergabung</span>
+                <span className="text-sm font-medium">{joinDate || "—"}</span>
+              </div>
+              {tenantUser && (
+                <>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Role</span>
+                    <span className="text-sm font-medium capitalize">{tenantUser.role}</span>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { LayoutDashboard, MessageSquare, Building2, Bot, Settings, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHotLeadBadge } from "@/hooks/useHotLeadBadge";
 import {
@@ -17,44 +16,66 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 
-const menuItems = [
+const mainMenuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Leads & Inbox", url: "/leads", icon: MessageSquare, badge: true },
-  { title: "Properti", url: "/properties", icon: Building2 },
+  { title: "Leads", url: "/leads", icon: MessageSquare, badge: true },
+  { title: "Properties", url: "/properties", icon: Building2 },
   { title: "AI Manager", url: "/ai-manager", icon: Bot },
-  { title: "Pengaturan", url: "/settings", icon: Settings },
+];
+
+const settingsMenuItems = [
+  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const location = useLocation();
   const { signOut, tenantUser } = useAuth();
   const hotCount = useHotLeadBadge();
 
   return (
     <Sidebar collapsible="icon">
       <SidebarContent>
+        {/* Brand */}
+        <div className="px-4 py-5">
+          {!collapsed ? (
+            <div className="flex items-center gap-2.5">
+              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+                <Building2 className="h-4 w-4 text-primary-foreground" />
+              </div>
+              <div>
+                <span className="font-bold text-sm text-foreground">PropCRM</span>
+                {tenantUser && (
+                  <p className="text-[11px] text-muted-foreground leading-tight truncate max-w-[120px]">
+                    {tenantUser.name}
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-center">
+              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+                <Building2 className="h-4 w-4 text-primary-foreground" />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* MENU */}
         <SidebarGroup>
-          <SidebarGroupLabel>
-            {!collapsed && (
-              <span className="flex items-center gap-2 text-primary font-bold text-base">
-                <Building2 className="h-5 w-5" />
-                PropCRM
-              </span>
-            )}
-            {collapsed && <Building2 className="h-5 w-5 text-primary" />}
+          <SidebarGroupLabel className="text-[11px] font-semibold tracking-wider text-muted-foreground/70 uppercase px-4">
+            Menu
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {mainMenuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
                       end={item.url === "/"}
                       className="hover:bg-accent/50"
-                      activeClassName="bg-accent text-primary font-medium"
+                      activeClassName="bg-accent text-foreground font-medium"
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span className="flex-1">{item.title}</span>}
@@ -63,6 +84,31 @@ export function AppSidebar() {
                           {hotCount}
                         </span>
                       )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* PENGATURAN */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-[11px] font-semibold tracking-wider text-muted-foreground/70 uppercase px-4">
+            Pengaturan
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {settingsMenuItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink
+                      to={item.url}
+                      className="hover:bg-accent/50"
+                      activeClassName="bg-accent text-foreground font-medium"
+                    >
+                      <item.icon className="mr-2 h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

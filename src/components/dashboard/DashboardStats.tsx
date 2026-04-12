@@ -1,52 +1,59 @@
-import { Users, UserPlus, AlertTriangle, LucideIcon } from "lucide-react";
+import { Flame, Clock, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-
-interface StatCardProps {
-  title: string;
-  value: number;
-  icon: LucideIcon;
-  variant?: "default" | "warning";
-}
-
-function StatCard({ title, value, icon: Icon, variant = "default" }: StatCardProps) {
-  return (
-    <Card>
-      <CardContent className="flex items-center gap-4 p-6">
-        <div
-          className={`h-12 w-12 rounded-lg flex items-center justify-center shrink-0 ${
-            variant === "warning"
-              ? "bg-destructive/10 text-destructive"
-              : "bg-primary/10 text-primary"
-          }`}
-        >
-          <Icon className="h-6 w-6" />
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground">{title}</p>
-          <p className="text-3xl font-bold">{value}</p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 interface DashboardStatsProps {
   totalLeads: number;
   leadsToday: number;
   hotLeadsUnreplied: number;
+  convertedCount: number;
 }
 
-export function DashboardStats({ totalLeads, leadsToday, hotLeadsUnreplied }: DashboardStatsProps) {
+export function DashboardStats({ totalLeads, leadsToday, hotLeadsUnreplied, convertedCount }: DashboardStatsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <StatCard title="Total Lead" value={totalLeads} icon={Users} />
-      <StatCard title="Lead Hari Ini" value={leadsToday} icon={UserPlus} />
-      <StatCard
-        title="Hot Lead Belum Dibalas"
-        value={hotLeadsUnreplied}
-        icon={AlertTriangle}
-        variant="warning"
-      />
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Primary card */}
+      <Card className="bg-primary text-primary-foreground border-primary">
+        <CardContent className="p-5">
+          <div className="flex items-center gap-2 text-primary-foreground/80 text-xs font-medium mb-1">
+            <span>📊</span> Hari ini
+          </div>
+          <p className="text-3xl font-bold">{leadsToday}</p>
+          <p className="text-sm text-primary-foreground/70 mt-0.5">Leads baru</p>
+        </CardContent>
+      </Card>
+
+      {/* Hot */}
+      <Card>
+        <CardContent className="p-5">
+          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-1">
+            <Flame className="h-3.5 w-3.5 text-destructive" /> HOT
+          </div>
+          <p className="text-3xl font-bold">{hotLeadsUnreplied}</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Hot Leads</p>
+        </CardContent>
+      </Card>
+
+      {/* Follow-up */}
+      <Card>
+        <CardContent className="p-5">
+          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-1">
+            <Clock className="h-3.5 w-3.5 text-warning" /> Follow-up
+          </div>
+          <p className="text-3xl font-bold">{totalLeads - convertedCount}</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Perlu ditindak</p>
+        </CardContent>
+      </Card>
+
+      {/* Converted */}
+      <Card>
+        <CardContent className="p-5">
+          <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-1">
+            <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Bulan ini
+          </div>
+          <p className="text-3xl font-bold">{convertedCount}</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Converted</p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

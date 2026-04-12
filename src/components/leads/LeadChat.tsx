@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { Contact, ChatMessage } from "@/pages/Leads";
 
 const labelColors: Record<string, string> = {
-  hot: "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30",
-  warm: "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30",
-  cold: "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30",
+  hot: "bg-destructive/15 text-destructive border-destructive/30",
+  warm: "bg-warning/15 text-warning border-warning/30",
+  cold: "bg-info/15 text-info border-info/30",
 };
 
 interface LeadChatProps {
@@ -28,26 +28,20 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile }: Lead
   const [sending, setSending] = useState(false);
   const [humanMode, setHumanMode] = useState(contact.mode === "human_mode");
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
 
-  // Auto scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // Sync human mode when contact changes
   useEffect(() => {
     setHumanMode(contact.mode === "human_mode");
   }, [contact]);
 
   const toggleHumanMode = async () => {
     const newMode = humanMode ? "ai_mode" : "human_mode";
-    await supabase
-      .from("contacts")
-      .update({ mode: newMode })
-      .eq("id", contact.id);
+    await supabase.from("contacts").update({ mode: newMode }).eq("id", contact.id);
     setHumanMode(!humanMode);
   };
 
@@ -58,7 +52,6 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile }: Lead
     const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
 
     try {
-      // Send to n8n webhook
       if (webhookUrl) {
         await fetch(`${webhookUrl}/webhook/reply-chat`, {
           method: "POST",
@@ -71,7 +64,6 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile }: Lead
         });
       }
 
-      // Log to chat_logs
       await supabase.from("chat_logs").insert({
         phone_number: contact.phone_number,
         direction: "outbound_human",
@@ -81,12 +73,9 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile }: Lead
       });
 
       setInput("");
-    } catch (err) {
-      toast({
-        title: "Gagal mengirim pesan",
-        description: "Terjadi kesalahan saat mengirim pesan.",
-        variant: "destructive",
-      });
+      toast.success("Pesan berhasil dikirim");
+    } catch {
+      toast.error("Gagal mengirim pesan. Coba lagi.");
     } finally {
       setSending(false);
     }
@@ -171,12 +160,7 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile }: Lead
             className="min-h-[44px] max-h-[120px] resize-none"
             rows={1}
           />
-          <Button
-            onClick={sendMessage}
-            disabled={!input.trim() || sending}
-            size="icon"
-            className="shrink-0 self-end"
-          >
+          <Button onClick={sendMessage} disabled={!input.trim() || sending} size="icon" className="shrink-0 self-end">
             <Send className="h-4 w-4" />
           </Button>
         </div>
