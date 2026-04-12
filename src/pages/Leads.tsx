@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { LeadsList } from "@/components/leads/LeadsList";
-import { LeadChat } from "@/components/leads/LeadChat";
+import { LeadDetail } from "@/components/leads/LeadDetail";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface Contact {
@@ -11,10 +11,18 @@ export interface Contact {
   phone_number: string;
   lead_label: string;
   lead_score: number;
+  lead_score_signals: string;
   mode: string;
   last_chat_at: string;
   ai_summary: string;
   tenant_id: number;
+  pipeline_stage: string;
+  sentimen: string;
+  budget: number | null;
+  timeline: string | null;
+  properti_diminati: string[] | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ChatMessage {
