@@ -24,11 +24,7 @@ export default function Login() {
     const { error } = await signIn(email, password);
 
     if (error) {
-      toast({
-        variant: "destructive",
-        title: "Login gagal",
-        description: "Email atau password salah.",
-      });
+      toast.error("Login gagal. Email atau password salah.");
     } else {
       navigate("/");
     }
