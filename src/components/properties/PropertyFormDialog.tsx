@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import type { Property } from "@/pages/Properties";
 
 interface PropertyFormDialogProps {
@@ -24,7 +24,7 @@ interface PropertyFormDialogProps {
 }
 
 export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onSaved }: PropertyFormDialogProps) {
-  const { toast } = useToast();
+  
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -70,7 +70,7 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
       .upload(fileName, file, { upsert: true });
 
     if (uploadError) {
-      toast({ title: "Gagal upload foto", description: uploadError.message, variant: "destructive" });
+      toast.error("Gagal upload foto: " + uploadError.message);
     } else {
       const { data: urlData } = supabase.storage.from("property-photos").getPublicUrl(fileName);
       setImgUrl(urlData.publicUrl);
@@ -106,9 +106,9 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
     }
 
     if (error) {
-      toast({ title: "Gagal menyimpan", description: error.message, variant: "destructive" });
+      toast.error("Gagal menyimpan: " + error.message);
     } else {
-      toast({ title: property ? "Properti diperbarui" : "Properti ditambahkan" });
+      toast.success(property ? "Properti diperbarui" : "Properti ditambahkan");
       onSaved();
     }
     setSaving(false);

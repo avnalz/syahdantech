@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface ChatMessage {
   role: "user" | "assistant";
@@ -20,7 +20,7 @@ const QUICK_PROMPTS = [
 
 export default function AiManager() {
   const { tenantId } = useAuth();
-  const { toast } = useToast();
+  
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -64,11 +64,7 @@ export default function AiManager() {
         ]);
       }
     } catch {
-      toast({
-        title: "Gagal menghubungi AI",
-        description: "Pastikan webhook URL sudah dikonfigurasi.",
-        variant: "destructive",
-      });
+      toast.error("Gagal menghubungi AI. Pastikan webhook URL sudah dikonfigurasi.");
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: "⚠️ Gagal menghubungi server AI. Silakan coba lagi." },

@@ -1,18 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { PropertyCard } from "@/components/properties/PropertyCard";
 import { PropertyFormDialog } from "@/components/properties/PropertyFormDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Tables } from "@/integrations/supabase/types";
 
 export type Property = Tables<"properties">;
 
 export default function Properties() {
   const { tenantId } = useAuth();
-  const { toast } = useToast();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -36,9 +36,9 @@ export default function Properties() {
   const handleDelete = async (id: number) => {
     const { error } = await supabase.from("properties").delete().eq("id", id);
     if (error) {
-      toast({ title: "Gagal menghapus", description: error.message, variant: "destructive" });
+      toast.error("Gagal menghapus properti");
     } else {
-      toast({ title: "Properti dihapus" });
+      toast.success("Properti dihapus");
       fetchProperties();
     }
   };
@@ -61,8 +61,19 @@ export default function Properties() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-4 w-48 mt-2" />
+          </div>
+          <Skeleton className="h-10 w-36" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-72 rounded-lg" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -81,8 +92,12 @@ export default function Properties() {
       </div>
 
       {properties.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">
-          <p>Belum ada properti. Tambahkan properti pertama Anda.</p>
+        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+          <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
+            <Building2 className="h-8 w-8" />
+          </div>
+          <p className="text-lg font-medium">Belum ada properti</p>
+          <p className="text-sm mt-1">Tambahkan properti pertama Anda untuk mulai</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

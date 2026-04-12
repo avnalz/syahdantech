@@ -1,7 +1,8 @@
-import { Home, Users, MessageSquare, Building2, Bot, LogOut } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Building2, Bot, Settings, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useHotLeadBadge } from "@/hooks/useHotLeadBadge";
 import {
   Sidebar,
   SidebarContent,
@@ -17,10 +18,11 @@ import {
 import { Button } from "@/components/ui/button";
 
 const menuItems = [
-  { title: "Dashboard", url: "/", icon: Home },
-  { title: "Leads", url: "/leads", icon: MessageSquare },
-  { title: "AI Manager", url: "/ai-manager", icon: Bot },
+  { title: "Dashboard", url: "/", icon: LayoutDashboard },
+  { title: "Leads & Inbox", url: "/leads", icon: MessageSquare, badge: true },
   { title: "Properti", url: "/properties", icon: Building2 },
+  { title: "AI Manager", url: "/ai-manager", icon: Bot },
+  { title: "Pengaturan", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -28,6 +30,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { signOut, tenantUser } = useAuth();
+  const hotCount = useHotLeadBadge();
 
   return (
     <Sidebar collapsible="icon">
@@ -54,7 +57,12 @@ export function AppSidebar() {
                       activeClassName="bg-accent text-primary font-medium"
                     >
                       <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && <span className="flex-1">{item.title}</span>}
+                      {item.badge && hotCount > 0 && (
+                        <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5">
+                          {hotCount}
+                        </span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
