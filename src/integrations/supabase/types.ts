@@ -136,6 +136,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "contacts_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "users_safe"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "contacts_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
@@ -468,6 +475,51 @@ export type Database = {
           name?: string | null
         }
         Relationships: []
+      }
+      users_safe: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          id: number | null
+          is_active: boolean | null
+          name: string | null
+          role: string | null
+          tenant_id: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          id?: number | null
+          is_active?: boolean | null
+          name?: string | null
+          role?: string | null
+          tenant_id?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          id?: number | null
+          is_active?: boolean | null
+          name?: string | null
+          role?: string | null
+          tenant_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_safe"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
