@@ -130,6 +130,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, isMobile }: Le
             tenantId={tenantId}
             onBack={onBack}
             isMobile={isMobile}
+            hideHeader
           />
         </TabsContent>
 
