@@ -49,7 +49,7 @@ export default function Index() {
           <h1 className="text-2xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground text-sm">Overview real-time bisnis properti Anda</p>
         </div>
-        <DashboardStats totalLeads={0} leadsToday={0} hotLeadsUnreplied={0} convertedCount={0} />
+        <DashboardStats totalLeads={0} leadsToday={0} hotCount={0} convertedCount={0} />
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
           <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-4">
             <Users className="h-8 w-8" />
@@ -71,7 +71,7 @@ export default function Index() {
       <DashboardStats
         totalLeads={totalLeads}
         leadsToday={leadsToday}
-        hotLeadsUnreplied={hotLeadsUnreplied}
+        hotCount={hotCount}
         convertedCount={convertedCount}
       />
 

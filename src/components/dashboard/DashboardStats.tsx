@@ -4,11 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 interface DashboardStatsProps {
   totalLeads: number;
   leadsToday: number;
-  hotLeadsUnreplied: number;
+  hotCount: number;
   convertedCount: number;
 }
 
-export function DashboardStats({ totalLeads, leadsToday, hotLeadsUnreplied, convertedCount }: DashboardStatsProps) {
+export function DashboardStats({ totalLeads, leadsToday, hotCount, convertedCount }: DashboardStatsProps) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Primary card */}
@@ -28,7 +28,7 @@ export function DashboardStats({ totalLeads, leadsToday, hotLeadsUnreplied, conv
           <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-1">
             <Flame className="h-3.5 w-3.5 text-destructive" /> HOT
           </div>
-          <p className="text-3xl font-bold">{hotLeadsUnreplied}</p>
+          <p className="text-3xl font-bold">{hotCount}</p>
           <p className="text-sm text-muted-foreground mt-0.5">Hot Leads</p>
         </CardContent>
       </Card>
