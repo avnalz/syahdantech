@@ -109,6 +109,15 @@ export default function Leads() {
     setSelectedContact(null);
   };
 
+  const handleModeChange = (contactId: number, newMode: string) => {
+    setContacts((prev) =>
+      prev.map((c) => (c.id === contactId ? { ...c, mode: newMode } : c))
+    );
+    if (selectedContact?.id === contactId) {
+      setSelectedContact((prev) => prev ? { ...prev, mode: newMode } : prev);
+    }
+  };
+
   // Filter contacts
   const filtered = contacts.filter((c) => {
     const matchSearch =
@@ -135,6 +144,7 @@ export default function Leads() {
         messages={messages}
         tenantId={tenantId}
         onBack={handleBack}
+        onModeChange={handleModeChange}
         isMobile
       />
     );
@@ -166,6 +176,7 @@ export default function Leads() {
               messages={messages}
               tenantId={tenantId}
               onBack={handleBack}
+              onModeChange={handleModeChange}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
