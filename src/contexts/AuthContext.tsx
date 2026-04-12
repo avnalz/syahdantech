@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchTenantUser = async (email: string) => {
     const { data, error } = await supabase
-      .from("users")
+      .from("users_safe")
       .select("id, name, email, role, tenant_id")
       .eq("email", email)
       .eq("is_active", true)
