@@ -35,7 +35,7 @@ export function LeadChat({ contact, messages, onBack, isMobile, hideHeader }: Le
   }, [messages]);
 
   return (
-    <div className={`flex flex-col ${isMobile ? "h-screen" : "h-full"} bg-background`}>
+    <div className={`flex flex-col ${isMobile && !hideHeader ? "h-screen" : "h-full"} bg-background`}>
       {!hideHeader && (
         <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
           <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
