@@ -156,6 +156,7 @@ export default function Leads() {
         tenantId={tenantId}
         onBack={handleBack}
         onModeChange={handleModeChange}
+        onStageChange={handleStageChange}
         isMobile
       />
     );
