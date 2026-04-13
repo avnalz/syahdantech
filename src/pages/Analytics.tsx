@@ -20,10 +20,10 @@ const renderDonutLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, pe
   if (percent < 0.05) return null;
   return (
     <g>
-      <text x={x} y={y - 6} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={14} fontWeight={700}>
+      <text x={x} y={y - 7} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={16} fontWeight={800} style={{ textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}>
         {`${(percent * 100).toFixed(0)}%`}
       </text>
-      <text x={x} y={y + 10} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={9} fontWeight={400}>
+      <text x={x} y={y + 11} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={10} fontWeight={500} style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}>
         {name}
       </text>
     </g>
