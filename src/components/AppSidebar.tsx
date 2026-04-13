@@ -45,7 +45,7 @@ export function AppSidebar() {
                 <Building2 className="h-4 w-4 text-primary-foreground" />
               </div>
               <div>
-                <span className="font-bold text-sm text-foreground">PropCRM</span>
+                <span className="font-bold text-sm text-secondary">PropCRM</span>
                 {tenantUser && (
                   <p className="text-[11px] text-muted-foreground leading-tight truncate max-w-[120px]">
                     {tenantUser.name}
