@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -33,12 +34,15 @@ interface DripLog {
   tenant_id: number;
 }
 
+const PIPELINE_STAGES = ["new", "contacted", "qualified", "proposal", "negotiation", "won", "lost"] as const;
+
 interface LeadDetailProps {
   contact: Contact;
   messages: ChatMessage[];
   tenantId: number | null;
   onBack: () => void;
   onModeChange?: (contactId: number, newMode: string) => void;
+  onStageChange?: (contactId: number, newStage: string) => void;
   isMobile?: boolean;
 }
 
@@ -66,7 +70,7 @@ function formatCurrency(value: number | null) {
   return new Intl.NumberFormat("id-ID").format(value);
 }
 
-export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, isMobile }: LeadDetailProps) {
+export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, onStageChange, isMobile }: LeadDetailProps) {
   const [dripLogs, setDripLogs] = useState<DripLog[]>([]);
   const [humanMode, setHumanMode] = useState(contact.mode === "human_mode");
 
@@ -79,6 +83,11 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
     await supabase.from("contacts").update({ mode: newMode }).eq("id", contact.id);
     setHumanMode(!humanMode);
     onModeChange?.(contact.id, newMode);
+  };
+
+  const handleStageChange = async (newStage: string) => {
+    await supabase.from("contacts").update({ pipeline_stage: newStage }).eq("id", contact.id);
+    onStageChange?.(contact.id, newStage);
   };
 
   const fetchDripLogs = useCallback(async () => {
@@ -178,14 +187,21 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
                     </Badge>
                   }
                 />
-                <InfoRow
-                  label="Stage"
-                  value={
-                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${labelOutlineColors[contact.lead_label] || ""}`}>
-                      {contact.pipeline_stage}
-                    </Badge>
-                  }
-                />
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Stage</p>
+                  <Select value={contact.pipeline_stage} onValueChange={handleStageChange}>
+                    <SelectTrigger className="h-7 text-xs w-[140px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PIPELINE_STAGES.map((stage) => (
+                        <SelectItem key={stage} value={stage} className="text-xs capitalize">
+                          {stage.charAt(0).toUpperCase() + stage.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Score Signals */}

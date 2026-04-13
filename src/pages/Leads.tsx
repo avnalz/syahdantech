@@ -120,6 +120,15 @@ export default function Leads() {
     }
   };
 
+  const handleStageChange = (contactId: number, newStage: string) => {
+    setContacts((prev) =>
+      prev.map((c) => (c.id === contactId ? { ...c, pipeline_stage: newStage } : c))
+    );
+    if (selectedContact?.id === contactId) {
+      setSelectedContact((prev) => prev ? { ...prev, pipeline_stage: newStage } : prev);
+    }
+  };
+
   // Filter contacts
   const filtered = contacts.filter((c) => {
     const matchSearch =
@@ -147,6 +156,7 @@ export default function Leads() {
         tenantId={tenantId}
         onBack={handleBack}
         onModeChange={handleModeChange}
+        onStageChange={handleStageChange}
         isMobile
       />
     );
@@ -179,6 +189,7 @@ export default function Leads() {
               tenantId={tenantId}
               onBack={handleBack}
               onModeChange={handleModeChange}
+              onStageChange={handleStageChange}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
