@@ -1,4 +1,4 @@
-import { LayoutDashboard, MessageSquare, Building2, Bot, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Building2, Bot, Settings, LogOut, BarChart3 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHotLeadBadge } from "@/hooks/useHotLeadBadge";
@@ -20,6 +20,7 @@ const mainMenuItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
   { title: "Leads", url: "/leads", icon: MessageSquare, badge: true },
   { title: "Properties", url: "/properties", icon: Building2 },
+  { title: "Analisis", url: "/analytics", icon: BarChart3 },
   { title: "AI Manager", url: "/ai-manager", icon: Bot },
 ];
 
