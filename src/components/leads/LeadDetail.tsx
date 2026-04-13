@@ -106,7 +106,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
   }, [fetchDripLogs]);
 
   return (
-    <div className={`flex flex-col ${isMobile ? "h-screen" : "h-full"} bg-background`}>
+    <div className="flex flex-col h-full bg-background">
       {/* Header */}
       <div className="flex items-center gap-3 px-5 py-4 border-b border-border bg-card">
         {isMobile && (
