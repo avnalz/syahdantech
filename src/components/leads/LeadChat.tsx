@@ -35,9 +35,9 @@ export function LeadChat({ contact, messages, onBack, isMobile, hideHeader }: Le
   }, [messages]);
 
   return (
-    <div className={`flex flex-col ${isMobile && !hideHeader ? "h-screen" : "h-full"} bg-background`}>
+    <div className="flex flex-col h-full bg-background">
       {!hideHeader && (
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card shrink-0">
           <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -58,7 +58,7 @@ export function LeadChat({ contact, messages, onBack, isMobile, hideHeader }: Le
       )}
 
       {/* Chat Area */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+      <div className="flex-1 overflow-y-auto p-4" ref={scrollRef}>
         <div className="space-y-3 max-w-3xl mx-auto">
           {messages.length === 0 && (
             <div className="text-center text-muted-foreground text-sm py-10">
@@ -90,10 +90,10 @@ export function LeadChat({ contact, messages, onBack, isMobile, hideHeader }: Le
             );
           })}
         </div>
-      </ScrollArea>
+      </div>
 
-      {/* WhatsApp Link - sticky footer */}
-      <div className="border-t border-border p-3 bg-card sticky bottom-0 z-10">
+      {/* WhatsApp Link - fixed footer */}
+      <div className="border-t border-border p-3 bg-card shrink-0">
         <div className="max-w-3xl mx-auto">
           <Button asChild className="w-full gap-2" variant="default">
             <a href={getWhatsAppLink(contact.phone_number)} target="_blank" rel="noopener noreferrer">
