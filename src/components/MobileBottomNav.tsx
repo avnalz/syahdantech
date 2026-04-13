@@ -27,7 +27,7 @@ export function MobileBottomNav() {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`relative flex flex-col items-center gap-0 px-2.5 py-1.5 rounded-full transition-all ${
+              className={`relative flex flex-col items-center justify-center gap-0 w-14 h-10 rounded-full transition-all ${
                 isActive
                   ? "bg-background text-foreground scale-105 shadow-md -translate-y-0.5"
                   : "text-muted"
