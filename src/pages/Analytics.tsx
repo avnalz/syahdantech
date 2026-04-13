@@ -12,23 +12,31 @@ import {
 const PIE_COLORS = ["hsl(0, 84%, 60%)", "hsl(38, 92%, 50%)", "hsl(200, 80%, 55%)"];
 const SENTIMENT_COLORS = ["hsl(142, 71%, 45%)", "hsl(220, 14%, 60%)", "hsl(0, 72%, 51%)"];
 
-const renderDonutLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, percent }: any) => {
+const renderPercentLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
   if (percent < 0.05) return null;
   return (
-    <g>
-      <text x={x} y={y - 7} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={16} fontWeight={800} style={{ textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}>
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-      <text x={x} y={y + 11} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={10} fontWeight={500} style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}>
-        {name}
-      </text>
-    </g>
+    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={14} fontWeight={800} style={{ textShadow: "0 1px 3px rgba(0,0,0,0.4)" }}>
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
   );
 };
+
+function DonutLegend({ data, colors, nameKey }: { data: any[]; colors: string[]; nameKey: string }) {
+  return (
+    <div className="flex items-center justify-center gap-4 mt-3 flex-wrap">
+      {data.map((item, i) => (
+        <div key={i} className="flex items-center gap-1.5">
+          <span className="inline-block w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: colors[i % colors.length] }} />
+          <span className="text-xs text-muted-foreground">{item[nameKey]} ({item.count})</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function Analytics() {
   const [monthOffset, setMonthOffset] = useState(0);
@@ -157,7 +165,7 @@ export default function Analytics() {
             <CardTitle className="text-base">Distribusi Label Lead</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-56">
+            <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -166,11 +174,11 @@ export default function Analytics() {
                     nameKey="label"
                     cx="50%"
                     cy="50%"
-                    innerRadius={50}
-                    outerRadius={95}
+                    innerRadius={45}
+                    outerRadius={85}
                     paddingAngle={3}
                     labelLine={false}
-                    label={renderDonutLabel}
+                    label={renderPercentLabel}
                   >
                     {labelData.map((_, i) => (
                       <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
@@ -180,6 +188,7 @@ export default function Analytics() {
                 </PieChart>
               </ResponsiveContainer>
             </div>
+            <DonutLegend data={labelData} colors={PIE_COLORS} nameKey="label" />
           </CardContent>
         </Card>
       </div>
@@ -190,7 +199,7 @@ export default function Analytics() {
           <CardTitle className="text-base">Sentimen Lead</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-56">
+          <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -199,11 +208,11 @@ export default function Analytics() {
                   nameKey="sentiment"
                   cx="50%"
                   cy="50%"
-                  innerRadius={50}
-                  outerRadius={95}
+                  innerRadius={45}
+                  outerRadius={85}
                   paddingAngle={3}
                   labelLine={false}
-                  label={renderDonutLabel}
+                  label={renderPercentLabel}
                 >
                   {sentimentData.map((_, i) => (
                     <Cell key={i} fill={SENTIMENT_COLORS[i % SENTIMENT_COLORS.length]} />
@@ -213,6 +222,7 @@ export default function Analytics() {
               </PieChart>
             </ResponsiveContainer>
           </div>
+          <DonutLegend data={sentimentData} colors={SENTIMENT_COLORS} nameKey="sentiment" />
         </CardContent>
       </Card>
 
