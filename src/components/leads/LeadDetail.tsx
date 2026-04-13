@@ -134,7 +134,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="detail" className="flex-1 flex flex-col overflow-hidden">
+      <Tabs defaultValue={isMobile ? "percakapan" : "detail"} className="flex-1 flex flex-col overflow-hidden">
         <TabsList className="w-full grid grid-cols-3 rounded-none border-b border-border bg-muted/30 h-auto p-1 mx-0">
           <TabsTrigger value="percakapan" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2">
             <MessageSquare className="h-3.5 w-3.5" /> Percakapan
