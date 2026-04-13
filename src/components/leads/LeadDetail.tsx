@@ -85,6 +85,11 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
     onModeChange?.(contact.id, newMode);
   };
 
+  const handleStageChange = async (newStage: string) => {
+    await supabase.from("contacts").update({ pipeline_stage: newStage }).eq("id", contact.id);
+    onStageChange?.(contact.id, newStage);
+  };
+
   const fetchDripLogs = useCallback(async () => {
     if (!tenantId) return;
     const { data } = await supabase
