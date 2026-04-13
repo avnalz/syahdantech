@@ -53,7 +53,7 @@ export function HotLeadsTable({ leads }: HotLeadsTableProps) {
               <button
                 key={lead.id}
                 onClick={() => navigate("/leads?filter=hot")}
-                className="w-full flex items-center gap-3 px-6 py-3.5 text-left hover:bg-accent/50 transition-colors group"
+                className="w-full flex items-center gap-3 px-3 sm:px-6 py-3 text-left hover:bg-accent/50 transition-colors group"
               >
                 <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm shrink-0">
                   {getInitials(lead.name || "?")}

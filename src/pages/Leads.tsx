@@ -150,7 +150,7 @@ export default function Leads() {
   // Mobile: show chat if contact selected
   if (isMobile && selectedContact) {
     return (
-      <div className="-mx-6 -my-6 h-[calc(100vh-3.5rem)] overflow-hidden">
+      <div className="-mx-3 -my-3 sm:-mx-6 sm:-my-6 h-[calc(100vh-3.5rem)] overflow-hidden">
         <LeadDetail
           contact={selectedContact}
           messages={messages}
@@ -165,7 +165,7 @@ export default function Leads() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden -mx-6 -my-6 max-w-[100vw]">
+    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden -mx-3 -my-3 sm:-mx-6 sm:-my-6 max-w-[100vw]">
       {/* Left Panel */}
       <div className={`${isMobile ? "w-full" : "w-[360px] min-w-[360px]"} border-r border-border flex flex-col bg-background`}>
         <LeadsList

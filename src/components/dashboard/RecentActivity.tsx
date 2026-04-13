@@ -62,7 +62,7 @@ export function RecentActivity({ tenantId }: RecentActivityProps) {
       <CardContent className="p-0">
         <div className="divide-y divide-border">
           {activities.map((activity) => (
-            <div key={activity.id} className="px-6 py-3 flex items-start gap-3">
+            <div key={activity.id} className="px-3 sm:px-6 py-3 flex items-start gap-3">
               <div className="flex-1 min-w-0">
                 <p className="text-sm">
                   <span className="font-medium">{activity.contact_name}</span>
