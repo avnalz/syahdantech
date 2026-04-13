@@ -150,20 +150,22 @@ export default function Leads() {
   // Mobile: show chat if contact selected
   if (isMobile && selectedContact) {
     return (
-      <LeadDetail
-        contact={selectedContact}
-        messages={messages}
-        tenantId={tenantId}
-        onBack={handleBack}
-        onModeChange={handleModeChange}
-        onStageChange={handleStageChange}
-        isMobile
-      />
+      <div className="-mx-6 -my-6 h-[calc(100vh-3.5rem)] overflow-hidden">
+        <LeadDetail
+          contact={selectedContact}
+          messages={messages}
+          tenantId={tenantId}
+          onBack={handleBack}
+          onModeChange={handleModeChange}
+          onStageChange={handleStageChange}
+          isMobile
+        />
+      </div>
     );
   }
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden -mx-6 -my-6">
+    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden -mx-6 -my-6 max-w-[100vw]">
       {/* Left Panel */}
       <div className={`${isMobile ? "w-full" : "w-[360px] min-w-[360px]"} border-r border-border flex flex-col bg-background`}>
         <LeadsList
