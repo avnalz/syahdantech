@@ -108,7 +108,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-border bg-card">
+      <div className="flex items-center gap-3 px-5 py-2 border-b border-border bg-card">
         {isMobile && (
           <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
             <ArrowLeft className="h-5 w-5" />
