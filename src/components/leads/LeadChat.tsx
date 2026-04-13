@@ -55,11 +55,23 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile, hideHe
 
     try {
       if (webhookUrl) {
+        // Fetch chat_id from contacts
+        const { data: contactData } = await supabase
+          .from("contacts")
+          .select("chat_id")
+          .eq("phone_number", contact.phone_number)
+          .eq("tenant_id", tenantId)
+          .maybeSingle();
+
+        const chatId = contactData?.chat_id || contact.phone_number + "@s.whatsapp.net";
+        console.log('Sending to webhook:', { url: webhookUrl, phone_number: contact.phone_number, chat_id: chatId, message: input.trim() });
+
         const res = await fetch(webhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             phone_number: contact.phone_number,
+            chat_id: chatId,
             message: input.trim(),
             session: "web-admin",
           }),
