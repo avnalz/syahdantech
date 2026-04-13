@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import Leads from "./pages/Leads";
 import AiManager from "./pages/AiManager";
 import Properties from "./pages/Properties";
+import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -37,6 +38,7 @@ const App = () => (
                 <Route path="/leads" element={<ProtectedPage><Leads /></ProtectedPage>} />
                 <Route path="/ai-manager" element={<ProtectedPage><AiManager /></ProtectedPage>} />
                 <Route path="/properties" element={<ProtectedPage><Properties /></ProtectedPage>} />
+                <Route path="/analytics" element={<ProtectedPage><Analytics /></ProtectedPage>} />
                 <Route path="/settings" element={<ProtectedPage><Settings /></ProtectedPage>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
