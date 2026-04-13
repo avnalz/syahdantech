@@ -75,8 +75,8 @@ export function AppSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === "/"}
-                      className="hover:bg-accent/50"
-                      activeClassName="bg-accent text-foreground font-medium"
+                      className={collapsed ? "hover:bg-transparent" : "hover:bg-accent/50"}
+                      activeClassName={collapsed ? "text-foreground font-medium" : "bg-accent text-foreground font-medium"}
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span className="flex-1">{item.title}</span>}
@@ -105,8 +105,8 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      className="hover:bg-accent/50"
-                      activeClassName="bg-accent text-foreground font-medium"
+                      className={collapsed ? "hover:bg-transparent" : "hover:bg-accent/50"}
+                      activeClassName={collapsed ? "text-foreground font-medium" : "bg-accent text-foreground font-medium"}
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
