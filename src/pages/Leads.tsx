@@ -189,6 +189,7 @@ export default function Leads() {
               tenantId={tenantId}
               onBack={handleBack}
               onModeChange={handleModeChange}
+              onStageChange={handleStageChange}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
