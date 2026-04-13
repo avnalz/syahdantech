@@ -6,11 +6,25 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend,
+  PieChart, Pie, Cell,
 } from "recharts";
 
 const PIE_COLORS = ["hsl(0, 84%, 60%)", "hsl(38, 92%, 50%)", "hsl(200, 80%, 55%)"];
 const SENTIMENT_COLORS = ["hsl(142, 71%, 45%)", "hsl(220, 14%, 60%)", "hsl(0, 72%, 51%)"];
+
+const renderDonutLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, percent }: any) => {
+  const RADIAN = Math.PI / 180;
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  if (percent < 0.05) return null;
+  return (
+    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600}>
+      {name}
+      <tspan x={x} dy={14} fontSize={10} fontWeight={400}>{`${(percent * 100).toFixed(0)}%`}</tspan>
+    </text>
+  );
+};
 
 export default function Analytics() {
   const [monthOffset, setMonthOffset] = useState(0);
@@ -133,7 +147,7 @@ export default function Analytics() {
           </CardContent>
         </Card>
 
-        {/* Lead Label Pie */}
+        {/* Lead Label Donut */}
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Distribusi Label Lead</CardTitle>
@@ -142,13 +156,23 @@ export default function Analytics() {
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={labelData} dataKey="count" nameKey="label" cx="50%" cy="50%" outerRadius={80} label>
+                  <Pie
+                    data={labelData}
+                    dataKey="count"
+                    nameKey="label"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={95}
+                    paddingAngle={3}
+                    labelLine={false}
+                    label={renderDonutLabel}
+                  >
                     {labelData.map((_, i) => (
                       <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                     ))}
                   </Pie>
                   <Tooltip />
-                  <Legend />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -156,7 +180,7 @@ export default function Analytics() {
         </Card>
       </div>
 
-      {/* Sentiment */}
+      {/* Sentiment Donut */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Sentimen Lead</CardTitle>
@@ -165,13 +189,23 @@ export default function Analytics() {
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={sentimentData} dataKey="count" nameKey="sentiment" cx="50%" cy="50%" outerRadius={80} label>
+                <Pie
+                  data={sentimentData}
+                  dataKey="count"
+                  nameKey="sentiment"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={95}
+                  paddingAngle={3}
+                  labelLine={false}
+                  label={renderDonutLabel}
+                >
                   {sentimentData.map((_, i) => (
                     <Cell key={i} fill={SENTIMENT_COLORS[i % SENTIMENT_COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip />
-                <Legend />
               </PieChart>
             </ResponsiveContainer>
           </div>
