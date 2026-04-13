@@ -162,7 +162,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
         {/* Detail Tab */}
         <TabsContent value="detail" className="flex-1 mt-0 overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="p-4 space-y-6 max-w-3xl">
+            <div className="p-4 pt-3 space-y-4 max-w-3xl">
               {/* AI Summary */}
               <div>
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">AI Summary</h3>
