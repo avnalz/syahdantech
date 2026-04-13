@@ -108,28 +108,28 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
   return (
     <div className={`flex flex-col ${isMobile ? "h-screen" : "h-full"} bg-background`}>
       {/* Header */}
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-border bg-card">
+      <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-3 sm:py-4 border-b border-border bg-card">
         {isMobile && (
-          <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
-            <ArrowLeft className="h-5 w-5" />
+          <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0 h-8 w-8">
+            <ArrowLeft className="h-4 w-4" />
           </Button>
         )}
-        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-semibold text-sm shrink-0">
+        <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-semibold text-xs sm:text-sm shrink-0">
           {(contact.name || contact.phone_number).charAt(0).toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
-          <span className="font-semibold text-base truncate block">{contact.name || contact.phone_number}</span>
-          <p className="text-xs text-muted-foreground">{contact.phone_number}</p>
+          <span className="font-semibold text-sm sm:text-base truncate block">{contact.name || contact.phone_number}</span>
+          <p className="text-[11px] sm:text-xs text-muted-foreground">{contact.phone_number}</p>
         </div>
-        <Badge variant="outline" className="text-xs px-3 py-1 rounded-full shrink-0">
+        <Badge variant="outline" className="text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full shrink-0">
           {contact.lead_label ? contact.lead_label.charAt(0).toUpperCase() + contact.lead_label.slice(1) : "N/A"}
         </Badge>
         <button
           onClick={toggleHumanMode}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-xs font-medium hover:bg-accent transition-colors shrink-0"
+          className="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-border text-[10px] sm:text-xs font-medium hover:bg-accent transition-colors shrink-0"
         >
-          <ArrowLeftRight className="h-3.5 w-3.5" />
-          {humanMode ? "Human Mode" : "AI Mode"}
+          <ArrowLeftRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+          <span className="hidden xs:inline">{humanMode ? "Human" : "AI"}</span>
         </button>
       </div>
 
