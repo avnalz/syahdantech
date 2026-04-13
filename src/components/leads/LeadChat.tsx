@@ -22,8 +22,7 @@ interface LeadChatProps {
 }
 
 function getWhatsAppLink(phoneNumber: string) {
-  const cleaned = phoneNumber.replace(/[^0-9]/g, "");
-  return `https://wa.me/${cleaned}`;
+  return `https://wa.me/${phoneNumber}`;
 }
 
 export function LeadChat({ contact, messages, onBack, isMobile, hideHeader }: LeadChatProps) {
