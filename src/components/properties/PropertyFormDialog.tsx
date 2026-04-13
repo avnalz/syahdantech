@@ -57,25 +57,32 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
     }
   }, [property, open]);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !tenantId) return;
-
-    setUploading(true);
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${tenantId}/${Date.now()}.${fileExt}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("property-photos")
-      .upload(fileName, file, { upsert: true });
-
-    if (uploadError) {
-      toast.error("Gagal upload foto: " + uploadError.message);
-    } else {
-      const { data: urlData } = supabase.storage.from("property-photos").getPublicUrl(fileName);
-      setImgUrl(urlData.publicUrl);
+  const convertGDriveLink = (url: string): string => {
+    // Extract file ID from various Google Drive URL formats
+    let fileId = "";
+    const patterns = [
+      /\/file\/d\/([a-zA-Z0-9_-]+)/,
+      /id=([a-zA-Z0-9_-]+)/,
+      /\/d\/([a-zA-Z0-9_-]+)/,
+    ];
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) {
+        fileId = match[1];
+        break;
+      }
     }
-    setUploading(false);
+    if (fileId) {
+      return `https://lh3.googleusercontent.com/d/${fileId}`;
+    }
+    return url;
+  };
+
+  const handleGDriveLink = () => {
+    if (!imgUrl.trim()) return;
+    const directUrl = convertGDriveLink(imgUrl.trim());
+    setImgUrl(directUrl);
+    toast.success("Link dikonversi ke direct URL");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
