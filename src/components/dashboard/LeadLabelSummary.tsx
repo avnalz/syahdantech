@@ -10,7 +10,7 @@ export function LeadLabelSummary({ hot, warm, cold }: LeadLabelSummaryProps) {
   const navigate = useNavigate();
 
   const items = [
-    { label: "HOT", value: hot, filter: "hot", className: "bg-destructive/10 text-destructive hover:bg-destructive/20", subClass: "text-destructive/70" },
+    { label: "HOT", value: hot, filter: "hot", className: "bg-red-500/15 text-red-600 hover:bg-red-500/25 dark:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500/30", subClass: "text-red-500/70 dark:text-red-400/70" },
     { label: "WARM", value: warm, filter: "warm", className: "bg-warning/10 text-warning hover:bg-warning/20", subClass: "text-warning/70" },
     { label: "COLD", value: cold, filter: "cold", className: "bg-muted text-muted-foreground hover:bg-muted/80", subClass: "text-muted-foreground/70" },
   ];
