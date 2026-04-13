@@ -19,10 +19,14 @@ const renderDonutLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, name, pe
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
   if (percent < 0.05) return null;
   return (
-    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600}>
-      {name}
-      <tspan x={x} dy={14} fontSize={10} fontWeight={400}>{`${(percent * 100).toFixed(0)}%`}</tspan>
-    </text>
+    <g>
+      <text x={x} y={y - 6} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={14} fontWeight={700}>
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+      <text x={x} y={y + 10} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={9} fontWeight={400}>
+        {name}
+      </text>
+    </g>
   );
 };
 
