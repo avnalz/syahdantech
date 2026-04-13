@@ -3,7 +3,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function Navbar() {
   return (
-    <header className="h-14 flex items-center justify-between border-b border-border px-4 bg-card">
+    <header className="h-14 flex items-center justify-between border-b border-border px-4 bg-card sticky top-0 z-50">
       <div className="flex items-center gap-3">
         <SidebarTrigger />
         <div className="hidden sm:flex items-center gap-2">
