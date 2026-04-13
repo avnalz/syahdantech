@@ -10,7 +10,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         <AppSidebar />
         <div className="flex-1 flex flex-col">
           <Navbar />
-          <main className="flex-1 p-6 overflow-x-hidden">{children}</main>
+          <main className="flex-1 p-6 overflow-x-hidden max-w-full">{children}</main>
         </div>
       </div>
     </SidebarProvider>
