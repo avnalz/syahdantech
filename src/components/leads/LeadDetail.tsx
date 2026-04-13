@@ -187,14 +187,21 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
                     </Badge>
                   }
                 />
-                <InfoRow
-                  label="Stage"
-                  value={
-                    <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${labelOutlineColors[contact.lead_label] || ""}`}>
-                      {contact.pipeline_stage}
-                    </Badge>
-                  }
-                />
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Stage</p>
+                  <Select value={contact.pipeline_stage} onValueChange={handleStageChange}>
+                    <SelectTrigger className="h-7 text-xs w-[140px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PIPELINE_STAGES.map((stage) => (
+                        <SelectItem key={stage} value={stage} className="text-xs capitalize">
+                          {stage.charAt(0).toUpperCase() + stage.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Score Signals */}
