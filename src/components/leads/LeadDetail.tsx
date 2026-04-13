@@ -148,7 +148,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
         </TabsList>
 
         {/* Percakapan Tab */}
-        <TabsContent value="percakapan" className="flex-1 mt-0 overflow-hidden">
+        <TabsContent value="percakapan" className="flex-1 mt-0 overflow-hidden flex flex-col">
           <LeadChat
             contact={contact}
             messages={messages}
