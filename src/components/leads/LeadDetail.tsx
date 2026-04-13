@@ -46,10 +46,10 @@ interface LeadDetailProps {
   isMobile?: boolean;
 }
 
-function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+function InfoField({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div>
-      <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
+    <div className="py-2.5">
+      <p className="text-xs text-muted-foreground mb-1">{label}</p>
       <div className="text-sm font-medium">{value || "-"}</div>
     </div>
   );
