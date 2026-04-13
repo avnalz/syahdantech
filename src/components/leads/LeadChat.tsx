@@ -92,8 +92,8 @@ export function LeadChat({ contact, messages, onBack, isMobile, hideHeader }: Le
         </div>
       </ScrollArea>
 
-      {/* WhatsApp Link */}
-      <div className="border-t border-border p-3 bg-card">
+      {/* WhatsApp Link - sticky footer */}
+      <div className="border-t border-border p-3 bg-card sticky bottom-0 z-10">
         <div className="max-w-3xl mx-auto">
           <Button asChild className="w-full gap-2" variant="default">
             <a href={getWhatsAppLink(contact.phone_number)} target="_blank" rel="noopener noreferrer">
