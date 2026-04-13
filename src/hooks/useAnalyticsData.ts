@@ -144,7 +144,7 @@ export function useAnalyticsData(monthOffset = 0) {
 
     // Labels
     const labels = ["hot", "warm", "cold"];
-    const lLabels: Record<string, string> = { hot: "Hot 🔥", warm: "Warm 🌤", cold: "Cold ❄️" };
+    const lLabels: Record<string, string> = { hot: "Hot", warm: "Warm", cold: "Cold" };
     const lCounts: LabelCount[] = labels.map(l => ({
       label: lLabels[l] || l,
       count: allContacts.filter(c => c.lead_label === l).length,
