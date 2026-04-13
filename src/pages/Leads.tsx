@@ -120,6 +120,15 @@ export default function Leads() {
     }
   };
 
+  const handleStageChange = (contactId: number, newStage: string) => {
+    setContacts((prev) =>
+      prev.map((c) => (c.id === contactId ? { ...c, pipeline_stage: newStage } : c))
+    );
+    if (selectedContact?.id === contactId) {
+      setSelectedContact((prev) => prev ? { ...prev, pipeline_stage: newStage } : prev);
+    }
+  };
+
   // Filter contacts
   const filtered = contacts.filter((c) => {
     const matchSearch =
