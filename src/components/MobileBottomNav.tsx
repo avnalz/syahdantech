@@ -16,8 +16,8 @@ export function MobileBottomNav() {
   const hotCount = useHotLeadBadge();
 
   return (
-    <div className="fixed bottom-4 left-3 right-3 z-50">
-      <nav className="bg-foreground rounded-[28px] flex items-center justify-around px-2 py-2 shadow-lg">
+    <div className="fixed bottom-3 left-3 right-3 z-50">
+      <nav className="bg-foreground rounded-[22px] flex items-center justify-around px-1.5 py-1.5 shadow-lg">
         {navItems.map((item) => {
           const isActive = item.path === "/" 
             ? location.pathname === "/" 
@@ -27,16 +27,16 @@ export function MobileBottomNav() {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-full transition-all ${
+              className={`relative flex flex-col items-center gap-0 px-2.5 py-1.5 rounded-full transition-all ${
                 isActive
-                  ? "bg-background text-foreground scale-110 shadow-md -translate-y-1"
+                  ? "bg-background text-foreground scale-105 shadow-md -translate-y-0.5"
                   : "text-muted"
               }`}
             >
-              <item.icon className="h-5 w-5" />
-              <span className="text-[10px] font-medium">{item.label}</span>
+              <item.icon className="h-4 w-4" />
+              <span className="text-[9px] font-medium leading-tight mt-0.5">{item.label}</span>
               {item.badge && hotCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold px-1">
+                <span className="absolute -top-1 -right-1 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[8px] font-bold px-1">
                   {hotCount}
                 </span>
               )}

@@ -25,7 +25,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         {!isMobile && <AppSidebar />}
         <div className="flex-1 flex flex-col min-w-0">
           {!isMobile && <Navbar />}
-          <main className={`flex-1 ${isMobile ? 'p-0' : 'p-6'} overflow-x-hidden max-w-full ${isMobile ? 'pb-20' : ''}`}>
+          <main className={`flex-1 ${isMobile ? 'px-3 pt-3 pb-24' : 'p-6'} overflow-x-hidden max-w-full`}>
             {children}
           </main>
           {showBottomNav && <MobileBottomNav />}
