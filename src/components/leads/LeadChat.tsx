@@ -2,7 +2,6 @@ import { useRef, useEffect } from "react";
 import { ArrowLeft, User, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Contact, ChatMessage } from "@/pages/Leads";
 
@@ -22,7 +21,9 @@ interface LeadChatProps {
 }
 
 function getWhatsAppLink(phoneNumber: string) {
-  return `https://wa.me/${phoneNumber}`;
+  // Clean number: remove spaces, dashes, plus sign for wa.me format
+  const cleaned = phoneNumber.replace(/[\s\-\+]/g, "");
+  return `https://wa.me/${cleaned}`;
 }
 
 export function LeadChat({ contact, messages, onBack, isMobile, hideHeader }: LeadChatProps) {
@@ -58,7 +59,7 @@ export function LeadChat({ contact, messages, onBack, isMobile, hideHeader }: Le
       )}
 
       {/* Chat Area */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+      <ScrollArea className="flex-1 min-h-0 p-4" ref={scrollRef}>
         <div className="space-y-3 max-w-3xl mx-auto">
           {messages.length === 0 && (
             <div className="text-center text-muted-foreground text-sm py-10">
@@ -92,8 +93,8 @@ export function LeadChat({ contact, messages, onBack, isMobile, hideHeader }: Le
         </div>
       </ScrollArea>
 
-      {/* WhatsApp Link - sticky footer */}
-      <div className="border-t border-border p-3 bg-card sticky bottom-0 z-10">
+      {/* WhatsApp Link - fixed footer, outside ScrollArea */}
+      <div className="shrink-0 border-t border-border p-3 bg-card">
         <div className="max-w-3xl mx-auto">
           <Button asChild className="w-full gap-2" variant="default">
             <a href={getWhatsAppLink(contact.phone_number)} target="_blank" rel="noopener noreferrer">
