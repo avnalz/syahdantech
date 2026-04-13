@@ -17,7 +17,7 @@ export function MobileBottomNav() {
 
   return (
     <div className="fixed bottom-3 left-3 right-3 z-50">
-      <nav className="bg-foreground rounded-[22px] flex items-center justify-around px-1.5 py-1.5 shadow-lg">
+      <nav className="bg-muted rounded-[22px] flex items-center justify-around px-1.5 py-1.5 shadow-lg">
         {navItems.map((item) => {
           const isActive = item.path === "/" 
             ? location.pathname === "/" 
