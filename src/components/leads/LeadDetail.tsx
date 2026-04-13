@@ -129,7 +129,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
           className="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-border text-[10px] sm:text-xs font-medium hover:bg-accent transition-colors shrink-0"
         >
           <ArrowLeftRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-          <span className="hidden xs:inline">{humanMode ? "Human" : "AI"}</span>
+          {humanMode ? "Human" : "AI"}
         </button>
       </div>
 
