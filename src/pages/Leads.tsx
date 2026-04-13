@@ -147,10 +147,10 @@ export default function Leads() {
     return contact.ai_summary || "Belum ada pesan";
   };
 
-  // Mobile: show chat if contact selected (hide bottom nav by going full screen)
+  // Mobile: show chat if contact selected
   if (isMobile && selectedContact) {
     return (
-      <div className="fixed inset-0 z-50 bg-background">
+      <div className="-mx-6 -my-6 h-[calc(100vh-3.5rem)] overflow-hidden">
         <LeadDetail
           contact={selectedContact}
           messages={messages}
@@ -165,7 +165,7 @@ export default function Leads() {
   }
 
   return (
-    <div className={`flex ${isMobile ? 'h-[calc(100vh-7rem)] -mx-3 -mt-3' : 'h-[calc(100vh-3.5rem)] -mx-6 -my-6'} overflow-hidden max-w-[100vw]`}>
+    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden -mx-6 -my-6 max-w-[100vw]">
       {/* Left Panel */}
       <div className={`${isMobile ? "w-full" : "w-[360px] min-w-[360px]"} border-r border-border flex flex-col bg-background`}>
         <LeadsList

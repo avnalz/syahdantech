@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks, ArrowLeftRight, Building2 } from "lucide-react";
+import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks, ArrowLeftRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,10 +46,10 @@ interface LeadDetailProps {
   isMobile?: boolean;
 }
 
-function InfoField({ label, value }: { label: string; value: React.ReactNode }) {
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="py-2.5">
-      <p className="text-xs text-muted-foreground mb-1">{label}</p>
+    <div>
+      <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
       <div className="text-sm font-medium">{value || "-"}</div>
     </div>
   );
@@ -106,9 +106,9 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
   }, [fetchDripLogs]);
 
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className={`flex flex-col ${isMobile ? "h-screen" : "h-full"} bg-background`}>
       {/* Header */}
-      <div className="flex items-center gap-3 px-5 py-2 border-b border-border bg-card">
+      <div className="flex items-center gap-3 px-5 py-4 border-b border-border bg-card">
         {isMobile && (
           <Button variant="ghost" size="icon" onClick={onBack} className="shrink-0">
             <ArrowLeft className="h-5 w-5" />
@@ -118,14 +118,12 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
           {(contact.name || contact.phone_number).charAt(0).toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-base truncate">{contact.name || contact.phone_number}</span>
-            <Badge className={`text-[10px] px-1.5 py-0 uppercase ${labelColors[contact.lead_label] || "bg-muted text-muted-foreground"}`}>
-              {contact.lead_label || "N/A"}
-            </Badge>
-          </div>
+          <span className="font-semibold text-base truncate block">{contact.name || contact.phone_number}</span>
           <p className="text-xs text-muted-foreground">{contact.phone_number}</p>
         </div>
+        <Badge variant="outline" className="text-xs px-3 py-1 rounded-full shrink-0">
+          {contact.lead_label ? contact.lead_label.charAt(0).toUpperCase() + contact.lead_label.slice(1) : "N/A"}
+        </Badge>
         <button
           onClick={toggleHumanMode}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-xs font-medium hover:bg-accent transition-colors shrink-0"
@@ -137,23 +135,20 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
 
       {/* Tabs */}
       <Tabs defaultValue={isMobile ? "percakapan" : "detail"} className="flex-1 flex flex-col overflow-hidden">
-        <TabsList className="w-full grid grid-cols-4 rounded-none border-b border-border bg-transparent h-auto p-0 mx-0 shrink-0">
-          <TabsTrigger value="percakapan" className="gap-1.5 text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-2.5">
+        <TabsList className="w-full grid grid-cols-3 rounded-none border-b border-border bg-muted/30 h-auto p-1 mx-0">
+          <TabsTrigger value="percakapan" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2">
             <MessageSquare className="h-3.5 w-3.5" /> Percakapan
           </TabsTrigger>
-          <TabsTrigger value="detail" className="gap-1.5 text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-2.5">
+          <TabsTrigger value="detail" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2">
             <UserCircle className="h-3.5 w-3.5" /> Detail
           </TabsTrigger>
-          <TabsTrigger value="properti" className="gap-1.5 text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-2.5">
-            <Building2 className="h-3.5 w-3.5" /> Properti
-          </TabsTrigger>
-          <TabsTrigger value="drip" className="gap-1.5 text-xs rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none py-2.5">
-            <ListChecks className="h-3.5 w-3.5" /> Drip Log
+          <TabsTrigger value="drip" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2">
+            <ListChecks className="h-3.5 w-3.5" /> Drip
           </TabsTrigger>
         </TabsList>
 
         {/* Percakapan Tab */}
-        <TabsContent value="percakapan" className="flex-1 mt-0 overflow-hidden flex flex-col">
+        <TabsContent value="percakapan" className="flex-1 mt-0 overflow-hidden">
           <LeadChat
             contact={contact}
             messages={messages}
@@ -167,41 +162,33 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
         {/* Detail Tab */}
         <TabsContent value="detail" className="flex-1 mt-0 overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="px-6 py-0">
+            <div className="p-4 space-y-6 max-w-3xl">
               {/* AI Summary */}
-              <div className="py-3 border-b border-border">
-                <p className="text-xs text-muted-foreground mb-1.5">AI Summary</p>
-                <p className="text-sm leading-relaxed">
+              <div>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">AI Summary</h3>
+                <p className="text-sm leading-relaxed bg-muted/50 rounded-lg p-3">
                   {contact.ai_summary || "Belum ada ringkasan AI."}
                 </p>
               </div>
 
-              {/* Basic Info Grid */}
-              <div className="grid grid-cols-2 border-b border-border">
-                <div className="py-2.5 border-b border-border">
-                  <p className="text-xs text-muted-foreground mb-1">Nama</p>
-                  <p className="text-sm font-medium">{contact.name || "-"}</p>
-                </div>
-                <div className="py-2.5 border-b border-border pl-6">
-                  <p className="text-xs text-muted-foreground mb-1">Telepon</p>
-                  <p className="text-sm font-medium">{contact.phone_number}</p>
-                </div>
-                <div className="py-2.5 border-b border-border">
-                  <p className="text-xs text-muted-foreground mb-1">Budget (IDR)</p>
-                  <p className="text-sm font-medium">{formatCurrency(contact.budget ?? null)}</p>
-                </div>
-                <div className="py-2.5 border-b border-border pl-6">
-                  <p className="text-xs text-muted-foreground mb-1">Timeline Beli</p>
-                  <p className="text-sm font-medium">{contact.timeline || "-"}</p>
-                </div>
-                <div className="py-2.5">
-                  <p className="text-xs text-muted-foreground mb-1">Score</p>
-                  <Badge className={`text-[10px] px-2 py-0.5 uppercase ${labelColors[contact.lead_label] || ""}`}>
-                    {contact.lead_label?.toUpperCase() || "N/A"}
-                  </Badge>
-                </div>
-                <div className="py-2.5 pl-6">
-                  <p className="text-xs text-muted-foreground mb-1">Stage</p>
+              <Separator />
+
+              {/* Basic Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <InfoRow label="Nama" value={contact.name} />
+                <InfoRow label="Telepon" value={contact.phone_number} />
+                <InfoRow label="Budget (IDR)" value={formatCurrency(contact.budget ?? null)} />
+                <InfoRow label="Timeline Beli" value={contact.timeline} />
+                <InfoRow
+                  label="Score"
+                  value={
+                    <Badge className={`text-[10px] px-1.5 py-0 ${labelColors[contact.lead_label] || ""}`}>
+                      {contact.lead_score}
+                    </Badge>
+                  }
+                />
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Stage</p>
                   <Select value={contact.pipeline_stage} onValueChange={handleStageChange}>
                     <SelectTrigger className="h-7 text-xs w-[140px]">
                       <SelectValue />
@@ -217,69 +204,49 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
                 </div>
               </div>
 
-              {/* Alasan Score */}
+              {/* Score Signals */}
               {contact.lead_score_signals && (
-                <div className="py-3 border-b border-border">
-                  <p className="text-xs text-muted-foreground mb-1">Alasan Score</p>
+                <div>
+                  <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Alasan Score</h4>
                   <p className="text-sm italic text-muted-foreground">{contact.lead_score_signals}</p>
                 </div>
               )}
 
-              {/* Informasi Lead */}
-              <div className="py-3">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">Informasi Lead</h3>
-              </div>
-              <div className="grid grid-cols-2 border-t border-border">
-                <div className="py-2.5 border-b border-border">
-                  <p className="text-xs text-muted-foreground mb-1">Lead Masuk</p>
-                  <p className="text-sm font-medium">{formatRelativeTime(contact.created_at)}</p>
-                </div>
-                <div className="py-2.5 border-b border-border pl-6">
-                  <p className="text-xs text-muted-foreground mb-1">Balasan Terakhir</p>
-                  <p className="text-sm font-medium">{formatRelativeTime(contact.last_chat_at)}</p>
-                </div>
-                <div className="py-2.5 border-b border-border">
-                  <p className="text-xs text-muted-foreground mb-1">Kontak Terakhir</p>
-                  <p className="text-sm font-medium">{formatRelativeTime(contact.updated_at)}</p>
-                </div>
-                <div className="py-2.5 border-b border-border pl-6">
-                  <p className="text-xs text-muted-foreground mb-1">Mode</p>
-                  <p className="text-sm font-medium">{contact.mode === "human_mode" ? "👤 Human" : "🤖 AI"}</p>
-                </div>
-                <div className="py-2.5 border-b border-border">
-                  <p className="text-xs text-muted-foreground mb-1">Sentimen</p>
-                  <p className="text-sm font-medium">{contact.sentimen || "-"}</p>
-                </div>
-                <div className="py-2.5 border-b border-border pl-6">
-                  <p className="text-xs text-muted-foreground mb-1">Properti Diminati</p>
-                  <p className="text-sm font-medium">
-                    {contact.properti_diminati && contact.properti_diminati.length > 0
-                      ? contact.properti_diminati.join(", ")
-                      : "-"}
-                  </p>
+              <Separator />
+
+              {/* Lead Info */}
+              <div>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Informasi Lead</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <InfoRow label="Lead Masuk" value={formatRelativeTime(contact.created_at)} />
+                  <InfoRow label="Balasan Terakhir" value={formatRelativeTime(contact.last_chat_at)} />
+                  <InfoRow label="Kontak Terakhir" value={formatRelativeTime(contact.updated_at)} />
+                  <InfoRow label="Mode" value={contact.mode === "human_mode" ? "👤 Human" : "🤖 AI"} />
+                  <InfoRow label="Sentimen" value={contact.sentimen} />
+                  <InfoRow
+                    label="Properti Diminati"
+                    value={
+                      contact.properti_diminati && contact.properti_diminati.length > 0
+                        ? contact.properti_diminati.join(", ")
+                        : "-"
+                    }
+                  />
                 </div>
               </div>
             </div>
           </ScrollArea>
         </TabsContent>
 
-        {/* Properti Tab */}
-        <TabsContent value="properti" className="flex-1 mt-0 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="px-6 py-4">
-              <p className="text-sm text-muted-foreground">Belum ada data properti diminati.</p>
-            </div>
-          </ScrollArea>
-        </TabsContent>
 
         {/* Drip Log Tab */}
         <TabsContent value="drip" className="flex-1 mt-0 overflow-hidden">
           <ScrollArea className="h-full">
-            <div className="px-6 py-0">
+            <div className="p-4 max-w-3xl">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Drip Follow-up Log</h3>
               {dripLogs.length > 0 ? (
-                <div>
+                <div className="space-y-2">
                   {dripLogs.map((log) => (
-                    <div key={log.id} className="flex items-center justify-between py-3 border-b border-border">
+                    <div key={log.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                       <div className="flex items-center gap-3">
                         <div className={`h-2.5 w-2.5 rounded-full ${log.is_completed ? "bg-emerald-500" : "bg-amber-500"}`} />
                         <div>
@@ -296,9 +263,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
                   ))}
                 </div>
               ) : (
-                <div className="py-4">
-                  <p className="text-sm text-muted-foreground">Belum ada drip log.</p>
-                </div>
+                <p className="text-sm text-muted-foreground">Belum ada drip log.</p>
               )}
             </div>
           </ScrollArea>
