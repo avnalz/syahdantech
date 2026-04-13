@@ -26,7 +26,6 @@ interface PropertyFormDialogProps {
 export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onSaved }: PropertyFormDialogProps) {
   
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
   const [kode, setKode] = useState("");
   const [lokasi, setLokasi] = useState("");
@@ -186,12 +185,21 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
           </div>
 
           <div className="space-y-2">
-            <Label>Foto Properti</Label>
-            {imgUrl && (
+            <Label>Foto Properti (Link Google Drive)</Label>
+            {imgUrl && !imgUrl.startsWith("https://drive.google.com") && (
               <img src={imgUrl} alt="Preview" className="w-full h-32 object-cover rounded-md mb-2" />
             )}
-            <Input type="file" accept="image/*" onChange={handleUpload} disabled={uploading} />
-            {uploading && <p className="text-xs text-muted-foreground">Mengupload...</p>}
+            <div className="flex gap-2">
+              <Input
+                value={imgUrl}
+                onChange={(e) => setImgUrl(e.target.value)}
+                placeholder="https://drive.google.com/file/d/.../view"
+              />
+              <Button type="button" variant="outline" size="sm" onClick={handleGDriveLink} className="shrink-0">
+                Konversi
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">Paste link Google Drive lalu klik Konversi</p>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
