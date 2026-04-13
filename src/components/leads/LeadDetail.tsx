@@ -34,12 +34,15 @@ interface DripLog {
   tenant_id: number;
 }
 
+const PIPELINE_STAGES = ["new", "contacted", "qualified", "proposal", "negotiation", "won", "lost"] as const;
+
 interface LeadDetailProps {
   contact: Contact;
   messages: ChatMessage[];
   tenantId: number | null;
   onBack: () => void;
   onModeChange?: (contactId: number, newMode: string) => void;
+  onStageChange?: (contactId: number, newStage: string) => void;
   isMobile?: boolean;
 }
 
