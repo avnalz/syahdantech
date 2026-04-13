@@ -165,7 +165,7 @@ export default function Leads() {
   }
 
   return (
-    <div className={`flex ${isMobile ? 'h-[calc(100vh-5rem)]' : 'h-[calc(100vh-3.5rem)] -mx-6 -my-6'} overflow-hidden max-w-[100vw]`}>
+    <div className={`flex ${isMobile ? 'h-[calc(100vh-7rem)] -mx-3 -mt-3' : 'h-[calc(100vh-3.5rem)] -mx-6 -my-6'} overflow-hidden max-w-[100vw]`}>
       {/* Left Panel */}
       <div className={`${isMobile ? "w-full" : "w-[360px] min-w-[360px]"} border-r border-border flex flex-col bg-background`}>
         <LeadsList
