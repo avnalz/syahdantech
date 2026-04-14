@@ -156,6 +156,31 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
           <ArrowLeftRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
           {humanMode ? "Human" : "AI"}
         </button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Hapus Percakapan?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Semua pesan dan data kontak <strong>{contact.name || contact.phone_number}</strong> akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleting ? "Menghapus..." : "Hapus"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Tabs */}
