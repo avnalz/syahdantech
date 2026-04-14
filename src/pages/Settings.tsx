@@ -149,6 +149,11 @@ export default function Settings() {
           </Card>
         </TabsContent>
 
+        {/* Drip Follow-up Tab */}
+        <TabsContent value="drip">
+          <DripFollowupTab />
+        </TabsContent>
+
         {/* Notifikasi Tab */}
         <TabsContent value="notifikasi">
           <Card>
