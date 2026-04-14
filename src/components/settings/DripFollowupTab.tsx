@@ -182,7 +182,7 @@ export default function DripFollowupTab() {
             <Card className={cn(
               "transition-all",
               isActive
-                ? "border-emerald-500/40 dark:border-emerald-500/30"
+                ? "border-primary/40 dark:border-primary/30"
                 : "border-muted opacity-70"
             )}>
               <CollapsibleTrigger asChild>
