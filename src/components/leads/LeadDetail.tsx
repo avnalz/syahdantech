@@ -263,18 +263,33 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
                 />
                 <div>
                   <p className="text-xs text-muted-foreground mb-0.5">Stage</p>
-                  <Select value={contact.pipeline_stage} onValueChange={handleStageChange}>
-                    <SelectTrigger className="h-7 text-xs w-[140px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PIPELINE_STAGES.map((stage) => (
-                        <SelectItem key={stage} value={stage} className="text-xs capitalize">
-                          {stage.charAt(0).toUpperCase() + stage.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center gap-1.5">
+                    <Select value={contact.pipeline_stage} onValueChange={handleStageChange}>
+                      <SelectTrigger className="h-7 text-xs w-[130px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PIPELINE_STAGES.map((stage) => (
+                          <SelectItem key={stage} value={stage} className="text-xs capitalize">
+                            {stage.charAt(0).toUpperCase() + stage.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-7 w-7 shrink-0"
+                      onClick={handleAiAnalyzeStage}
+                      disabled={analyzingStage}
+                      title="AI tentukan stage"
+                    >
+                      {analyzingStage ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                    </Button>
+                  </div>
+                  {aiStageReason && (
+                    <p className="text-[11px] text-muted-foreground mt-1 italic">🤖 {aiStageReason}</p>
+                  )}
                 </div>
               </div>
 
