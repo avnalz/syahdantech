@@ -154,6 +154,15 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
     fetchDripLogs();
   }, [fetchDripLogs]);
 
+  // Auto-analyze stage with AI when contact is opened and has messages
+  const hasAutoAnalyzed = useRef(false);
+  useEffect(() => {
+    if (messages.length > 0 && !hasAutoAnalyzed.current) {
+      hasAutoAnalyzed.current = true;
+      handleAiAnalyzeStage();
+    }
+  }, [messages]);
+
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
       {/* Header */}
