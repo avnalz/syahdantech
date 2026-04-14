@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import DripFollowupTab from "@/components/settings/DripFollowupTab";
 
 export default function Settings() {
   const { user, tenantId, tenantUser } = useAuth();
@@ -98,6 +99,7 @@ export default function Settings() {
       <Tabs defaultValue="profil" className="space-y-6">
         <TabsList>
           <TabsTrigger value="profil">Profil</TabsTrigger>
+          <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
           <TabsTrigger value="tentang">Tentang</TabsTrigger>
         </TabsList>
@@ -145,6 +147,11 @@ export default function Settings() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Drip Follow-up Tab */}
+        <TabsContent value="drip">
+          <DripFollowupTab />
         </TabsContent>
 
         {/* Notifikasi Tab */}
