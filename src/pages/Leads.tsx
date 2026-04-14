@@ -129,6 +129,12 @@ export default function Leads() {
     }
   };
 
+  const handleDelete = (contactId: number) => {
+    setContacts((prev) => prev.filter((c) => c.id !== contactId));
+    setSelectedContact(null);
+    setMessages([]);
+  };
+
   // Filter contacts
   const filtered = contacts.filter((c) => {
     const matchSearch =
