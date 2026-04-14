@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import DripFollowupTab from "@/components/settings/DripFollowupTab";
 
 export default function Settings() {
   const { user, tenantId, tenantUser } = useAuth();

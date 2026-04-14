@@ -52,7 +52,7 @@ const PREVIEW_VARS: Record<string, string> = {
 function replaceVars(text: string) {
   let result = text;
   for (const [key, val] of Object.entries(PREVIEW_VARS)) {
-    result = result.replaceAll(key, val);
+    result = result.split(key).join(val);
   }
   return result;
 }
