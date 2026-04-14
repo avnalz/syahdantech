@@ -76,7 +76,7 @@ function formatCurrency(value: number | null) {
   return new Intl.NumberFormat("id-ID").format(value);
 }
 
-export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, onStageChange, isMobile }: LeadDetailProps) {
+export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, onStageChange, onDelete, isMobile }: LeadDetailProps) {
   const [dripLogs, setDripLogs] = useState<DripLog[]>([]);
   const [humanMode, setHumanMode] = useState(contact.mode === "human_mode");
 
