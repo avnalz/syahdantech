@@ -129,6 +129,12 @@ export default function Leads() {
     }
   };
 
+  const handleDelete = (contactId: number) => {
+    setContacts((prev) => prev.filter((c) => c.id !== contactId));
+    setSelectedContact(null);
+    setMessages([]);
+  };
+
   // Filter contacts
   const filtered = contacts.filter((c) => {
     const matchSearch =
@@ -158,6 +164,7 @@ export default function Leads() {
           onBack={handleBack}
           onModeChange={handleModeChange}
           onStageChange={handleStageChange}
+          onDelete={handleDelete}
           isMobile
         />
       </div>
@@ -192,6 +199,7 @@ export default function Leads() {
               onBack={handleBack}
               onModeChange={handleModeChange}
               onStageChange={handleStageChange}
+              onDelete={handleDelete}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">

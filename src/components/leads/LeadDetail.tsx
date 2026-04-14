@@ -1,10 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks, ArrowLeftRight } from "lucide-react";
+import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks, ArrowLeftRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,6 +48,7 @@ interface LeadDetailProps {
   onBack: () => void;
   onModeChange?: (contactId: number, newMode: string) => void;
   onStageChange?: (contactId: number, newStage: string) => void;
+  onDelete?: (contactId: number) => void;
   isMobile?: boolean;
 }
 
@@ -70,7 +76,7 @@ function formatCurrency(value: number | null) {
   return new Intl.NumberFormat("id-ID").format(value);
 }
 
-export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, onStageChange, isMobile }: LeadDetailProps) {
+export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, onStageChange, onDelete, isMobile }: LeadDetailProps) {
   const [dripLogs, setDripLogs] = useState<DripLog[]>([]);
   const [humanMode, setHumanMode] = useState(contact.mode === "human_mode");
 
@@ -88,6 +94,25 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
   const handleStageChange = async (newStage: string) => {
     await supabase.from("contacts").update({ pipeline_stage: newStage }).eq("id", contact.id);
     onStageChange?.(contact.id, newStage);
+  };
+
+  const [deleting, setDeleting] = useState(false);
+  const handleDelete = async () => {
+    if (!tenantId) return;
+    setDeleting(true);
+    // Delete chat logs first
+    await supabase.from("chat_logs").delete().eq("phone_number", contact.phone_number).eq("tenant_id", tenantId);
+    // Delete drip logs
+    await supabase.from("drip_logs").delete().eq("phone_number", contact.phone_number).eq("tenant_id", tenantId);
+    // Delete contact
+    const { error } = await supabase.from("contacts").delete().eq("id", contact.id);
+    if (error) {
+      toast.error("Gagal menghapus percakapan");
+    } else {
+      toast.success("Percakapan berhasil dihapus");
+      onDelete?.(contact.id);
+    }
+    setDeleting(false);
   };
 
   const fetchDripLogs = useCallback(async () => {
@@ -131,6 +156,31 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
           <ArrowLeftRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
           {humanMode ? "Human" : "AI"}
         </button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Hapus Percakapan?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Semua pesan dan data kontak <strong>{contact.name || contact.phone_number}</strong> akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                disabled={deleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deleting ? "Menghapus..." : "Hapus"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Tabs */}
