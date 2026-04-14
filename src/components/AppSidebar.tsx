@@ -80,11 +80,6 @@ export function AppSidebar() {
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span className="flex-1">{item.title}</span>}
-                      {item.badge && hotCount > 0 && (
-                        <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5">
-                          {hotCount}
-                        </span>
-                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
