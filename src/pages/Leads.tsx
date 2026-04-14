@@ -199,6 +199,7 @@ export default function Leads() {
               onBack={handleBack}
               onModeChange={handleModeChange}
               onStageChange={handleStageChange}
+              onDelete={handleDelete}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
