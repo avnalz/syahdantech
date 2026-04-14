@@ -96,6 +96,25 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
     onStageChange?.(contact.id, newStage);
   };
 
+  const [deleting, setDeleting] = useState(false);
+  const handleDelete = async () => {
+    if (!tenantId) return;
+    setDeleting(true);
+    // Delete chat logs first
+    await supabase.from("chat_logs").delete().eq("phone_number", contact.phone_number).eq("tenant_id", tenantId);
+    // Delete drip logs
+    await supabase.from("drip_logs").delete().eq("phone_number", contact.phone_number).eq("tenant_id", tenantId);
+    // Delete contact
+    const { error } = await supabase.from("contacts").delete().eq("id", contact.id);
+    if (error) {
+      toast.error("Gagal menghapus percakapan");
+    } else {
+      toast.success("Percakapan berhasil dihapus");
+      onDelete?.(contact.id);
+    }
+    setDeleting(false);
+  };
+
   const fetchDripLogs = useCallback(async () => {
     if (!tenantId) return;
     const { data } = await supabase
