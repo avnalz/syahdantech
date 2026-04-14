@@ -99,6 +99,7 @@ export default function Settings() {
       <Tabs defaultValue="profil" className="space-y-6">
         <TabsList>
           <TabsTrigger value="profil">Profil</TabsTrigger>
+          <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
           <TabsTrigger value="tentang">Tentang</TabsTrigger>
         </TabsList>
