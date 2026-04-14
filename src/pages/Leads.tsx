@@ -164,6 +164,7 @@ export default function Leads() {
           onBack={handleBack}
           onModeChange={handleModeChange}
           onStageChange={handleStageChange}
+          onDelete={handleDelete}
           isMobile
         />
       </div>
