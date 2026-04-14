@@ -48,6 +48,7 @@ interface LeadDetailProps {
   onBack: () => void;
   onModeChange?: (contactId: number, newMode: string) => void;
   onStageChange?: (contactId: number, newStage: string) => void;
+  onDelete?: (contactId: number) => void;
   isMobile?: boolean;
 }
 
