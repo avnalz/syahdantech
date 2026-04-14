@@ -216,6 +216,57 @@ export type Database = {
           },
         ]
       }
+      drip_templates: {
+        Row: {
+          created_at: string | null
+          delay_days: number
+          id: number
+          is_active: boolean | null
+          stage_target: string | null
+          step: number
+          template_text: string
+          tenant_id: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          delay_days: number
+          id?: number
+          is_active?: boolean | null
+          stage_target?: string | null
+          step: number
+          template_text: string
+          tenant_id: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          delay_days?: number
+          id?: number
+          is_active?: boolean | null
+          stage_target?: string | null
+          step?: number
+          template_text?: string
+          tenant_id?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "drip_templates_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drip_templates_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       history: {
         Row: {
           created_at: string
