@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks, ArrowLeftRight, Trash2 } from "lucide-react";
+import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks, ArrowLeftRight, Trash2, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
@@ -97,6 +97,8 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
   };
 
   const [deleting, setDeleting] = useState(false);
+  const [analyzingStage, setAnalyzingStage] = useState(false);
+  const [aiStageReason, setAiStageReason] = useState<string | null>(null);
   const handleDelete = async () => {
     if (!tenantId) return;
     setDeleting(true);
@@ -113,6 +115,28 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
       onDelete?.(contact.id);
     }
     setDeleting(false);
+  };
+
+  const handleAiAnalyzeStage = async () => {
+    if (!tenantId) return;
+    setAnalyzingStage(true);
+    setAiStageReason(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze-stage", {
+        body: { messages, contact },
+      });
+      if (error) throw error;
+      if (data?.stage) {
+        await supabase.from("contacts").update({ pipeline_stage: data.stage }).eq("id", contact.id);
+        onStageChange?.(contact.id, data.stage);
+        setAiStageReason(data.reason);
+        toast.success(`Stage diubah ke "${data.stage}" oleh AI`);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Gagal menganalisis stage");
+    }
+    setAnalyzingStage(false);
   };
 
   const fetchDripLogs = useCallback(async () => {
@@ -239,18 +263,33 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
                 />
                 <div>
                   <p className="text-xs text-muted-foreground mb-0.5">Stage</p>
-                  <Select value={contact.pipeline_stage} onValueChange={handleStageChange}>
-                    <SelectTrigger className="h-7 text-xs w-[140px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {PIPELINE_STAGES.map((stage) => (
-                        <SelectItem key={stage} value={stage} className="text-xs capitalize">
-                          {stage.charAt(0).toUpperCase() + stage.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center gap-1.5">
+                    <Select value={contact.pipeline_stage} onValueChange={handleStageChange}>
+                      <SelectTrigger className="h-7 text-xs w-[130px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PIPELINE_STAGES.map((stage) => (
+                          <SelectItem key={stage} value={stage} className="text-xs capitalize">
+                            {stage.charAt(0).toUpperCase() + stage.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-7 w-7 shrink-0"
+                      onClick={handleAiAnalyzeStage}
+                      disabled={analyzingStage}
+                      title="AI tentukan stage"
+                    >
+                      {analyzingStage ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                    </Button>
+                  </div>
+                  {aiStageReason && (
+                    <p className="text-[11px] text-muted-foreground mt-1 italic">🤖 {aiStageReason}</p>
+                  )}
                 </div>
               </div>
 
