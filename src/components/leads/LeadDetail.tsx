@@ -117,6 +117,28 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
     setDeleting(false);
   };
 
+  const handleAiAnalyzeStage = async () => {
+    if (!tenantId) return;
+    setAnalyzingStage(true);
+    setAiStageReason(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze-stage", {
+        body: { messages, contact },
+      });
+      if (error) throw error;
+      if (data?.stage) {
+        await supabase.from("contacts").update({ pipeline_stage: data.stage }).eq("id", contact.id);
+        onStageChange?.(contact.id, data.stage);
+        setAiStageReason(data.reason);
+        toast.success(`Stage diubah ke "${data.stage}" oleh AI`);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Gagal menganalisis stage");
+    }
+    setAnalyzingStage(false);
+  };
+
   const fetchDripLogs = useCallback(async () => {
     if (!tenantId) return;
     const { data } = await supabase
