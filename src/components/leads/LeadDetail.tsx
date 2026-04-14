@@ -97,6 +97,8 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
   };
 
   const [deleting, setDeleting] = useState(false);
+  const [analyzingStage, setAnalyzingStage] = useState(false);
+  const [aiStageReason, setAiStageReason] = useState<string | null>(null);
   const handleDelete = async () => {
     if (!tenantId) return;
     setDeleting(true);
