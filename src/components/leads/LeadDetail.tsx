@@ -130,7 +130,6 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
         await supabase.from("contacts").update({ pipeline_stage: data.stage }).eq("id", contact.id);
         onStageChange?.(contact.id, data.stage);
         setAiStageReason(data.reason);
-        toast.success(`Stage diubah ke "${data.stage}" oleh AI`);
       }
     } catch (e) {
       console.error(e);
