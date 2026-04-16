@@ -135,6 +135,10 @@ export default function Leads() {
     setMessages([]);
   };
 
+  const handleMessageSent = (msg: ChatMessage) => {
+    setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+  };
+
   // Filter contacts
   const filtered = contacts.filter((c) => {
     const matchSearch =
@@ -165,6 +169,7 @@ export default function Leads() {
           onModeChange={handleModeChange}
           onStageChange={handleStageChange}
           onDelete={handleDelete}
+          onMessageSent={handleMessageSent}
           isMobile
         />
       </div>
@@ -200,6 +205,7 @@ export default function Leads() {
               onModeChange={handleModeChange}
               onStageChange={handleStageChange}
               onDelete={handleDelete}
+              onMessageSent={handleMessageSent}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">

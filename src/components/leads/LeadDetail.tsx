@@ -49,6 +49,7 @@ interface LeadDetailProps {
   onModeChange?: (contactId: number, newMode: string) => void;
   onStageChange?: (contactId: number, newStage: string) => void;
   onDelete?: (contactId: number) => void;
+  onMessageSent?: (msg: ChatMessage) => void;
   isMobile?: boolean;
 }
 
@@ -76,7 +77,7 @@ function formatCurrency(value: number | null) {
   return new Intl.NumberFormat("id-ID").format(value);
 }
 
-export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, onStageChange, onDelete, isMobile }: LeadDetailProps) {
+export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, onStageChange, onDelete, onMessageSent, isMobile }: LeadDetailProps) {
   const [dripLogs, setDripLogs] = useState<DripLog[]>([]);
   const [humanMode, setHumanMode] = useState(contact.mode === "human_mode");
 
@@ -238,6 +239,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
             onBack={onBack}
             isMobile={isMobile}
             hideHeader
+            onMessageSent={onMessageSent}
           />
         </TabsContent>
 
