@@ -146,7 +146,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
       .select("*")
       .eq("phone_number", contact.phone_number)
       .eq("tenant_id", tenantId)
-      .order("drip_step", { ascending: true });
+      .order("step", { ascending: true });
     if (data) setDripLogs(data);
   }, [tenantId, contact.phone_number]);
 
@@ -348,9 +348,9 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
                       <div className="flex items-center gap-3">
                         <div className={`h-2.5 w-2.5 rounded-full ${log.is_completed ? "bg-emerald-500" : "bg-amber-500"}`} />
                         <div>
-                          <p className="text-sm font-medium">Step {log.drip_step}</p>
+                          <p className="text-sm font-medium">Step {log.step}</p>
                           <p className="text-xs text-muted-foreground">
-                            {log.last_drip_at ? formatRelativeTime(log.last_drip_at) : "Belum dikirim"}
+                            {log.sent_at ? formatRelativeTime(log.sent_at) : "Belum dikirim"}
                           </p>
                         </div>
                       </div>
