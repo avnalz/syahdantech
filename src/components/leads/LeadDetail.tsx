@@ -31,9 +31,9 @@ const labelOutlineColors: Record<string, string> = {
 interface DripLog {
   id: number;
   phone_number: string;
-  drip_step: number;
+  step: number;
   is_completed: boolean;
-  last_drip_at: string | null;
+  sent_at: string | null;
   created_at: string;
   updated_at: string;
   tenant_id: number;
