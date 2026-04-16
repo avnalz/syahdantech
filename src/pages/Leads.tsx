@@ -135,6 +135,10 @@ export default function Leads() {
     setMessages([]);
   };
 
+  const handleMessageSent = (msg: ChatMessage) => {
+    setMessages((prev) => (prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]));
+  };
+
   // Filter contacts
   const filtered = contacts.filter((c) => {
     const matchSearch =
