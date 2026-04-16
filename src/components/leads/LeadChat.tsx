@@ -1,8 +1,11 @@
-import { useRef, useEffect } from "react";
-import { ArrowLeft, User, ExternalLink } from "lucide-react";
+import { useRef, useEffect, useState } from "react";
+import { ArrowLeft, User, Send, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import type { Contact, ChatMessage } from "@/pages/Leads";
 
 const labelColors: Record<string, string> = {
@@ -20,20 +23,67 @@ interface LeadChatProps {
   hideHeader?: boolean;
 }
 
-function getWhatsAppLink(phoneNumber: string) {
-  // Clean number: remove spaces, dashes, plus sign for wa.me format
-  const cleaned = phoneNumber.replace(/[\s\-\+]/g, "");
-  return `https://wa.me/${cleaned}`;
-}
-
-export function LeadChat({ contact, messages, onBack, isMobile, hideHeader }: LeadChatProps) {
+export function LeadChat({ contact, messages, tenantId, onBack, isMobile, hideHeader }: LeadChatProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handleSend = async () => {
+    const text = input.trim();
+    if (!text || !tenantId || sending) return;
+    setSending(true);
+
+    const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
+
+    try {
+      // Insert message to chat_logs (will appear via realtime)
+      const { error: insertError } = await supabase.from("chat_logs").insert({
+        phone_number: contact.phone_number,
+        tenant_id: tenantId,
+        direction: "outbound_human",
+        message: text,
+      });
+      if (insertError) throw insertError;
+
+      // Trigger webhook to send via WhatsApp (best effort)
+      if (webhookUrl) {
+        try {
+          await fetch(webhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              phone_number: contact.phone_number,
+              tenant_id: String(tenantId),
+              message: text,
+              direction: "outbound_human",
+            }),
+          });
+        } catch (e) {
+          console.warn("Webhook gagal:", e);
+        }
+      }
+
+      setInput("");
+    } catch (e) {
+      console.error(e);
+      toast.error("Gagal mengirim pesan");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
 
   return (
     <div className={`flex flex-col ${isMobile && !hideHeader ? "h-screen" : "h-full"} bg-background`}>
@@ -93,14 +143,25 @@ export function LeadChat({ contact, messages, onBack, isMobile, hideHeader }: Le
         </div>
       </ScrollArea>
 
-      {/* WhatsApp Link - fixed footer, outside ScrollArea */}
+      {/* Web Chat Input - fixed footer */}
       <div className="shrink-0 border-t border-border p-3 bg-card">
-        <div className="max-w-3xl mx-auto">
-          <Button asChild className="w-full gap-2" variant="default">
-            <a href={getWhatsAppLink(contact.phone_number)} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-4 w-4" />
-              Balas via WhatsApp
-            </a>
+        <div className="max-w-3xl mx-auto flex gap-2">
+          <Textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ketik balasan..."
+            rows={1}
+            disabled={sending}
+            className="min-h-[44px] max-h-[120px] resize-none"
+          />
+          <Button
+            onClick={handleSend}
+            disabled={!input.trim() || sending}
+            size="icon"
+            className="shrink-0 self-end"
+          >
+            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
         </div>
       </div>
