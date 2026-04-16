@@ -239,6 +239,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
             onBack={onBack}
             isMobile={isMobile}
             hideHeader
+            onMessageSent={onMessageSent}
           />
         </TabsContent>
 
