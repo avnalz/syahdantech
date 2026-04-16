@@ -49,6 +49,7 @@ interface LeadDetailProps {
   onModeChange?: (contactId: number, newMode: string) => void;
   onStageChange?: (contactId: number, newStage: string) => void;
   onDelete?: (contactId: number) => void;
+  onMessageSent?: (msg: ChatMessage) => void;
   isMobile?: boolean;
 }
 
