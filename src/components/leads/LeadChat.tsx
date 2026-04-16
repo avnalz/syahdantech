@@ -28,11 +28,19 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile, hideHe
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  const scrollToBottom = () => {
+    const root = scrollRef.current;
+    if (!root) return;
+    const viewport = root.querySelector<HTMLElement>("[data-radix-scroll-area-viewport]");
+    if (viewport) {
+      viewport.scrollTop = viewport.scrollHeight;
     }
-  }, [messages]);
+  };
+
+  useEffect(() => {
+    // Defer to next frame so layout is committed before scrolling
+    requestAnimationFrame(scrollToBottom);
+  }, [messages, contact.id]);
 
   const handleSend = async () => {
     const text = input.trim();
