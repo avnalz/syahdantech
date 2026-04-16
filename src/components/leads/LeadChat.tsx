@@ -21,9 +21,10 @@ interface LeadChatProps {
   onBack: () => void;
   isMobile?: boolean;
   hideHeader?: boolean;
+  onMessageSent?: (msg: ChatMessage) => void;
 }
 
-export function LeadChat({ contact, messages, tenantId, onBack, isMobile, hideHeader }: LeadChatProps) {
+export function LeadChat({ contact, messages, tenantId, onBack, isMobile, hideHeader, onMessageSent }: LeadChatProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
