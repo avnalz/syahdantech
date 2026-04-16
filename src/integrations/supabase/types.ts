@@ -163,32 +163,38 @@ export type Database = {
       }
       drip_logs: {
         Row: {
+          chat_id: string | null
           created_at: string
-          drip_step: number
           id: number
           is_completed: boolean
-          last_drip_at: string | null
+          message: string | null
           phone_number: string
+          sent_at: string | null
+          step: number
           tenant_id: number
           updated_at: string
         }
         Insert: {
+          chat_id?: string | null
           created_at?: string
-          drip_step?: number
           id?: number
           is_completed?: boolean
-          last_drip_at?: string | null
+          message?: string | null
           phone_number: string
+          sent_at?: string | null
+          step?: number
           tenant_id: number
           updated_at?: string
         }
         Update: {
+          chat_id?: string | null
           created_at?: string
-          drip_step?: number
           id?: number
           is_completed?: boolean
-          last_drip_at?: string | null
+          message?: string | null
           phone_number?: string
+          sent_at?: string | null
+          step?: number
           tenant_id?: number
           updated_at?: string
         }
