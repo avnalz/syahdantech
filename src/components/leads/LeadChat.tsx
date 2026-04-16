@@ -49,14 +49,23 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile, hideHe
     setSending(true);
 
     try {
-      // Insert message to chat_logs (will appear via realtime)
-      const { error: insertError } = await supabase.from("chat_logs").insert({
-        phone_number: contact.phone_number,
-        tenant_id: tenantId,
-        direction: "outbound_human",
-        message: text,
-      });
+      // Insert message to chat_logs and grab the row for instant UI update
+      const { data: inserted, error: insertError } = await supabase
+        .from("chat_logs")
+        .insert({
+          phone_number: contact.phone_number,
+          tenant_id: tenantId,
+          direction: "outbound_human",
+          message: text,
+        })
+        .select()
+        .single();
       if (insertError) throw insertError;
+
+      // Notify parent so message list updates immediately (don't wait for realtime)
+      if (inserted) {
+        onMessageSent?.(inserted as ChatMessage);
+      }
 
       // Forward to n8n via edge function (avoids browser CORS)
       try {
