@@ -39,8 +39,6 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile, hideHe
     if (!text || !tenantId || sending) return;
     setSending(true);
 
-    const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
-
     try {
       // Insert message to chat_logs (will appear via realtime)
       const { error: insertError } = await supabase.from("chat_logs").insert({
@@ -51,22 +49,18 @@ export function LeadChat({ contact, messages, tenantId, onBack, isMobile, hideHe
       });
       if (insertError) throw insertError;
 
-      // Trigger webhook to send via WhatsApp (best effort)
-      if (webhookUrl) {
-        try {
-          await fetch(webhookUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              phone_number: contact.phone_number,
-              tenant_id: String(tenantId),
-              message: text,
-              direction: "outbound_human",
-            }),
-          });
-        } catch (e) {
-          console.warn("Webhook gagal:", e);
-        }
+      // Forward to n8n via edge function (avoids browser CORS)
+      try {
+        await supabase.functions.invoke("send-whatsapp-reply", {
+          body: {
+            phone_number: contact.phone_number,
+            tenant_id: tenantId,
+            message: text,
+            direction: "outbound_human",
+          },
+        });
+      } catch (e) {
+        console.warn("Webhook gagal:", e);
       }
 
       setInput("");
