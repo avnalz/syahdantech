@@ -29,10 +29,18 @@ const settingsMenuItems = [
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpen, setOpenMobile, isMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const { signOut, tenantUser } = useAuth();
   const hotCount = useHotLeadBadge();
+
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
+  };
 
   return (
     <Sidebar collapsible="icon">
