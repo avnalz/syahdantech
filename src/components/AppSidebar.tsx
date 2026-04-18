@@ -109,6 +109,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
+                      onClick={handleNavClick}
                       className={collapsed ? "hover:bg-transparent" : "hover:bg-accent/50"}
                       activeClassName={collapsed ? "text-foreground font-medium" : "bg-accent text-foreground font-medium"}
                     >
