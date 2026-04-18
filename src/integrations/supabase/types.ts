@@ -361,6 +361,7 @@ export type Database = {
         Row: {
           area: string | null
           created_at: string
+          description: string | null
           harga: number | null
           id: number
           img_url: string | null
@@ -379,6 +380,7 @@ export type Database = {
         Insert: {
           area?: string | null
           created_at?: string
+          description?: string | null
           harga?: number | null
           id?: number
           img_url?: string | null
@@ -397,6 +399,7 @@ export type Database = {
         Update: {
           area?: string | null
           created_at?: string
+          description?: string | null
           harga?: number | null
           id?: number
           img_url?: string | null
