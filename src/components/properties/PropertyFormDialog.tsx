@@ -125,69 +125,70 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{property ? "Edit Properti" : "Tambah Properti"}</DialogTitle>
+      <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto p-4 sm:p-6 [&>button]:top-3 [&>button]:right-3">
+        <DialogHeader className="space-y-1">
+          <DialogTitle className="text-base sm:text-lg">{property ? "Edit Properti" : "Tambah Properti"}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 mt-1 sm:mt-2 [&_label]:text-xs sm:[&_label]:text-sm [&_input]:h-9 sm:[&_input]:h-10 [&_input]:text-sm">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="space-y-1.5 sm:space-y-2">
               <Label htmlFor="kode">Kode</Label>
               <Input id="kode" value={kode} onChange={(e) => setKode(e.target.value)} placeholder="A-01" />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5 sm:space-y-2">
               <Label htmlFor="lokasi">Lokasi *</Label>
               <Input id="lokasi" value={lokasi} onChange={(e) => setLokasi(e.target.value)} required placeholder="Canggu, Bali" />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="space-y-1.5 sm:space-y-2">
               <Label htmlFor="harga">Harga (Rp)</Label>
               <Input id="harga" type="number" value={harga} onChange={(e) => setHarga(e.target.value)} placeholder="500000000" />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5 sm:space-y-2">
               <Label htmlFor="area">Area</Label>
               <Input id="area" value={area} onChange={(e) => setArea(e.target.value)} placeholder="Canggu" />
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
+          <div className="grid grid-cols-3 gap-3 sm:gap-4">
+            <div className="space-y-1.5 sm:space-y-2">
               <Label htmlFor="luasTanah">Luas Tanah</Label>
               <Input id="luasTanah" value={luasTanah} onChange={(e) => setLuasTanah(e.target.value)} placeholder="100 m²" />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5 sm:space-y-2">
               <Label htmlFor="kamar">Kamar</Label>
               <Input id="kamar" value={kamar} onChange={(e) => setKamar(e.target.value)} placeholder="3" />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1.5 sm:space-y-2">
               <Label htmlFor="stok">Stok</Label>
               <Input id="stok" type="number" value={stok} onChange={(e) => setStok(e.target.value)} placeholder="1" />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5 sm:space-y-2">
             <Label htmlFor="legalitas">Legalitas</Label>
             <Input id="legalitas" value={legalitas} onChange={(e) => setLegalitas(e.target.value)} placeholder="SHM / HGB" />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5 sm:space-y-2">
             <Label htmlFor="description">Deskripsi</Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Jelaskan keunggulan, fasilitas, lingkungan sekitar..."
-              rows={4}
+              rows={3}
+              className="text-sm min-h-[72px] sm:min-h-[96px]"
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5 sm:space-y-2">
             <Label htmlFor="status">Status</Label>
             <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger>
+              <SelectTrigger className="h-9 sm:h-10 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -198,29 +199,29 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
             </Select>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1.5 sm:space-y-2">
             <Label>Foto Properti (Link Google Drive)</Label>
             {imgUrl && !imgUrl.startsWith("https://drive.google.com") && (
-              <img src={imgUrl} alt="Preview" className="w-full h-32 object-cover rounded-md mb-2" />
+              <img src={imgUrl} alt="Preview" className="w-full h-24 sm:h-32 object-cover rounded-md mb-2" />
             )}
             <div className="flex gap-2">
               <Input
                 value={imgUrl}
                 onChange={(e) => setImgUrl(e.target.value)}
-                placeholder="https://drive.google.com/file/d/.../view"
+                placeholder="https://drive.google.com/..."
               />
-              <Button type="button" variant="outline" size="sm" onClick={handleGDriveLink} className="shrink-0">
+              <Button type="button" variant="outline" size="sm" onClick={handleGDriveLink} className="shrink-0 h-9 sm:h-10">
                 Konversi
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">Paste link Google Drive lalu klik Konversi</p>
+            <p className="text-[11px] sm:text-xs text-muted-foreground">Paste link Google Drive lalu klik Konversi</p>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <div className="flex justify-end gap-2 pt-1 sm:pt-2">
+            <Button type="button" variant="outline" size="sm" className="sm:h-10 sm:px-4" onClick={() => onOpenChange(false)}>
               Batal
             </Button>
-            <Button type="submit" disabled={saving || !lokasi.trim()}>
+            <Button type="submit" size="sm" className="sm:h-10 sm:px-4" disabled={saving || !lokasi.trim()}>
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {property ? "Simpan" : "Tambah"}
             </Button>
