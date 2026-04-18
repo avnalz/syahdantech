@@ -125,7 +125,7 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto p-4 sm:p-6 [&>button]:top-3 [&>button]:right-3 border my-[20px] mx-[20px]">
+      <DialogContent className="max-w-lg max-h-[92vh] overflow-y-auto p-4 sm:p-6 [&>button]:top-3 [&>button]:right-3 border px-[16px] my-[30px] mx-0 ml-[30px] mr-[30px]">
         <DialogHeader className="space-y-1">
           <DialogTitle className="text-base sm:text-lg">{property ? "Edit Properti" : "Tambah Properti"}</DialogTitle>
         </DialogHeader>
