@@ -58,6 +58,12 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
 
         <p className="text-primary font-bold text-lg">{formatRupiah(property.harga)}</p>
 
+        {(property as Property & { description?: string | null }).description && (
+          <p className="text-xs text-muted-foreground line-clamp-2">
+            {(property as Property & { description?: string | null }).description}
+          </p>
+        )}
+
         <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
           {property.luas_tanah && <span>LT: {property.luas_tanah}</span>}
           {property.kamar && <span>KT: {property.kamar}</span>}
