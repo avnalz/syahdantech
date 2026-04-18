@@ -37,6 +37,7 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
   const [stok, setStok] = useState("1");
   const [status, setStatus] = useState("available");
   const [imgUrl, setImgUrl] = useState("");
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     if (property) {
@@ -50,9 +51,10 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
       setStok(property.stok?.toString() || "1");
       setStatus(property.status || "available");
       setImgUrl(property.img_url || "");
+      setDescription((property as Property & { description?: string | null }).description || "");
     } else {
       setKode(""); setLokasi(""); setHarga(""); setArea(""); setLuasTanah("");
-      setKamar(""); setLegalitas(""); setStok("1"); setStatus("available"); setImgUrl("");
+      setKamar(""); setLegalitas(""); setStok("1"); setStatus("available"); setImgUrl(""); setDescription("");
     }
   }, [property, open]);
 
@@ -101,6 +103,7 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
       stok: parseInt(stok, 10) || 0,
       status,
       img_url: imgUrl || null,
+      description: description || null,
       tenant_id: tenantId,
     };
 
@@ -168,6 +171,17 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
           <div className="space-y-2">
             <Label htmlFor="legalitas">Legalitas</Label>
             <Input id="legalitas" value={legalitas} onChange={(e) => setLegalitas(e.target.value)} placeholder="SHM / HGB" />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Deskripsi</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Jelaskan keunggulan, fasilitas, lingkungan sekitar..."
+              rows={4}
+            />
           </div>
 
           <div className="space-y-2">
