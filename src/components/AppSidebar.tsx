@@ -37,8 +37,6 @@ export function AppSidebar() {
   const handleNavClick = () => {
     if (isMobile) {
       setOpenMobile(false);
-    } else {
-      setOpen(false);
     }
   };
 
