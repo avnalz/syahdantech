@@ -83,6 +83,7 @@ export function AppSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === "/"}
+                      onClick={handleNavClick}
                       className={collapsed ? "hover:bg-transparent" : "hover:bg-accent/50"}
                       activeClassName={collapsed ? "text-foreground font-medium" : "bg-accent text-foreground font-medium"}
                     >
