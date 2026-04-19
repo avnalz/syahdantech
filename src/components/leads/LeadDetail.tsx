@@ -291,6 +291,54 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
         <TabsContent value="detail" className="flex-1 mt-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-6 max-w-3xl">
+              {/* Quick Actions */}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => handleQuickStage("won")}
+                  disabled={quickActionLoading !== null || contact.pipeline_stage === "won"}
+                  className="rounded-full bg-emerald-500 hover:bg-emerald-600 text-white gap-1.5"
+                >
+                  {quickActionLoading === "won" ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                  )}
+                  Tandai Converted
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => handleQuickStage("lost")}
+                  disabled={quickActionLoading !== null || contact.pipeline_stage === "lost"}
+                  className="rounded-full bg-destructive hover:bg-destructive/90 text-destructive-foreground gap-1.5"
+                >
+                  {quickActionLoading === "lost" ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <XCircle className="h-3.5 w-3.5" />
+                  )}
+                  Tandai Lost
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleToggleDrip}
+                  disabled={quickActionLoading !== null}
+                  className="rounded-full gap-1.5"
+                >
+                  {quickActionLoading === "drip" ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : hasActiveDrip ? (
+                    <PauseCircle className="h-3.5 w-3.5" />
+                  ) : (
+                    <PlayCircle className="h-3.5 w-3.5" />
+                  )}
+                  {hasActiveDrip ? "Pause Drip" : "Resume Drip"}
+                </Button>
+              </div>
+
+              <Separator />
+
               {/* AI Summary */}
               <div>
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">AI Summary</h3>
