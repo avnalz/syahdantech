@@ -1,4 +1,4 @@
-import { MapPin, Pencil, Trash2 } from "lucide-react";
+import { MapPin, Pencil, Trash2, BedDouble, Bath, Maximize2, Building2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -64,9 +64,31 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
           </p>
         )}
 
-        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-          {property.luas_tanah && <span>LT: {property.luas_tanah}</span>}
-          {property.kamar && <span>KT: {property.kamar}</span>}
+        <div className="flex flex-wrap gap-x-3 gap-y-1.5 text-xs text-muted-foreground pt-1">
+          {property.kamar && (
+            <span className="flex items-center gap-1">
+              <BedDouble className="h-3.5 w-3.5" />
+              {property.kamar} KT
+            </span>
+          )}
+          {(property as Property & { kamar_mandi?: string | null }).kamar_mandi && (
+            <span className="flex items-center gap-1">
+              <Bath className="h-3.5 w-3.5" />
+              {(property as Property & { kamar_mandi?: string | null }).kamar_mandi} KM
+            </span>
+          )}
+          {property.luas_tanah && (
+            <span className="flex items-center gap-1">
+              <Maximize2 className="h-3.5 w-3.5" />
+              LT {property.luas_tanah}
+            </span>
+          )}
+          {(property as Property & { luas_bangunan?: string | null }).luas_bangunan && (
+            <span className="flex items-center gap-1">
+              <Building2 className="h-3.5 w-3.5" />
+              LB {(property as Property & { luas_bangunan?: string | null }).luas_bangunan}
+            </span>
+          )}
           {property.stok > 0 && <span>Stok: {property.stok}</span>}
         </div>
 

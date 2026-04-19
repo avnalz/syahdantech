@@ -32,7 +32,9 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
   const [harga, setHarga] = useState("");
   const [area, setArea] = useState("");
   const [luasTanah, setLuasTanah] = useState("");
+  const [luasBangunan, setLuasBangunan] = useState("");
   const [kamar, setKamar] = useState("");
+  const [kamarMandi, setKamarMandi] = useState("");
   const [legalitas, setLegalitas] = useState("");
   const [stok, setStok] = useState("1");
   const [status, setStatus] = useState("available");
@@ -41,20 +43,23 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
 
   useEffect(() => {
     if (property) {
-      setKode(property.kode || "");
-      setLokasi(property.lokasi || "");
-      setHarga(property.harga?.toString() || "");
-      setArea(property.area || "");
-      setLuasTanah(property.luas_tanah || "");
-      setKamar(property.kamar || "");
-      setLegalitas(property.legalitas || "");
-      setStok(property.stok?.toString() || "1");
-      setStatus(property.status || "available");
-      setImgUrl(property.img_url || "");
-      setDescription((property as Property & { description?: string | null }).description || "");
+      const p = property as Property & { description?: string | null; kamar_mandi?: string | null; luas_bangunan?: string | null };
+      setKode(p.kode || "");
+      setLokasi(p.lokasi || "");
+      setHarga(p.harga?.toString() || "");
+      setArea(p.area || "");
+      setLuasTanah(p.luas_tanah || "");
+      setLuasBangunan(p.luas_bangunan || "");
+      setKamar(p.kamar || "");
+      setKamarMandi(p.kamar_mandi || "");
+      setLegalitas(p.legalitas || "");
+      setStok(p.stok?.toString() || "1");
+      setStatus(p.status || "available");
+      setImgUrl(p.img_url || "");
+      setDescription(p.description || "");
     } else {
-      setKode(""); setLokasi(""); setHarga(""); setArea(""); setLuasTanah("");
-      setKamar(""); setLegalitas(""); setStok("1"); setStatus("available"); setImgUrl(""); setDescription("");
+      setKode(""); setLokasi(""); setHarga(""); setArea(""); setLuasTanah(""); setLuasBangunan("");
+      setKamar(""); setKamarMandi(""); setLegalitas(""); setStok("1"); setStatus("available"); setImgUrl(""); setDescription("");
     }
   }, [property, open]);
 
@@ -98,7 +103,9 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
       harga: harga ? parseInt(harga, 10) : null,
       area: area || null,
       luas_tanah: luasTanah || null,
+      luas_bangunan: luasBangunan || null,
       kamar: kamar || null,
+      kamar_mandi: kamarMandi || null,
       legalitas: legalitas || null,
       stok: parseInt(stok, 10) || 0,
       status,
@@ -153,14 +160,25 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <div className="space-y-1.5 sm:space-y-2">
               <Label htmlFor="luasTanah">Luas Tanah</Label>
               <Input id="luasTanah" value={luasTanah} onChange={(e) => setLuasTanah(e.target.value)} placeholder="100 m²" />
             </div>
             <div className="space-y-1.5 sm:space-y-2">
-              <Label htmlFor="kamar">Kamar</Label>
+              <Label htmlFor="luasBangunan">Luas Bangunan</Label>
+              <Input id="luasBangunan" value={luasBangunan} onChange={(e) => setLuasBangunan(e.target.value)} placeholder="80 m²" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 sm:gap-4">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="kamar">Kamar Tidur</Label>
               <Input id="kamar" value={kamar} onChange={(e) => setKamar(e.target.value)} placeholder="3" />
+            </div>
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="kamarMandi">Kamar Mandi</Label>
+              <Input id="kamarMandi" value={kamarMandi} onChange={(e) => setKamarMandi(e.target.value)} placeholder="2" />
             </div>
             <div className="space-y-1.5 sm:space-y-2">
               <Label htmlFor="stok">Stok</Label>
