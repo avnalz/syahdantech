@@ -91,7 +91,7 @@ export function useAnalyticsData(monthOffset = 0) {
     const avgScore = allContacts.length > 0
       ? Math.round(allContacts.reduce((s, c) => s + c.lead_score, 0) / allContacts.length)
       : 0;
-    const sold = allContacts.filter(c => c.pipeline_stage === "closed_won").length;
+    const sold = allContacts.filter(c => c.pipeline_stage === "won" || c.pipeline_stage === "closed_won").length;
     const convRate = allContacts.length > 0 ? Math.round((sold / allContacts.length) * 100) : 0;
 
     // Unique conversations this month
@@ -121,11 +121,11 @@ export function useAnalyticsData(monthOffset = 0) {
     setDailyLeads(dailyCounts);
 
     // Pipeline stages
-    const stages = ["new", "contacted", "qualified", "proposal", "negotiation", "closed_won", "closed_lost"];
+    const stages = ["new", "contacted", "qualified", "proposal", "negotiation", "won", "lost"];
     const stageLabels: Record<string, string> = {
       new: "Baru", contacted: "Dihubungi", qualified: "Qualified",
       proposal: "Proposal", negotiation: "Negosiasi",
-      closed_won: "Closing", closed_lost: "Gagal",
+      won: "Closing", lost: "Gagal",
     };
     const pCounts: PipelineCount[] = stages.map(s => ({
       stage: stageLabels[s] || s,
