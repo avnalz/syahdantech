@@ -198,14 +198,32 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
     fetchDripLogs();
   }, [fetchDripLogs]);
 
-  // Auto-analyze stage with AI when contact is opened and has messages
-  const hasAutoAnalyzed = useRef(false);
+  // Auto-analyze stage with AI ONLY when a new message arrives (not on initial open)
+  const lastAnalyzedMessageId = useRef<number | string | null>(null);
+  const initializedRef = useRef(false);
   useEffect(() => {
-    if (messages.length > 0 && !hasAutoAnalyzed.current) {
-      hasAutoAnalyzed.current = true;
+    if (messages.length === 0) return;
+    const latestId = messages[messages.length - 1]?.id ?? messages.length;
+
+    // First mount for this contact: just record the latest message, don't analyze
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      lastAnalyzedMessageId.current = latestId;
+      return;
+    }
+
+    // New message arrived since last analysis → re-analyze
+    if (latestId !== lastAnalyzedMessageId.current) {
+      lastAnalyzedMessageId.current = latestId;
       handleAiAnalyzeStage();
     }
   }, [messages]);
+
+  // Reset tracker when switching to a different contact
+  useEffect(() => {
+    initializedRef.current = false;
+    lastAnalyzedMessageId.current = null;
+  }, [contact.id]);
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
