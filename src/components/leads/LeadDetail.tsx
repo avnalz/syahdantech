@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks, ArrowLeftRight, Trash2, Sparkles, Loader2 } from "lucide-react";
+import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks, ArrowLeftRight, Trash2, Sparkles, Loader2, CheckCircle2, XCircle, PauseCircle, PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
@@ -100,6 +100,50 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
   const [deleting, setDeleting] = useState(false);
   const [analyzingStage, setAnalyzingStage] = useState(false);
   const [aiStageReason, setAiStageReason] = useState<string | null>(null);
+  const [quickActionLoading, setQuickActionLoading] = useState<string | null>(null);
+
+  const handleQuickStage = async (newStage: "won" | "lost") => {
+    if (!tenantId) return;
+    setQuickActionLoading(newStage);
+    const { error } = await supabase.from("contacts").update({ pipeline_stage: newStage }).eq("id", contact.id);
+    if (error) {
+      toast.error("Gagal mengubah stage");
+    } else {
+      onStageChange?.(contact.id, newStage);
+      toast.success(newStage === "won" ? "Lead ditandai Converted 🎉" : "Lead ditandai Lost");
+    }
+    setQuickActionLoading(null);
+  };
+
+  const hasActiveDrip = dripLogs.some((d) => !d.is_completed);
+
+  const handleToggleDrip = async () => {
+    if (!tenantId) return;
+    setQuickActionLoading("drip");
+    if (hasActiveDrip) {
+      // Pause: mark all active drip logs as completed
+      const { error } = await supabase
+        .from("drip_logs")
+        .update({ is_completed: true })
+        .eq("phone_number", contact.phone_number)
+        .eq("tenant_id", tenantId)
+        .eq("is_completed", false);
+      if (error) toast.error("Gagal pause drip");
+      else toast.success("Drip follow-up dipause");
+    } else {
+      // Resume: create a new drip_log entry at step 0
+      const { error } = await supabase.from("drip_logs").insert({
+        phone_number: contact.phone_number,
+        tenant_id: tenantId,
+        step: 0,
+        is_completed: false,
+      });
+      if (error) toast.error("Gagal resume drip");
+      else toast.success("Drip follow-up diaktifkan");
+    }
+    await fetchDripLogs();
+    setQuickActionLoading(null);
+  };
   const handleDelete = async () => {
     if (!tenantId) return;
     setDeleting(true);
@@ -247,6 +291,54 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
         <TabsContent value="detail" className="flex-1 mt-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-6 max-w-3xl">
+              {/* Quick Actions */}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => handleQuickStage("won")}
+                  disabled={quickActionLoading !== null || contact.pipeline_stage === "won"}
+                  className="rounded-full bg-emerald-500 hover:bg-emerald-600 text-white gap-1.5"
+                >
+                  {quickActionLoading === "won" ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                  )}
+                  Tandai Converted
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => handleQuickStage("lost")}
+                  disabled={quickActionLoading !== null || contact.pipeline_stage === "lost"}
+                  className="rounded-full bg-destructive hover:bg-destructive/90 text-destructive-foreground gap-1.5"
+                >
+                  {quickActionLoading === "lost" ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <XCircle className="h-3.5 w-3.5" />
+                  )}
+                  Tandai Lost
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleToggleDrip}
+                  disabled={quickActionLoading !== null}
+                  className="rounded-full gap-1.5"
+                >
+                  {quickActionLoading === "drip" ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : hasActiveDrip ? (
+                    <PauseCircle className="h-3.5 w-3.5" />
+                  ) : (
+                    <PlayCircle className="h-3.5 w-3.5" />
+                  )}
+                  {hasActiveDrip ? "Pause Drip" : "Resume Drip"}
+                </Button>
+              </div>
+
+              <Separator />
+
               {/* AI Summary */}
               <div>
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">AI Summary</h3>
