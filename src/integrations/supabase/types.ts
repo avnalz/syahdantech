@@ -367,9 +367,11 @@ export type Database = {
           img_url: string | null
           is_active: boolean
           kamar: string | null
+          kamar_mandi: string | null
           kode: string | null
           legalitas: string | null
           lokasi: string
+          luas_bangunan: string | null
           luas_tanah: string | null
           posisi: string | null
           status: string | null
@@ -386,9 +388,11 @@ export type Database = {
           img_url?: string | null
           is_active?: boolean
           kamar?: string | null
+          kamar_mandi?: string | null
           kode?: string | null
           legalitas?: string | null
           lokasi: string
+          luas_bangunan?: string | null
           luas_tanah?: string | null
           posisi?: string | null
           status?: string | null
@@ -405,9 +409,11 @@ export type Database = {
           img_url?: string | null
           is_active?: boolean
           kamar?: string | null
+          kamar_mandi?: string | null
           kode?: string | null
           legalitas?: string | null
           lokasi?: string
+          luas_bangunan?: string | null
           luas_tanah?: string | null
           posisi?: string | null
           status?: string | null
