@@ -103,6 +103,7 @@ export default function Settings() {
           <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
           <TabsTrigger value="tentang">Tentang</TabsTrigger>
+          <TabsTrigger value="chatbot">Chatbot AI</TabsTrigger>
         </TabsList>
 
         {/* Profil Tab */}
