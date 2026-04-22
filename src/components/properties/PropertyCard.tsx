@@ -99,19 +99,51 @@ export function PropertyCard({ property, onEdit, onDelete, onToggleActive }: Pro
           {property.stok > 0 && <span>Stok: {property.stok}</span>}
         </div>
 
-        <div className="flex gap-2 pt-2">
-          <Button variant="outline" size="sm" className="flex-1" onClick={() => onEdit(property)}>
-            <Pencil className="h-3.5 w-3.5 mr-1" />
-            Edit
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-destructive hover:text-destructive"
-            onClick={() => onDelete(property.id)}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+        <div className="flex items-center justify-between pt-2 border-t border-border">
+          <div className="flex items-center gap-2">
+            <Switch
+              id={`active-${property.id}`}
+              checked={property.is_active}
+              onCheckedChange={(v) => onToggleActive?.(property.id, v)}
+            />
+            <Label htmlFor={`active-${property.id}`} className="text-xs cursor-pointer">
+              {property.is_active ? "Aktif" : "Nonaktif"}
+            </Label>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => onEdit(property)}>
+              <Pencil className="h-3.5 w-3.5 mr-1" />
+              Edit
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Hapus Properti?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Properti <strong>{property.kode || property.lokasi}</strong> akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => onDelete(property.id)}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Hapus
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </CardContent>
     </Card>
