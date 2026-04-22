@@ -140,16 +140,31 @@ export default function Leads() {
   };
 
   // Filter contacts
-  const filtered = contacts.filter((c) => {
-    const matchSearch =
-      !search ||
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone_number.includes(search);
-    const matchFilter =
-      filter === "all" ||
-      (filter === "human" ? c.mode === "human_mode" : c.lead_label === filter);
-    return matchSearch && matchFilter;
-  });
+  const FORTY_EIGHT_HOURS_MS = 48 * 60 * 60 * 1000;
+  const needsActionCutoff = Date.now() - FORTY_EIGHT_HOURS_MS;
+
+  const filtered = contacts
+    .filter((c) => {
+      const matchSearch =
+        !search ||
+        c.name.toLowerCase().includes(search.toLowerCase()) ||
+        c.phone_number.includes(search);
+      let matchFilter = true;
+      if (filter === "all") matchFilter = true;
+      else if (filter === "human") matchFilter = c.mode === "human_mode";
+      else if (filter === "needs_action")
+        matchFilter =
+          new Date(c.last_chat_at).getTime() < needsActionCutoff &&
+          (c.lead_label === "hot" || c.lead_label === "warm");
+      else matchFilter = c.lead_label === filter;
+      return matchSearch && matchFilter;
+    })
+    .sort((a, b) => {
+      if (filter === "needs_action") {
+        return new Date(a.last_chat_at).getTime() - new Date(b.last_chat_at).getTime();
+      }
+      return 0;
+    });
 
   // Get last message preview per contact
   const getLastMessage = (contact: Contact) => {
