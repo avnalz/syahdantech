@@ -87,9 +87,19 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
 
   const toggleHumanMode = async () => {
     const newMode = humanMode ? "ai_mode" : "human_mode";
-    await supabase.from("contacts").update({ mode: newMode }).eq("id", contact.id);
     setHumanMode(!humanMode);
+    const query = supabase
+      .from("contacts")
+      .update({ mode: newMode, updated_at: new Date().toISOString() })
+      .eq("id", contact.id);
+    const { error } = tenantId ? await query.eq("tenant_id", tenantId) : await query;
+    if (error) {
+      toast.error("Gagal mengubah mode");
+      setHumanMode(humanMode);
+      return;
+    }
     onModeChange?.(contact.id, newMode);
+    toast.success(newMode === "human_mode" ? "AI dinonaktifkan untuk kontak ini" : "AI diaktifkan kembali");
   };
 
   const handleStageChange = async (newStage: string) => {
