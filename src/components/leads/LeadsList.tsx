@@ -11,6 +11,7 @@ const FILTERS = [
   { label: "Warm", value: "warm" },
   { label: "Cold", value: "cold" },
   { label: "Human", value: "human" },
+  { label: "Perlu Tindakan", value: "needs_action" },
 ];
 
 const labelColors: Record<string, string> = {
