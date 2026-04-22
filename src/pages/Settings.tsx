@@ -217,6 +217,11 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {/* Chatbot AI Tab */}
+        <TabsContent value="chatbot">
+          <ChatbotAiTab />
+        </TabsContent>
       </Tabs>
     </div>
   );
