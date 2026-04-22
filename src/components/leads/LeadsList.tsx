@@ -119,9 +119,19 @@ export function LeadsList({
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium text-sm truncate">
-                      {contact.name || contact.phone_number}
-                    </span>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="font-medium text-sm truncate">
+                        {contact.name || contact.phone_number}
+                      </span>
+                      {contact.mode === "human_mode" && (
+                        <Badge
+                          variant="outline"
+                          className="text-[9px] px-1.5 py-0 bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30 shrink-0"
+                        >
+                          Human Mode
+                        </Badge>
+                      )}
+                    </div>
                     <span className="text-[10px] text-muted-foreground whitespace-nowrap">
                       {new Date(contact.last_chat_at).toLocaleDateString("id-ID", { day: "2-digit", month: "short" })}
                     </span>
