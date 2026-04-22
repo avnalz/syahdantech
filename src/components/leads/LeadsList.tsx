@@ -7,8 +7,8 @@ import type { Contact } from "@/pages/Leads";
 
 const FILTERS = [
   { label: "Semua", value: "all" },
-  { label: "Hot", value: "hot" },
   { label: "Perlu Tindakan", value: "needs_action" },
+  { label: "Hot", value: "hot" },
   { label: "Warm", value: "warm" },
   { label: "Cold", value: "cold" },
   { label: "Human", value: "human" },
