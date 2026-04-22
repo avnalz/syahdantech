@@ -1,4 +1,4 @@
-import { Flame, Clock, CheckCircle2 } from "lucide-react";
+import { Flame, Clock, Target } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface DashboardStatsProps {
@@ -6,9 +6,10 @@ interface DashboardStatsProps {
   leadsToday: number;
   hotCount: number;
   convertedCount: number;
+  conversionRate: number;
 }
 
-export function DashboardStats({ totalLeads, leadsToday, hotCount, convertedCount }: DashboardStatsProps) {
+export function DashboardStats({ totalLeads, leadsToday, hotCount, convertedCount, conversionRate }: DashboardStatsProps) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       {/* Primary card */}
@@ -44,14 +45,14 @@ export function DashboardStats({ totalLeads, leadsToday, hotCount, convertedCoun
         </CardContent>
       </Card>
 
-      {/* Converted */}
+      {/* Conversion rate */}
       <Card>
         <CardContent className="p-3 sm:p-5">
           <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground mb-1">
-            <CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Bulan ini
+            <Target className="h-3.5 w-3.5 text-primary" /> Conversion
           </div>
-          <p className="text-2xl sm:text-3xl font-bold">{convertedCount}</p>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Converted</p>
+          <p className="text-2xl sm:text-3xl font-bold">{conversionRate}%</p>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{convertedCount} converted</p>
         </CardContent>
       </Card>
     </div>
