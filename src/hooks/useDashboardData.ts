@@ -67,14 +67,14 @@ export function useDashboardData() {
   const warmCount = contacts.filter((c) => c.lead_label === "warm").length;
   const coldCount = contacts.filter((c) => c.lead_label === "cold").length;
 
-  const monthStart = new Date();
-  monthStart.setDate(1);
-  monthStart.setHours(0, 0, 0, 0);
-  const convertedCount = contacts.filter(
+  const soldCount = contacts.filter(
     (c) =>
-      (c.pipeline_stage === "won" || c.pipeline_stage === "closed_won" || c.pipeline_stage === "converted") &&
-      new Date(c.updated_at) >= monthStart
+      c.pipeline_stage === "won" ||
+      c.pipeline_stage === "closed_won" ||
+      c.pipeline_stage === "converted"
   ).length;
+  const convertedCount = soldCount;
+  const conversionRate = totalLeads > 0 ? Math.round((soldCount / totalLeads) * 100) : 0;
 
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
@@ -132,6 +132,7 @@ export function useDashboardData() {
     warmCount,
     coldCount,
     convertedCount,
+    conversionRate,
     totalWeek,
   };
 }
