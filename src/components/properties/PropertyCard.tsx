@@ -2,12 +2,19 @@ import { MapPin, Pencil, Trash2, BedDouble, Bath, Maximize2, Building2 } from "l
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import type { Property } from "@/pages/Properties";
 
 interface PropertyCardProps {
   property: Property;
   onEdit: (p: Property) => void;
   onDelete: (id: number) => void;
+  onToggleActive?: (id: number, isActive: boolean) => void;
 }
 
 function formatRupiah(value: number | null) {
@@ -15,7 +22,7 @@ function formatRupiah(value: number | null) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
 }
 
-export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) {
+export function PropertyCard({ property, onEdit, onDelete, onToggleActive }: PropertyCardProps) {
   const statusColor =
     property.status === "sold"
       ? "bg-destructive/15 text-destructive border-destructive/30"
@@ -92,19 +99,51 @@ export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) 
           {property.stok > 0 && <span>Stok: {property.stok}</span>}
         </div>
 
-        <div className="flex gap-2 pt-2">
-          <Button variant="outline" size="sm" className="flex-1" onClick={() => onEdit(property)}>
-            <Pencil className="h-3.5 w-3.5 mr-1" />
-            Edit
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-destructive hover:text-destructive"
-            onClick={() => onDelete(property.id)}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+        <div className="flex items-center justify-between pt-2 border-t border-border">
+          <div className="flex items-center gap-2">
+            <Switch
+              id={`active-${property.id}`}
+              checked={property.is_active}
+              onCheckedChange={(v) => onToggleActive?.(property.id, v)}
+            />
+            <Label htmlFor={`active-${property.id}`} className="text-xs cursor-pointer">
+              {property.is_active ? "Aktif" : "Nonaktif"}
+            </Label>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => onEdit(property)}>
+              <Pencil className="h-3.5 w-3.5 mr-1" />
+              Edit
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Hapus Properti?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Properti <strong>{property.kode || property.lokasi}</strong> akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => onDelete(property.id)}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Hapus
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </CardContent>
     </Card>
