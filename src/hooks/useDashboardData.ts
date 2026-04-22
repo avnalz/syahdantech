@@ -66,7 +66,15 @@ export function useDashboardData() {
   const hotCount = contacts.filter((c) => c.lead_label === "hot").length;
   const warmCount = contacts.filter((c) => c.lead_label === "warm").length;
   const coldCount = contacts.filter((c) => c.lead_label === "cold").length;
-  const convertedCount = contacts.filter((c) => c.pipeline_stage === "converted").length;
+
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+  const convertedCount = contacts.filter(
+    (c) =>
+      (c.pipeline_stage === "won" || c.pipeline_stage === "closed_won" || c.pipeline_stage === "converted") &&
+      new Date(c.updated_at) >= monthStart
+  ).length;
 
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
