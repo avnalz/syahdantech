@@ -319,6 +319,17 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
         <TabsContent value="detail" className="flex-1 mt-0 overflow-hidden">
           <ScrollArea className="h-full">
             <div className="p-4 space-y-6 max-w-3xl">
+              {/* Human Mode Toggle */}
+              <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2.5">
+                <div>
+                  <p className="text-sm font-medium">Human Mode</p>
+                  <p className="text-xs text-muted-foreground">
+                    {humanMode ? "AI nonaktif — balas manual" : "AI aktif menjawab otomatis"}
+                  </p>
+                </div>
+                <Switch checked={humanMode} onCheckedChange={toggleHumanMode} />
+              </div>
+
               {/* Quick Actions */}
               <div className="flex flex-wrap gap-2">
                 <Button
