@@ -22,7 +22,7 @@ function formatRupiah(value: number | null) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
 }
 
-export function PropertyCard({ property, onEdit, onDelete }: PropertyCardProps) {
+export function PropertyCard({ property, onEdit, onDelete, onToggleActive }: PropertyCardProps) {
   const statusColor =
     property.status === "sold"
       ? "bg-destructive/15 text-destructive border-destructive/30"
