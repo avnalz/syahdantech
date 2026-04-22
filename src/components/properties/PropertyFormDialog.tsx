@@ -116,7 +116,11 @@ export function PropertyFormDialog({ open, onOpenChange, property, tenantId, onS
 
     let error;
     if (property) {
-      ({ error } = await supabase.from("properties").update(payload).eq("id", property.id));
+      ({ error } = await supabase
+        .from("properties")
+        .update(payload)
+        .eq("id", property.id)
+        .eq("tenant_id", tenantId));
     } else {
       ({ error } = await supabase.from("properties").insert(payload));
     }
