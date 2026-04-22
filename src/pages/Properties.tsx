@@ -35,12 +35,33 @@ export default function Properties() {
   useEffect(() => { fetchProperties(); }, [fetchProperties]);
 
   const handleDelete = async (id: number) => {
-    const { error } = await supabase.from("properties").delete().eq("id", id);
+    if (!tenantId) return;
+    const { error } = await supabase
+      .from("properties")
+      .delete()
+      .eq("id", id)
+      .eq("tenant_id", tenantId);
     if (error) {
       toast.error("Gagal menghapus properti");
     } else {
       toast.success("Properti dihapus");
       fetchProperties();
+    }
+  };
+
+  const handleToggleActive = async (id: number, isActive: boolean) => {
+    if (!tenantId) return;
+    setProperties((prev) => prev.map((p) => (p.id === id ? { ...p, is_active: isActive } : p)));
+    const { error } = await supabase
+      .from("properties")
+      .update({ is_active: isActive })
+      .eq("id", id)
+      .eq("tenant_id", tenantId);
+    if (error) {
+      toast.error("Gagal mengubah status");
+      fetchProperties();
+    } else {
+      toast.success(isActive ? "Properti diaktifkan" : "Properti dinonaktifkan");
     }
   };
 
