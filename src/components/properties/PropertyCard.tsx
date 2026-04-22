@@ -2,12 +2,19 @@ import { MapPin, Pencil, Trash2, BedDouble, Bath, Maximize2, Building2 } from "l
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import type { Property } from "@/pages/Properties";
 
 interface PropertyCardProps {
   property: Property;
   onEdit: (p: Property) => void;
   onDelete: (id: number) => void;
+  onToggleActive?: (id: number, isActive: boolean) => void;
 }
 
 function formatRupiah(value: number | null) {
