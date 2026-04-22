@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DripFollowupTab from "@/components/settings/DripFollowupTab";
+import ChatbotAiTab from "@/components/settings/ChatbotAiTab";
 
 export default function Settings() {
   const { user, tenantId, tenantUser } = useAuth();
