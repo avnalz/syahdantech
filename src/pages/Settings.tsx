@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DripFollowupTab from "@/components/settings/DripFollowupTab";
+import ChatbotAiTab from "@/components/settings/ChatbotAiTab";
 
 export default function Settings() {
   const { user, tenantId, tenantUser } = useAuth();
@@ -102,6 +103,7 @@ export default function Settings() {
           <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
           <TabsTrigger value="tentang">Tentang</TabsTrigger>
+          <TabsTrigger value="chatbot">Chatbot AI</TabsTrigger>
         </TabsList>
 
         {/* Profil Tab */}
@@ -214,6 +216,11 @@ export default function Settings() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Chatbot AI Tab */}
+        <TabsContent value="chatbot">
+          <ChatbotAiTab />
         </TabsContent>
       </Tabs>
     </div>

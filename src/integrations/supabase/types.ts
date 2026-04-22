@@ -44,13 +44,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "chat_logs_phone_number_fkey"
-            columns: ["phone_number"]
-            isOneToOne: false
-            referencedRelation: "contacts"
-            referencedColumns: ["phone_number"]
-          },
-          {
             foreignKeyName: "chat_logs_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
@@ -440,32 +433,38 @@ export type Database = {
       }
       tenants: {
         Row: {
+          admin_name: string | null
           admin_phone: string
           ai_model: string
           created_at: string
           id: number
           is_active: boolean
           name: string
+          system_prompt: string | null
           wa_session: string
           wa_url: string | null
         }
         Insert: {
+          admin_name?: string | null
           admin_phone: string
           ai_model?: string
           created_at?: string
           id?: number
           is_active?: boolean
           name: string
+          system_prompt?: string | null
           wa_session: string
           wa_url?: string | null
         }
         Update: {
+          admin_name?: string | null
           admin_phone?: string
           ai_model?: string
           created_at?: string
           id?: number
           is_active?: boolean
           name?: string
+          system_prompt?: string | null
           wa_session?: string
           wa_url?: string | null
         }
