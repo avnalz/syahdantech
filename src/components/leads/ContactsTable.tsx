@@ -3,7 +3,7 @@ import { ArrowUpDown, ArrowUp, ArrowDown, Search, MessageCircle, Eye } from "luc
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+
 import {
   Select,
   SelectContent,
@@ -281,11 +281,12 @@ export function ContactsTable({ contacts, loading, onReply, onView }: ContactsTa
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Progress
-                          value={c.lead_score}
-                          className="h-2 w-20"
-                          indicatorClassName={scoreColor(c.lead_score)}
-                        />
+                        <div className="h-2 w-20 rounded-full bg-secondary overflow-hidden">
+                          <div
+                            className={`h-full transition-all ${scoreColor(c.lead_score)}`}
+                            style={{ width: `${Math.max(0, Math.min(100, c.lead_score))}%` }}
+                          />
+                        </div>
                         <span className="text-xs font-medium w-8 text-right">{c.lead_score}</span>
                       </div>
                     </TableCell>
