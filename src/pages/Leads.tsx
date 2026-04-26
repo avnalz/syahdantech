@@ -1,9 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { LeadsList } from "@/components/leads/LeadsList";
 import { LeadDetail } from "@/components/leads/LeadDetail";
+import { ContactsTable } from "@/components/leads/ContactsTable";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { MessageSquare, Table as TableIcon } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface Contact {
