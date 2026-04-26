@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DripFollowupTab from "@/components/settings/DripFollowupTab";
 
 export default function Settings() {
-  const { user, tenantId, tenantUser } = useAuth();
+  const { user, tenantId, tenantUser, tenant, refreshTenant } = useAuth();
   const [tenantName, setTenantName] = useState("");
   const [joinDate, setJoinDate] = useState("");
   const [loading, setLoading] = useState(true);
@@ -46,11 +46,21 @@ export default function Settings() {
     fetchTenant();
   }, [tenantId]);
 
+  // Keep input in sync when global tenant updates
+  useEffect(() => {
+    if (tenant?.name) setTenantName(tenant.name);
+  }, [tenant?.name]);
+
   const handleSaveTenantName = async () => {
     if (!tenantId || !tenantName.trim()) return;
     setSaving(true);
     const { error } = await supabase.from("tenants").update({ name: tenantName.trim() }).eq("id", tenantId);
-    if (error) { toast.error("Gagal menyimpan nama"); } else { toast.success("Pengaturan disimpan"); }
+    if (error) {
+      toast.error("Gagal menyimpan nama");
+    } else {
+      await refreshTenant();
+      toast.success("Profil berhasil disimpan ✓");
+    }
     setSaving(false);
   };
 

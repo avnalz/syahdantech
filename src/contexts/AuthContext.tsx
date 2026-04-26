@@ -10,14 +10,21 @@ interface TenantUser {
   tenant_id: number;
 }
 
+interface TenantInfo {
+  id: number;
+  name: string;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   tenantUser: TenantUser | null;
+  tenant: TenantInfo | null;
   tenantId: number | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
+  refreshTenant: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,7 +33,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [tenantUser, setTenantUser] = useState<TenantUser | null>(null);
+  const [tenant, setTenant] = useState<TenantInfo | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const fetchTenantInfo = async (tenantId: number) => {
+    const { data, error } = await supabase
+      .from("tenants_safe")
+      .select("id, name")
+      .eq("id", tenantId)
+      .maybeSingle();
+
+    if (!error && data) {
+      setTenant(data);
+    } else {
+      // fallback to tenants table
+      const { data: t } = await supabase
+        .from("tenants")
+        .select("id, name")
+        .eq("id", tenantId)
+        .maybeSingle();
+      setTenant(t ?? null);
+    }
+  };
 
   const fetchTenantUser = async (email: string) => {
     const { data, error } = await supabase
@@ -38,8 +66,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!error && data) {
       setTenantUser(data);
+      await fetchTenantInfo(data.tenant_id);
     } else {
       setTenantUser(null);
+      setTenant(null);
+    }
+  };
+
+  const refreshTenant = async () => {
+    if (tenantUser?.tenant_id) {
+      await fetchTenantInfo(tenantUser.tenant_id);
     }
   };
 
@@ -89,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setTenantUser(null);
+    setTenant(null);
   };
 
   return (
@@ -97,10 +134,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         session,
         tenantUser,
+        tenant,
         tenantId: tenantUser?.tenant_id ?? null,
         loading,
         signIn,
         signOut,
+        refreshTenant,
       }}
     >
       {children}
