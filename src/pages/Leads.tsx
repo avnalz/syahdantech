@@ -49,8 +49,7 @@ export default function Leads() {
   const [filter, setFilter] = useState<string>(searchParams.get("filter") || "all");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Fetch contacts
+  const [view, setView] = useState<"chat" | "table">(searchParams.get("view") === "table" ? "table" : "chat");
   const fetchContacts = useCallback(async () => {
     if (!tenantId) return;
     const { data } = await supabase
