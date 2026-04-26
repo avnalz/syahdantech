@@ -125,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setTenantUser(null);
+    setTenant(null);
   };
 
   return (
@@ -133,10 +134,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         session,
         tenantUser,
+        tenant,
         tenantId: tenantUser?.tenant_id ?? null,
         loading,
         signIn,
         signOut,
+        refreshTenant,
       }}
     >
       {children}
