@@ -31,7 +31,7 @@ const settingsMenuItems = [
 export function AppSidebar() {
   const { state, setOpen, setOpenMobile, isMobile } = useSidebar();
   const collapsed = state === "collapsed";
-  const { signOut, tenantUser } = useAuth();
+  const { signOut, tenantUser, tenant, user } = useAuth();
   const hotCount = useHotLeadBadge();
 
   const handleNavClick = () => {
@@ -52,9 +52,9 @@ export function AppSidebar() {
               </div>
               <div>
                 <span className="font-bold text-sm text-destructive-foreground">PropCRM</span>
-                {tenantUser && (
+                {tenant && (
                   <p className="text-[11px] text-muted-foreground leading-tight truncate max-w-[120px]">
-                    {tenantUser.name}
+                    {tenant.name}
                   </p>
                 )}
               </div>
@@ -123,10 +123,10 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border p-3">
-        {!collapsed && tenantUser && (
+        {!collapsed && (tenant || user) && (
           <div className="mb-2 px-2">
-            <p className="text-sm font-medium truncate">{tenantUser.name}</p>
-            <p className="text-xs text-muted-foreground truncate">{tenantUser.email}</p>
+            <p className="text-sm font-medium truncate">{tenant?.name ?? tenantUser?.name ?? "—"}</p>
+            <p className="text-xs text-muted-foreground truncate">{user?.email ?? tenantUser?.email ?? ""}</p>
           </div>
         )}
         <Button
