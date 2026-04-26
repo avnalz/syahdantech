@@ -440,6 +440,7 @@ export type Database = {
           id: number
           is_active: boolean
           name: string
+          scoring_prompt: string | null
           system_prompt: string | null
           wa_session: string
           wa_url: string | null
@@ -452,6 +453,7 @@ export type Database = {
           id?: number
           is_active?: boolean
           name: string
+          scoring_prompt?: string | null
           system_prompt?: string | null
           wa_session: string
           wa_url?: string | null
@@ -464,6 +466,7 @@ export type Database = {
           id?: number
           is_active?: boolean
           name?: string
+          scoring_prompt?: string | null
           system_prompt?: string | null
           wa_session?: string
           wa_url?: string | null
