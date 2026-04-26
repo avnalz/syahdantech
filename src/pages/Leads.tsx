@@ -1,12 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { LeadsList } from "@/components/leads/LeadsList";
 import { LeadDetail } from "@/components/leads/LeadDetail";
-import { ContactsTable } from "@/components/leads/ContactsTable";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { MessageSquare, Table as TableIcon } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export interface Contact {
@@ -49,7 +46,8 @@ export default function Leads() {
   const [filter, setFilter] = useState<string>(searchParams.get("filter") || "all");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"chat" | "table">(searchParams.get("view") === "table" ? "table" : "chat");
+
+  // Fetch contacts
   const fetchContacts = useCallback(async () => {
     if (!tenantId) return;
     const { data } = await supabase
@@ -174,8 +172,8 @@ export default function Leads() {
     return contact.ai_summary || "Belum ada pesan";
   };
 
-  // Mobile: show chat if contact selected (chat view only)
-  if (isMobile && selectedContact && view === "chat") {
+  // Mobile: show chat if contact selected
+  if (isMobile && selectedContact) {
     return (
       <div className="-mx-3 -my-3 sm:-mx-6 sm:-my-6 h-[calc(100vh-3.5rem)] overflow-hidden">
         <LeadDetail
@@ -193,78 +191,47 @@ export default function Leads() {
     );
   }
 
-  const handleReplyFromTable = (c: Contact) => {
-    setSelectedContact(c);
-    setView("chat");
-  };
-
   return (
-    <div className="flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden -mx-3 -my-3 sm:-mx-6 sm:-my-6 max-w-[100vw]">
-      <Tabs value={view} onValueChange={(v) => setView(v as "chat" | "table")} className="flex flex-col h-full">
-        <div className="px-3 sm:px-6 pt-3 pb-2 border-b border-border bg-background">
-          <TabsList className="grid w-full max-w-xs grid-cols-2">
-            <TabsTrigger value="chat" className="gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Chat View
-            </TabsTrigger>
-            <TabsTrigger value="table" className="gap-2">
-              <TableIcon className="h-4 w-4" />
-              Table View
-            </TabsTrigger>
-          </TabsList>
-        </div>
+    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden -mx-3 -my-3 sm:-mx-6 sm:-my-6 max-w-[100vw]">
+      {/* Left Panel */}
+      <div className={`${isMobile ? "w-full" : "w-[360px] min-w-[360px]"} border-r border-border flex flex-col bg-background`}>
+        <LeadsList
+          contacts={filtered}
+          selectedContact={selectedContact}
+          search={search}
+          onSearchChange={setSearch}
+          filter={filter}
+          onFilterChange={setFilter}
+          onSelect={handleSelectContact}
+          getLastMessage={getLastMessage}
+          loading={loading}
+        />
+      </div>
 
-        <TabsContent value="chat" className="flex-1 overflow-hidden mt-0">
-          <div className="flex h-full overflow-hidden">
-            <div className={`${isMobile ? "w-full" : "w-[360px] min-w-[360px]"} border-r border-border flex flex-col bg-background`}>
-              <LeadsList
-                contacts={filtered}
-                selectedContact={selectedContact}
-                search={search}
-                onSearchChange={setSearch}
-                filter={filter}
-                onFilterChange={setFilter}
-                onSelect={handleSelectContact}
-                getLastMessage={getLastMessage}
-                loading={loading}
-              />
-            </div>
-
-            {!isMobile && (
-              <div className="flex-1 flex flex-col">
-                {selectedContact ? (
-                  <LeadDetail
-                    contact={selectedContact}
-                    messages={messages}
-                    tenantId={tenantId}
-                    onBack={handleBack}
-                    onModeChange={handleModeChange}
-                    onStageChange={handleStageChange}
-                    onDelete={handleDelete}
-                    onMessageSent={handleMessageSent}
-                  />
-                ) : (
-                  <div className="flex-1 flex items-center justify-center text-muted-foreground">
-                    <div className="text-center">
-                      <p className="text-lg font-medium">Pilih kontak</p>
-                      <p className="text-sm">Pilih kontak dari daftar untuk mulai chat</p>
-                    </div>
-                  </div>
-                )}
+      {/* Right Panel (desktop only) */}
+      {!isMobile && (
+        <div className="flex-1 flex flex-col">
+          {selectedContact ? (
+            <LeadDetail
+              contact={selectedContact}
+              messages={messages}
+              tenantId={tenantId}
+              onBack={handleBack}
+              onModeChange={handleModeChange}
+              onStageChange={handleStageChange}
+              onDelete={handleDelete}
+              onMessageSent={handleMessageSent}
+            />
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-muted-foreground">
+              <div className="text-center">
+                <p className="text-lg font-medium">Pilih kontak</p>
+                <p className="text-sm">Pilih kontak dari daftar untuk mulai chat</p>
               </div>
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="table" className="flex-1 overflow-hidden mt-0">
-          <ContactsTable
-            contacts={contacts}
-            loading={loading}
-            onReply={handleReplyFromTable}
-            onView={handleReplyFromTable}
-          />
-        </TabsContent>
-      </Tabs>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
