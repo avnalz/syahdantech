@@ -38,10 +38,25 @@ Deno.serve(async (req) => {
       });
     }
 
-    const body = await req.json();
-    const { phone_number, tenant_id, message, direction } = body ?? {};
+    // Derive tenant_id server-side from the authenticated user — never trust the client.
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("tenant_id")
+      .eq("id", userData.user.id)
+      .single();
 
-    if (!phone_number || !tenant_id || !message) {
+    if (profileError || !profile?.tenant_id) {
+      return new Response(JSON.stringify({ error: "Tenant not found for user" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const authorizedTenantId = profile.tenant_id;
+
+    const body = await req.json();
+    const { phone_number, message, direction } = body ?? {};
+
+    if (!phone_number || !message) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
@@ -53,7 +68,7 @@ Deno.serve(async (req) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         phone_number,
-        tenant_id: String(tenant_id),
+        tenant_id: String(authorizedTenantId),
         message,
         direction: direction ?? "outbound_human",
       }),
