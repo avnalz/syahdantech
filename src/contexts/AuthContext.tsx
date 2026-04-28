@@ -3,10 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
 interface TenantUser {
-  id: number;
+  id: string;
   name: string;
   email: string;
-  role: string;
   tenant_id: number;
 }
 
@@ -38,45 +37,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchTenantInfo = async (tenantId: number) => {
     const { data, error } = await supabase
-      .from("tenants_safe")
+      .from("tenants")
       .select("id, name")
       .eq("id", tenantId)
       .maybeSingle();
 
-    if (!error && data) {
-      setTenant(data);
-    } else {
-      // fallback to tenants table
-      const { data: t } = await supabase
-        .from("tenants")
-        .select("id, name")
-        .eq("id", tenantId)
-        .maybeSingle();
-      setTenant(t ?? null);
+    if (error) {
+      console.warn("[Auth] tenants query error:", error.message);
     }
+    setTenant(data ?? { id: tenantId, name: `Tenant ${tenantId}` });
   };
 
-  const fetchTenantUser = async (email: string) => {
-    const { data, error } = await supabase
-      .from("users_safe")
-      .select("id, name, email, role, tenant_id")
-      .eq("email", email)
-      .eq("is_active", true)
+  const loadProfile = async (authUser: User) => {
+    console.log("[Auth] Step 1 — auth.user.id:", authUser.id, "email:", authUser.email);
+
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("id, tenant_id, full_name")
+      .eq("id", authUser.id)
       .maybeSingle();
 
-    if (!error && data) {
-      setTenantUser(data);
-      await fetchTenantInfo(data.tenant_id);
-    } else {
+    console.log("[Auth] Step 2 — profiles query result:", { profile, error: error?.message });
+
+    if (error) {
+      console.error("[Auth] profiles query failed:", error);
       setTenantUser(null);
       setTenant(null);
+      return;
     }
+
+    if (!profile) {
+      console.warn("[Auth] No profile row found for user", authUser.id);
+      setTenantUser(null);
+      setTenant(null);
+      return;
+    }
+
+    const tenantId = Number(profile.tenant_id);
+    console.log("[Auth] Step 3 — tenant_id:", tenantId);
+
+    setTenantUser({
+      id: profile.id,
+      name: profile.full_name ?? authUser.email ?? "",
+      email: authUser.email ?? "",
+      tenant_id: tenantId,
+    });
+    await fetchTenantInfo(tenantId);
   };
 
   const refreshTenant = async () => {
-    if (tenantUser?.tenant_id) {
-      await fetchTenantInfo(tenantUser.tenant_id);
-    }
+    if (user) await loadProfile(user);
   };
 
   useEffect(() => {
@@ -88,15 +98,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
 
-      if (nextSession?.user?.email) {
-        await fetchTenantUser(nextSession.user.email);
+      if (nextSession?.user) {
+        await loadProfile(nextSession.user);
       } else {
         setTenantUser(null);
+        setTenant(null);
       }
 
-      if (isMounted) {
-        setLoading(false);
-      }
+      if (isMounted) setLoading(false);
     };
 
     const {
