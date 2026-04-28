@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      bot_sessions: {
+        Row: {
+          created_at: string
+          data: Json
+          id: number
+          session_key: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          id?: number
+          session_key: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: number
+          session_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       chat_logs: {
         Row: {
           created_at: string
