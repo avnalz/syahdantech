@@ -549,24 +549,15 @@ export type Database = {
     Views: {
       tenants_safe: {
         Row: {
-          ai_model: string | null
-          created_at: string | null
           id: number | null
-          is_active: boolean | null
           name: string | null
         }
         Insert: {
-          ai_model?: string | null
-          created_at?: string | null
           id?: number | null
-          is_active?: boolean | null
           name?: string | null
         }
         Update: {
-          ai_model?: string | null
-          created_at?: string | null
           id?: number | null
-          is_active?: boolean | null
           name?: string | null
         }
         Relationships: []
