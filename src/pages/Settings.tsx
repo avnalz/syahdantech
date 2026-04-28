@@ -217,8 +217,8 @@ export default function Settings() {
                 <>
                   <Separator />
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Role</span>
-                    <span className="text-sm font-medium capitalize">{tenantUser.role}</span>
+                    <span className="text-sm text-muted-foreground">Tenant ID</span>
+                    <span className="text-sm font-medium">{tenantUser.tenant_id}</span>
                   </div>
                 </>
               )}
