@@ -181,6 +181,7 @@ export type Database = {
       drip_logs: {
         Row: {
           chat_id: string | null
+          contact_id: number | null
           created_at: string
           id: number
           is_completed: boolean
@@ -193,6 +194,7 @@ export type Database = {
         }
         Insert: {
           chat_id?: string | null
+          contact_id?: number | null
           created_at?: string
           id?: number
           is_completed?: boolean
@@ -205,6 +207,7 @@ export type Database = {
         }
         Update: {
           chat_id?: string | null
+          contact_id?: number | null
           created_at?: string
           id?: number
           is_completed?: boolean
@@ -217,11 +220,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "drip_logs_phone_number_fkey"
-            columns: ["phone_number"]
+            foreignKeyName: "drip_logs_contact_id_fkey"
+            columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
-            referencedColumns: ["phone_number"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "drip_logs_tenant_id_fkey"
