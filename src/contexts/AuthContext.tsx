@@ -2,16 +2,22 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
+export type AppRole = "admin_agent" | "admin_developer" | "agent";
+export type TenantType = "agent" | "developer";
+
 interface TenantUser {
-  id: string;
+  id: string;          // profiles.id (= auth.uid)
+  userRowId: number | null; // users.id (numeric, dari tabel users)
   name: string;
   email: string;
   tenant_id: number;
+  role: AppRole;
 }
 
 interface TenantInfo {
   id: number;
   name: string;
+  tenant_type: TenantType;
 }
 
 interface AuthContextType {
@@ -20,6 +26,9 @@ interface AuthContextType {
   tenantUser: TenantUser | null;
   tenant: TenantInfo | null;
   tenantId: number | null;
+  role: AppRole | null;
+  tenantType: TenantType | null;
+  currentUserRowId: number | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -38,49 +47,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchTenantInfo = async (tenantId: number) => {
     const { data, error } = await supabase
       .from("tenants")
-      .select("id, name")
+      .select("id, name, tenant_type")
       .eq("id", tenantId)
       .maybeSingle();
 
     if (error) {
       console.warn("[Auth] tenants query error:", error.message);
     }
-    setTenant(data ?? { id: tenantId, name: `Tenant ${tenantId}` });
+    setTenant(
+      data
+        ? { id: data.id, name: data.name, tenant_type: (data.tenant_type as TenantType) ?? "agent" }
+        : { id: tenantId, name: `Tenant ${tenantId}`, tenant_type: "agent" }
+    );
   };
 
   const loadProfile = async (authUser: User) => {
-    console.log("[Auth] Step 1 — auth.user.id:", authUser.id, "email:", authUser.email);
-
-    const { data: profile, error } = await supabase
+    // 1. profiles → tenant_id
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("id, tenant_id, full_name")
       .eq("id", authUser.id)
       .maybeSingle();
 
-    console.log("[Auth] Step 2 — profiles query result:", { profile, error: error?.message });
-
-    if (error) {
-      console.error("[Auth] profiles query failed:", error);
-      setTenantUser(null);
-      setTenant(null);
-      return;
-    }
-
-    if (!profile) {
-      console.warn("[Auth] No profile row found for user", authUser.id);
+    if (profileError || !profile) {
+      console.error("[Auth] profile not found:", profileError?.message);
       setTenantUser(null);
       setTenant(null);
       return;
     }
 
     const tenantId = Number(profile.tenant_id);
-    console.log("[Auth] Step 3 — tenant_id:", tenantId);
+
+    // 2. users → role + numeric id, scoped by tenant + email
+    const { data: userRow, error: userError } = await supabase
+      .from("users")
+      .select("id, role, name")
+      .eq("tenant_id", tenantId)
+      .eq("email", authUser.email ?? "")
+      .maybeSingle();
+
+    if (userError) {
+      console.warn("[Auth] users query error:", userError.message);
+    }
+
+    const role = (userRow?.role as AppRole) ?? "agent";
 
     setTenantUser({
       id: profile.id,
-      name: profile.full_name ?? authUser.email ?? "",
+      userRowId: userRow?.id ?? null,
+      name: userRow?.name ?? profile.full_name ?? authUser.email ?? "",
       email: authUser.email ?? "",
       tenant_id: tenantId,
+      role,
     });
     await fetchTenantInfo(tenantId);
   };
@@ -94,7 +112,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const applySession = async (nextSession: Session | null) => {
       if (!isMounted) return;
-
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
 
@@ -104,16 +121,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setTenantUser(null);
         setTenant(null);
       }
-
       if (isMounted) setLoading(false);
     };
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      window.setTimeout(() => {
-        void applySession(nextSession);
-      }, 0);
+      window.setTimeout(() => { void applySession(nextSession); }, 0);
     });
 
     void supabase.auth.getSession().then(({ data: { session: nextSession } }) => {
@@ -145,6 +159,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         tenantUser,
         tenant,
         tenantId: tenantUser?.tenant_id ?? null,
+        role: tenantUser?.role ?? null,
+        tenantType: tenant?.tenant_type ?? null,
+        currentUserRowId: tenantUser?.userRowId ?? null,
         loading,
         signIn,
         signOut,
