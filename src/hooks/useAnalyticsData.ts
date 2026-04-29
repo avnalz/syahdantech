@@ -34,7 +34,7 @@ export interface LabelCount {
   count: number;
 }
 
-export function useAnalyticsData(monthOffset = 0) {
+export function useAnalyticsData(monthOffset = 0, agentId: number | "all" = "all") {
   const { tenantId } = useAuth();
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<AnalyticsSummary>({
