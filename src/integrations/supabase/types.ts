@@ -680,7 +680,9 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      current_tenant_id: { Args: never; Returns: number }
+      current_user_role: { Args: never; Returns: string }
+      current_user_row_id: { Args: never; Returns: number }
     }
     Enums: {
       [_ in never]: never
