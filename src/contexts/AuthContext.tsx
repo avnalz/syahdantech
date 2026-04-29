@@ -80,30 +80,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const tenantId = Number(profile.tenant_id);
     console.log("[Auth] Step 3 — tenant_id:", tenantId);
 
-    // Try direct users table first
-    const { data: userRow, error: userError } = await supabase
-      .from("users")
-      .select("id, role, name")
-      .eq("tenant_id", tenantId)
-      .eq("email", authUser.email ?? "")
-      .maybeSingle();
+    // Use SECURITY DEFINER RPC to reliably fetch own profile (bypasses RLS chicken-and-egg)
+    let finalUserRow: { id: number | null; role: string | null; name: string | null } | null = null;
 
-    console.log("[Auth] userRow:", userRow, "error:", userError?.message);
+    const { data: rpcRows, error: rpcErr } = await supabase.rpc("current_user_profile" as never);
+    console.log("[Auth] current_user_profile RPC:", rpcRows, "error:", rpcErr?.message);
 
-    // Fallback to users_safe view if direct query returned nothing
-    let finalUserRow: { id: number | null; role: string | null; name: string | null } | null = userRow;
-    if (!userRow) {
-      const { data: safeRow, error: safeErr } = await supabase
-        .from("users_safe" as never)
+    const rpcRow = Array.isArray(rpcRows) ? (rpcRows[0] as { user_row_id: number; role: string; name: string } | undefined) : undefined;
+    if (rpcRow) {
+      finalUserRow = { id: rpcRow.user_row_id, role: rpcRow.role, name: rpcRow.name };
+    } else {
+      // Fallback: direct query (relies on "users: select own row" RLS policy)
+      const { data: userRow, error: userError } = await supabase
+        .from("users")
         .select("id, role, name")
         .eq("email", authUser.email ?? "")
         .maybeSingle();
-      console.log("[Auth] safeRow fallback:", safeRow, "error:", safeErr?.message);
-      finalUserRow = (safeRow as typeof finalUserRow) ?? null;
+      console.log("[Auth] direct users fallback:", userRow, "error:", userError?.message);
+      finalUserRow = userRow ?? null;
     }
 
     const role = ((finalUserRow?.role as AppRole) ?? "agent") as AppRole;
-    console.log("[Auth] final role:", role);
+    console.log("[Auth] final role:", role, "name:", finalUserRow?.name);
 
     setTenantUser({
       id: profile.id,
