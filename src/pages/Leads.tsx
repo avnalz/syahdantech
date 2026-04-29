@@ -200,7 +200,14 @@ export default function Leads() {
           new Date(c.last_chat_at).getTime() < needsActionCutoff &&
           (c.lead_label === "hot" || c.lead_label === "warm");
       else matchFilter = c.lead_label === filter;
-      return matchSearch && matchFilter;
+
+      let matchAgent = true;
+      if (isAdmin && agentFilter !== "all") {
+        matchAgent = agentFilter === "unassigned"
+          ? c.assigned_to == null
+          : String(c.assigned_to) === agentFilter;
+      }
+      return matchSearch && matchFilter && matchAgent;
     })
     .sort((a, b) => {
       if (filter === "needs_action") {
@@ -228,6 +235,8 @@ export default function Leads() {
           onStageChange={handleStageChange}
           onDelete={handleDelete}
           onMessageSent={handleMessageSent}
+          agents={isAdmin ? agents : undefined}
+          onReassign={isAdmin ? handleReassign : undefined}
           isMobile
         />
       </div>
@@ -248,6 +257,11 @@ export default function Leads() {
           onSelect={handleSelectContact}
           getLastMessage={getLastMessage}
           loading={loading}
+          agents={isAdmin ? agents : undefined}
+          agentMap={agentMap}
+          agentFilter={agentFilter}
+          onAgentFilterChange={setAgentFilter}
+          showAgentColumn={isAdmin}
         />
       </div>
 
@@ -264,6 +278,8 @@ export default function Leads() {
               onStageChange={handleStageChange}
               onDelete={handleDelete}
               onMessageSent={handleMessageSent}
+              agents={isAdmin ? agents : undefined}
+              onReassign={isAdmin ? handleReassign : undefined}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">
