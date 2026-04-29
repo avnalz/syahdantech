@@ -270,6 +270,15 @@ export default function Settings() {
                   </div>
                 </>
               )}
+              {isDeveloper && (
+                <>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Agent Aktif</span>
+                    <span className="text-sm font-medium">{activeAgentCount ?? "—"}</span>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
