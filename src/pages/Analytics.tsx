@@ -3,7 +3,10 @@ import { ChevronLeft, ChevronRight, Users, MessageSquare, TrendingUp, Target, Fl
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { useAgentsData } from "@/hooks/useAgentsData";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
