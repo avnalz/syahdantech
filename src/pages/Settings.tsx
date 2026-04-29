@@ -123,15 +123,17 @@ export default function Settings() {
         <h1 className="text-2xl font-bold">Settings</h1>
       </div>
 
-      <Tabs defaultValue="profil" className="space-y-6">
+      <Tabs defaultValue={isAgent ? "password" : "profil"} className="space-y-6">
         <TabsList>
-          <TabsTrigger value="profil">Profil</TabsTrigger>
-          <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
+          {!isAgent && <TabsTrigger value="profil">Profil</TabsTrigger>}
+          {isAgent && <TabsTrigger value="password">Ganti Password</TabsTrigger>}
+          {!isAgent && <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>}
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
           <TabsTrigger value="tentang">Tentang</TabsTrigger>
         </TabsList>
 
-        {/* Profil Tab */}
+        {/* Profil Tab — only for admins */}
+        {!isAgent && (
         <TabsContent value="profil" className="space-y-6">
           <Card>
             <CardHeader>
@@ -175,12 +177,41 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
+        )}
 
-        {/* Drip Follow-up Tab */}
-        <TabsContent value="drip">
-          <DripFollowupTab />
-        </TabsContent>
+        {/* Password Tab — only for agent */}
+        {isAgent && (
+          <TabsContent value="password" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Lock className="h-5 w-5 text-primary" />
+                  Ganti Password
+                </CardTitle>
+                <CardDescription>Perbarui password akun Anda</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input value={user?.email || ""} disabled className="bg-muted" />
+                </div>
+                <Input type="password" placeholder="Password baru" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                <Input type="password" placeholder="Konfirmasi password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                <Button variant="outline" onClick={handleChangePassword} disabled={changingPassword || !newPassword}>
+                  {changingPassword && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  Ubah Password
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
 
+        {/* Drip Follow-up Tab — only for admins */}
+        {!isAgent && (
+          <TabsContent value="drip">
+            <DripFollowupTab />
+          </TabsContent>
+        )}
         {/* Notifikasi Tab */}
         <TabsContent value="notifikasi">
           <Card>
