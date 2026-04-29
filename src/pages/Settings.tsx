@@ -15,6 +15,11 @@ import DripFollowupTab from "@/components/settings/DripFollowupTab";
 
 export default function Settings() {
   const { user, tenantId, tenantUser, tenant, refreshTenant } = useAuth();
+  const role = tenantUser?.role ?? "agent";
+  const isAgent = role === "agent";
+  const isDeveloper = role === "admin_developer";
+  const planLabel = isDeveloper ? "Pro Plan" : "Starter Plan";
+  const [activeAgentCount, setActiveAgentCount] = useState<number | null>(null);
   const [tenantName, setTenantName] = useState("");
   const [joinDate, setJoinDate] = useState("");
   const [loading, setLoading] = useState(true);
