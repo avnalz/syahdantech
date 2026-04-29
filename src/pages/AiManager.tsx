@@ -47,10 +47,27 @@ export default function AiManager() {
     try {
       if (!webhookUrl) throw new Error("VITE_N8N_AI_MANAGER_URL belum dikonfigurasi");
 
+      const role = tenantUser?.role ?? "agent";
+      const payload: Record<string, unknown> = {
+        question: question.trim(),
+        tenantId: String(tenantId),
+        role,
+      };
+
+      if (role === "admin_developer") {
+        const { count } = await supabase
+          .from("users")
+          .select("id", { count: "exact", head: true })
+          .eq("tenant_id", tenantId)
+          .eq("role", "agent")
+          .eq("is_active", true);
+        payload.agentCount = count ?? 0;
+      }
+
       const res = await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: question.trim(), tenantId: String(tenantId) }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
