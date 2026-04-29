@@ -153,6 +153,7 @@ export default function Settings() {
         )}
 
         {/* Profil Tab */}
+        {role !== "agent" && (
         <TabsContent value="profil" className="space-y-6">
           <Card>
             <CardHeader>
@@ -165,17 +166,13 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="tenantName">Nama Agency / Developer</Label>
-                {role === "agent" ? (
-                  <Input id="tenantName" value={tenantName} disabled className="bg-muted" />
-                ) : (
-                  <div className="flex gap-2">
-                    <Input id="tenantName" value={tenantName} onChange={(e) => setTenantName(e.target.value)} placeholder="Nama bisnis Anda" />
-                    <Button onClick={handleSaveTenantName} disabled={saving}>
-                      {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                      Simpan
-                    </Button>
-                  </div>
-                )}
+                <div className="flex gap-2">
+                  <Input id="tenantName" value={tenantName} onChange={(e) => setTenantName(e.target.value)} placeholder="Nama bisnis Anda" />
+                  <Button onClick={handleSaveTenantName} disabled={saving}>
+                    {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                    Simpan
+                  </Button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
@@ -200,6 +197,7 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
+        )}
 
         {/* Drip Follow-up Tab */}
         {role !== "agent" && (
@@ -209,6 +207,7 @@ export default function Settings() {
         )}
 
         {/* Notifikasi Tab */}
+        {role !== "agent" && (
         <TabsContent value="notifikasi">
           <Card>
             <CardHeader>
@@ -237,8 +236,10 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
+        )}
 
         {/* Tentang Tab */}
+        {role !== "agent" && (
         <TabsContent value="tentang">
           <Card>
             <CardHeader>
@@ -293,6 +294,7 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
+        )}
 
       </Tabs>
     </div>
