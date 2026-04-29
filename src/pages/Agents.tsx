@@ -148,6 +148,21 @@ export default function Agents() {
     void fetchAgents();
   };
 
+  const handleDelete = async (agent: AgentRow) => {
+    setActionLoading(true);
+    const { data, error } = await supabase.functions.invoke("manage-agents", {
+      body: { action: "delete", user_id: agent.id },
+    });
+    setActionLoading(false);
+    setDeleteTarget(null);
+    if (error || data?.error) {
+      toast.error(data?.error ?? error?.message ?? "Gagal menghapus agent");
+      return;
+    }
+    toast.success("Agent berhasil dihapus");
+    void fetchAgents();
+  };
+
   const openAddDialog = () => {
     setForm(emptyForm);
     setShowPassword(false);
