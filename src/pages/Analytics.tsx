@@ -43,7 +43,13 @@ function DonutLegend({ data, colors, nameKey }: { data: any[]; colors: string[];
 
 export default function Analytics() {
   const [monthOffset, setMonthOffset] = useState(0);
-  const { loading, summary, dailyLeads, pipelineData, sentimentData, labelData, monthLabel } = useAnalyticsData(monthOffset);
+  const [agentFilter, setAgentFilter] = useState<string>("all");
+  const { role } = useAuth();
+  const { agents } = useAgentsData();
+  const agentId: number | "all" = agentFilter === "all" ? "all" : Number(agentFilter);
+  const { loading, summary, dailyLeads, pipelineData, sentimentData, labelData, monthLabel } = useAnalyticsData(monthOffset, agentId);
+  const showAgentFilter = role === "admin_developer";
+  const onlyAgents = agents.filter(a => a.role === "agent");
 
   if (loading) {
     return (
