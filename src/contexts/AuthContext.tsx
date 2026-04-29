@@ -2,11 +2,15 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
+export type AppRole = "admin_agent" | "admin_developer" | "agent";
+
 interface TenantUser {
   id: string;
   name: string;
   email: string;
   tenant_id: number;
+  role: AppRole;
+  user_row_id?: number;
 }
 
 interface TenantInfo {
