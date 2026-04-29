@@ -56,8 +56,9 @@ export default function AiManager() {
 
       if (role === "admin_developer") {
         const { count } = await supabase
-          .from("users_safe" as never)
+          .from("users")
           .select("id", { count: "exact", head: true })
+          .eq("tenant_id", tenantId)
           .eq("role", "agent")
           .eq("is_active", true);
         payload.agentCount = count ?? 0;

@@ -80,16 +80,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const tenantId = Number(profile.tenant_id);
     console.log("[Auth] Step 3 — tenant_id:", tenantId);
 
-    // Read via the safe view (excludes password_hash, applies RLS via security_invoker)
-    const { data: safeRow, error: safeErr } = await supabase
-      .from("users_safe" as never)
+    // Try direct users table first
+    const { data: userRow, error: userError } = await supabase
+      .from("users")
       .select("id, role, name")
+      .eq("tenant_id", tenantId)
       .eq("email", authUser.email ?? "")
       .maybeSingle();
 
-    console.log("[Auth] users_safe row:", safeRow, "error:", safeErr?.message);
+    console.log("[Auth] userRow:", userRow, "error:", userError?.message);
 
-    const finalUserRow = (safeRow as { id: number | null; role: string | null; name: string | null } | null) ?? null;
+    // Fallback to users_safe view if direct query returned nothing
+    let finalUserRow: { id: number | null; role: string | null; name: string | null } | null = userRow;
+    if (!userRow) {
+      const { data: safeRow, error: safeErr } = await supabase
+        .from("users_safe" as never)
+        .select("id, role, name")
+        .eq("email", authUser.email ?? "")
+        .maybeSingle();
+      console.log("[Auth] safeRow fallback:", safeRow, "error:", safeErr?.message);
+      finalUserRow = (safeRow as typeof finalUserRow) ?? null;
+    }
 
     const role = ((finalUserRow?.role as AppRole) ?? "agent") as AppRole;
     console.log("[Auth] final role:", role);
