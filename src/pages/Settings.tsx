@@ -107,8 +107,7 @@ export default function Settings() {
         <h1 className="text-2xl font-bold">Settings</h1>
       </div>
 
-      {(() => null)()}
-      <Tabs defaultValue={role === "agent" ? "profil" : "profil"} className="space-y-6">
+      <Tabs defaultValue="profil" className="space-y-6">
         <TabsList>
           <TabsTrigger value="profil">Profil</TabsTrigger>
           {role !== "agent" && <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>}
