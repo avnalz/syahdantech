@@ -276,7 +276,7 @@ export default function Settings() {
                   {(role === "admin_agent" || role === "admin_developer") && <li>AI Manager (system & scoring prompt)</li>}
                   {tenantType === "developer" && <li>Manajemen Agent (unlimited)</li>}
                   {tenantType === "developer" && <li>Analisis performa per agent</li>}
-                  <li>Drip follow-up otomatis</li>
+                  {tenantType === "developer" && <li>Drip follow-up otomatis</li>}
                 </ul>
               </div>
               <Separator />
