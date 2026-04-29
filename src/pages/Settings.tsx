@@ -201,8 +201,8 @@ export default function Settings() {
         </TabsContent>
         )}
 
-        {/* Drip Follow-up Tab */}
-        {role !== "agent" && (
+        {/* Drip Follow-up Tab — hanya untuk admin_developer (Paket Pro) */}
+        {role === "admin_developer" && (
           <TabsContent value="drip">
             <DripFollowupTab />
           </TabsContent>
