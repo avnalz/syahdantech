@@ -1,9 +1,12 @@
-import { Search } from "lucide-react";
+import { Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Contact } from "@/pages/Leads";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import type { Contact, AgentOption } from "@/pages/Leads";
 
 const FILTERS = [
   { label: "Semua", value: "all" },
@@ -39,6 +42,11 @@ interface LeadsListProps {
   onSelect: (c: Contact) => void;
   getLastMessage: (c: Contact) => string;
   loading: boolean;
+  agents?: AgentOption[];
+  agentMap?: Map<number, string>;
+  agentFilter?: string;
+  onAgentFilterChange?: (v: string) => void;
+  showAgentColumn?: boolean;
 }
 
 export function LeadsList({
@@ -51,6 +59,11 @@ export function LeadsList({
   onSelect,
   getLastMessage,
   loading,
+  agents,
+  agentMap,
+  agentFilter = "all",
+  onAgentFilterChange,
+  showAgentColumn,
 }: LeadsListProps) {
   return (
     <>
@@ -83,6 +96,29 @@ export function LeadsList({
           </button>
         ))}
       </div>
+
+      {/* Agent Filter (admin only) */}
+      {showAgentColumn && agents && onAgentFilterChange && (
+        <div className="px-3 py-2 border-b border-border">
+          <Select value={agentFilter} onValueChange={onAgentFilterChange}>
+            <SelectTrigger className="h-8 text-xs">
+              <div className="flex items-center gap-1.5">
+                <User className="h-3.5 w-3.5 text-muted-foreground" />
+                <SelectValue placeholder="Filter agent" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all" className="text-xs">Semua agent</SelectItem>
+              <SelectItem value="unassigned" className="text-xs">Belum di-assign</SelectItem>
+              {agents.map((a) => (
+                <SelectItem key={a.id} value={String(a.id)} className="text-xs">
+                  {a.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {/* Contact List */}
       <ScrollArea className="flex-1">
@@ -151,6 +187,16 @@ export function LeadsList({
                   <p className="text-xs text-muted-foreground truncate mt-0.5">
                     {getLastMessage(contact)}
                   </p>
+                  {showAgentColumn && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <User className="h-3 w-3 text-muted-foreground" />
+                      <span className="text-[10px] text-muted-foreground truncate">
+                        {contact.assigned_to != null
+                          ? agentMap?.get(contact.assigned_to) ?? `Agent #${contact.assigned_to}`
+                          : "Belum di-assign"}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </button>
             ))}
