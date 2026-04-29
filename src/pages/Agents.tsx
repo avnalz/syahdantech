@@ -34,9 +34,8 @@ export default function Agents() {
     setLoading(true);
 
     const { data: users, error } = await supabase
-      .from("users")
+      .from("users_safe" as never)
       .select("id, name, email, phone, role, is_active, created_at")
-      .eq("tenant_id", tenantId)
       .order("created_at", { ascending: false });
 
     if (error) {
