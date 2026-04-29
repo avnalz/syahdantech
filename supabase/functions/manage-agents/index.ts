@@ -152,6 +152,46 @@ Deno.serve(async (req) => {
       return json(200, { success: true });
     }
 
+    if (body.action === "delete") {
+      if (typeof body.user_id !== "number") {
+        return json(400, { error: "user_id wajib" });
+      }
+      const { data: target } = await admin
+        .from("users")
+        .select("id, tenant_id, role, email")
+        .eq("id", body.user_id)
+        .maybeSingle();
+      if (!target || target.tenant_id !== tenantId) {
+        return json(403, { error: "Agent tidak ditemukan di tenant Anda" });
+      }
+      if (target.role !== "agent") {
+        return json(400, { error: "Hanya akun agent yang bisa dihapus" });
+      }
+
+      // Lookup auth user by email
+      let authUserId: string | null = null;
+      const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
+      const found = list?.users?.find(
+        (u) => (u.email ?? "").toLowerCase() === (target.email ?? "").toLowerCase(),
+      );
+      authUserId = found?.id ?? null;
+
+      await admin.from("agent_sessions").delete().eq("user_id", body.user_id);
+
+      const { error: delUserErr } = await admin
+        .from("users")
+        .delete()
+        .eq("id", body.user_id);
+      if (delUserErr) return json(500, { error: delUserErr.message });
+
+      if (authUserId) {
+        await admin.from("profiles").delete().eq("id", authUserId);
+        await admin.auth.admin.deleteUser(authUserId).catch(() => {});
+      }
+
+      return json(200, { success: true });
+    }
+
     if (body.action === "create") {
       const { name, email, password, phone, wa_session } = body;
       if (!name || !email || !password || !wa_session) {
