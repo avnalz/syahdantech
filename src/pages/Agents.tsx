@@ -1,17 +1,21 @@
-import { Users, Flame, CheckCircle2, Info } from "lucide-react";
+import { useState } from "react";
+import { Users, Flame, CheckCircle2, Plus, Power } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useAgentsData } from "@/hooks/useAgentsData";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import AddAgentDialog from "@/components/agents/AddAgentDialog";
 
 const roleLabel: Record<string, string> = {
   admin_developer: "Admin Developer",
@@ -20,28 +24,49 @@ const roleLabel: Record<string, string> = {
 };
 
 export default function Agents() {
-  const { loading, agents, error } = useAgentsData();
+  const { role } = useAuth();
+  const canManage = role === "admin_agent" || role === "admin_developer";
+  const { loading, agents, error, reload } = useAgentsData();
+  const [addOpen, setAddOpen] = useState(false);
+  const [busyId, setBusyId] = useState<number | null>(null);
 
   const totalAgents = agents.filter((a) => a.role === "agent").length;
   const activeAgents = agents.filter((a) => a.role === "agent" && a.is_active).length;
   const totalLeadsAll = agents.reduce((sum, a) => sum + a.totalLeads, 0);
 
+  const handleToggleActive = async (agentId: number, nextActive: boolean) => {
+    setBusyId(agentId);
+    try {
+      const { data, error } = await supabase.functions.invoke("deactivate-agent", {
+        body: { agent_id: agentId, is_active: nextActive },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast.success(nextActive ? "Agent diaktifkan" : "Agent dinonaktifkan");
+      reload();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal memperbarui status");
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Manajemen Agent</h1>
-        <p className="text-muted-foreground text-sm">
-          Daftar agent dalam tenant Anda beserta performa singkat.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">Manajemen Agent</h1>
+          <p className="text-muted-foreground text-sm">
+            Daftar agent dalam tenant Anda beserta performa singkat.
+          </p>
+        </div>
+        {canManage && (
+          <Button onClick={() => setAddOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Tambah Agent
+          </Button>
+        )}
       </div>
-
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertTitle>Mode read-only</AlertTitle>
-        <AlertDescription>
-          Penambahan & penghapusan agent saat ini dilakukan manual via SQL/Dashboard Supabase.
-        </AlertDescription>
-      </Alert>
 
       {/* Summary */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -75,11 +100,13 @@ export default function Agents() {
                   <TableRow>
                     <TableHead>Nama</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>WA Session</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Leads</TableHead>
                     <TableHead className="text-right">Hot</TableHead>
                     <TableHead className="text-right">Converted</TableHead>
+                    {canManage && <TableHead className="text-right">Aksi</TableHead>}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -87,6 +114,9 @@ export default function Agents() {
                     <TableRow key={a.id}>
                       <TableCell className="font-medium">{a.name || "—"}</TableCell>
                       <TableCell className="text-muted-foreground">{a.email}</TableCell>
+                      <TableCell className="text-muted-foreground font-mono text-xs">
+                        {a.wa_session ?? "—"}
+                      </TableCell>
                       <TableCell>
                         <Badge variant="outline">{roleLabel[a.role] ?? a.role}</Badge>
                       </TableCell>
@@ -104,6 +134,55 @@ export default function Agents() {
                       <TableCell className="text-right tabular-nums text-emerald-600">
                         {a.convertedLeads}
                       </TableCell>
+                      {canManage && (
+                        <TableCell className="text-right">
+                          {a.role === "agent" ? (
+                            a.is_active ? (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-destructive hover:text-destructive"
+                                    disabled={busyId === a.id}
+                                  >
+                                    <Power className="h-3.5 w-3.5 mr-1" />
+                                    Nonaktifkan
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Nonaktifkan agent?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      <strong>{a.name}</strong> tidak akan bisa login & sesi WA-nya dinonaktifkan.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleToggleActive(a.id, false)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      Nonaktifkan
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleToggleActive(a.id, true)}
+                                disabled={busyId === a.id}
+                              >
+                                Aktifkan
+                              </Button>
+                            )
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                      )}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -112,20 +191,16 @@ export default function Agents() {
           )}
         </CardContent>
       </Card>
+
+      <AddAgentDialog open={addOpen} onOpenChange={setAddOpen} onCreated={reload} />
     </div>
   );
 }
 
 function StatCard({
-  icon: Icon,
-  label,
-  value,
-  color,
+  icon: Icon, label, value, color,
 }: {
-  icon: typeof Users;
-  label: string;
-  value: number;
-  color: string;
+  icon: typeof Users; label: string; value: number; color: string;
 }) {
   return (
     <Card>
