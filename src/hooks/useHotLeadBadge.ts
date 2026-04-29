@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -6,41 +6,45 @@ export function useHotLeadBadge() {
   const { tenantId, role, currentUserRowId } = useAuth();
   const [count, setCount] = useState(0);
 
+  const fetchCount = useCallback(async () => {
+    if (!tenantId) return;
+    let query = supabase
+      .from("contacts")
+      .select("*", { count: "exact", head: true })
+      .eq("tenant_id", tenantId)
+      .eq("lead_label", "hot");
+
+    if (role === "agent" && currentUserRowId != null) {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      query = query.eq("assigned_to", currentUserRowId).gte("last_chat_at", oneHourAgo);
+    } else {
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      query = query.lt("last_chat_at", twentyFourHoursAgo);
+    }
+
+    const { count: c } = await query;
+    setCount(c || 0);
+  }, [tenantId, role, currentUserRowId]);
+
   useEffect(() => {
     if (!tenantId) return;
+    void fetchCount();
+  }, [tenantId, fetchCount]);
 
-    const fetch = async () => {
-      // Untuk agent: hot lead dalam 1 jam terakhir, di-assign ke dirinya.
-      // Untuk admin: hot lead yang sudah > 24 jam belum dibalas (existing behavior).
-      let query = supabase
-        .from("contacts")
-        .select("*", { count: "exact", head: true })
-        .eq("tenant_id", tenantId)
-        .eq("lead_label", "hot");
-
-      if (role === "agent" && currentUserRowId != null) {
-        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-        query = query.eq("assigned_to", currentUserRowId).gte("last_chat_at", oneHourAgo);
-      } else {
-        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-        query = query.lt("last_chat_at", twentyFourHoursAgo);
-      }
-
-      const { count: c } = await query;
-      setCount(c || 0);
-    };
-
-    fetch();
-
+  useEffect(() => {
+    if (!tenantId) return;
     const channel = supabase
       .channel(`hot-lead-badge-${tenantId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "contacts", filter: `tenant_id=eq.${tenantId}` }, () => {
-        fetch();
-      })
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "contacts", filter: `tenant_id=eq.${tenantId}` },
+        () => { void fetchCount(); }
+      )
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
-  }, [tenantId, role, currentUserRowId]);
+    return () => { void supabase.removeChannel(channel); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tenantId]);
 
   return count;
 }
