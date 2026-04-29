@@ -12,9 +12,10 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DripFollowupTab from "@/components/settings/DripFollowupTab";
+import { RoleBadge } from "@/components/RoleBadge";
 
 export default function Settings() {
-  const { user, tenantId, tenantUser, tenant, refreshTenant } = useAuth();
+  const { user, tenantId, tenantUser, tenant, tenantType, role, refreshTenant } = useAuth();
   const [tenantName, setTenantName] = useState("");
   const [joinDate, setJoinDate] = useState("");
   const [loading, setLoading] = useState(true);
@@ -202,11 +203,35 @@ export default function Settings() {
                 <CreditCard className="h-5 w-5 text-primary" />
                 Informasi Paket
               </CardTitle>
+              <CardDescription>
+                {tenantType === "developer"
+                  ? "Paket Pro — kelola tim agent & analisis performa"
+                  : "Paket Starter — agent mandiri"}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Paket Saat Ini</span>
-                <span className="text-sm font-semibold text-primary">Pro Plan</span>
+                <span className="text-sm font-semibold text-primary">
+                  {tenantType === "developer" ? "Pro" : "Starter"}
+                </span>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Role Anda</span>
+                <RoleBadge role={role} />
+              </div>
+              <Separator />
+              <div>
+                <p className="text-sm font-medium mb-1.5">Fitur Aktif</p>
+                <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                  <li>Dashboard & Leads</li>
+                  <li>Properti</li>
+                  {(role === "admin_agent" || role === "admin_developer") && <li>AI Manager (system & scoring prompt)</li>}
+                  {tenantType === "developer" && <li>Manajemen Agent (unlimited)</li>}
+                  {tenantType === "developer" && <li>Analisis performa per agent</li>}
+                  <li>Drip follow-up otomatis</li>
+                </ul>
               </div>
               <Separator />
               <div className="flex items-center justify-between">

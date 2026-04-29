@@ -3,20 +3,30 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function useHotLeadBadge() {
-  const { tenantId } = useAuth();
+  const { tenantId, role, currentUserRowId } = useAuth();
   const [count, setCount] = useState(0);
 
   useEffect(() => {
     if (!tenantId) return;
 
     const fetch = async () => {
-      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-      const { count: c } = await supabase
+      // Untuk agent: hot lead dalam 1 jam terakhir, di-assign ke dirinya.
+      // Untuk admin: hot lead yang sudah > 24 jam belum dibalas (existing behavior).
+      let query = supabase
         .from("contacts")
         .select("*", { count: "exact", head: true })
         .eq("tenant_id", tenantId)
-        .eq("lead_label", "hot")
-        .lt("last_chat_at", twentyFourHoursAgo);
+        .eq("lead_label", "hot");
+
+      if (role === "agent" && currentUserRowId != null) {
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+        query = query.eq("assigned_to", currentUserRowId).gte("last_chat_at", oneHourAgo);
+      } else {
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        query = query.lt("last_chat_at", twentyFourHoursAgo);
+      }
+
+      const { count: c } = await query;
       setCount(c || 0);
     };
 
@@ -30,7 +40,7 @@ export function useHotLeadBadge() {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [tenantId]);
+  }, [tenantId, role, currentUserRowId]);
 
   return count;
 }

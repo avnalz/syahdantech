@@ -2,6 +2,7 @@ import { LayoutDashboard, MessageSquare, Building2, Bot, Settings, LogOut, BarCh
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHotLeadBadge } from "@/hooks/useHotLeadBadge";
+import { RoleBadge } from "@/components/RoleBadge";
 import {
   Sidebar,
   SidebarContent,
@@ -15,30 +16,38 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import type { AppRole } from "@/contexts/AuthContext";
 
-const mainMenuItems = [
+interface MenuItem {
+  title: string;
+  url: string;
+  icon: typeof LayoutDashboard;
+  roles?: AppRole[]; // jika undefined → semua role
+}
+
+const mainMenuItems: MenuItem[] = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Leads", url: "/leads", icon: MessageSquare, badge: true },
+  { title: "Leads", url: "/leads", icon: MessageSquare },
   { title: "Properties", url: "/properties", icon: Building2 },
-  { title: "Analisis", url: "/analytics", icon: BarChart3 },
-  { title: "AI Manager", url: "/ai-manager", icon: Bot },
+  { title: "Analisis", url: "/analytics", icon: BarChart3, roles: ["admin_developer"] },
+  { title: "AI Manager", url: "/ai-manager", icon: Bot, roles: ["admin_agent", "admin_developer"] },
 ];
 
-const settingsMenuItems = [
+const settingsMenuItems: MenuItem[] = [
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
-  const { state, setOpen, setOpenMobile, isMobile } = useSidebar();
+  const { state, setOpenMobile, isMobile } = useSidebar();
   const collapsed = state === "collapsed";
-  const { signOut, tenantUser, tenant, user } = useAuth();
-  const hotCount = useHotLeadBadge();
+  const { signOut, tenantUser, tenant, user, role } = useAuth();
+  useHotLeadBadge();
 
   const handleNavClick = () => {
-    if (isMobile) {
-      setOpenMobile(false);
-    }
+    if (isMobile) setOpenMobile(false);
   };
+
+  const visible = (item: MenuItem) => !item.roles || (role && item.roles.includes(role));
 
   return (
     <Sidebar collapsible="icon">
@@ -68,14 +77,13 @@ export function AppSidebar() {
           )}
         </div>
 
-        {/* MENU */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-[11px] font-semibold tracking-wider text-muted-foreground/70 uppercase px-4">
             Menu
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainMenuItems.map((item) => (
+              {mainMenuItems.filter(visible).map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
@@ -95,14 +103,13 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* PENGATURAN */}
         <SidebarGroup>
           <SidebarGroupLabel className="text-[11px] font-semibold tracking-wider text-muted-foreground/70 uppercase px-4">
             Pengaturan
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {settingsMenuItems.map((item) => (
+              {settingsMenuItems.filter(visible).map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
@@ -125,7 +132,10 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-border p-3">
         {!collapsed && (tenant || user) && (
           <div className="mb-2 px-2">
-            <p className="text-sm font-medium truncate">{tenant?.name ?? tenantUser?.name ?? "—"}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-medium truncate">{tenantUser?.name ?? tenant?.name ?? "—"}</p>
+              <RoleBadge role={role} />
+            </div>
             <p className="text-xs text-muted-foreground truncate">{user?.email ?? tenantUser?.email ?? ""}</p>
           </div>
         )}
