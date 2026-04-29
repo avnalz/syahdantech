@@ -3,7 +3,10 @@ import { ChevronLeft, ChevronRight, Users, MessageSquare, TrendingUp, Target, Fl
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { useAgentsData } from "@/hooks/useAgentsData";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
@@ -40,7 +43,13 @@ function DonutLegend({ data, colors, nameKey }: { data: any[]; colors: string[];
 
 export default function Analytics() {
   const [monthOffset, setMonthOffset] = useState(0);
-  const { loading, summary, dailyLeads, pipelineData, sentimentData, labelData, monthLabel } = useAnalyticsData(monthOffset);
+  const [agentFilter, setAgentFilter] = useState<string>("all");
+  const { role } = useAuth();
+  const { agents } = useAgentsData();
+  const agentId: number | "all" = agentFilter === "all" ? "all" : Number(agentFilter);
+  const { loading, summary, dailyLeads, pipelineData, sentimentData, labelData, monthLabel } = useAnalyticsData(monthOffset, agentId);
+  const showAgentFilter = role === "admin_developer";
+  const onlyAgents = agents.filter(a => a.role === "agent");
 
   if (loading) {
     return (
@@ -57,12 +66,29 @@ export default function Analytics() {
   return (
     <div className="space-y-6">
       {/* Header with month nav */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Analisis CRM</h1>
-          <p className="text-muted-foreground text-sm">Ringkasan performa bulan ini</p>
+          <p className="text-muted-foreground text-sm">
+            {agentFilter === "all"
+              ? "Ringkasan performa bulan ini"
+              : `Performa agent: ${onlyAgents.find(a => a.id === Number(agentFilter))?.name ?? "-"}`}
+          </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {showAgentFilter && (
+            <Select value={agentFilter} onValueChange={setAgentFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Pilih agent" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Agent</SelectItem>
+                {onlyAgents.map(a => (
+                  <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <Button variant="outline" size="icon" onClick={() => setMonthOffset(o => o + 1)}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
