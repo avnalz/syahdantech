@@ -114,7 +114,9 @@ export default function Settings() {
           ) : (
             <>
               <TabsTrigger value="profil">Profil</TabsTrigger>
-              <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
+              {role === "admin_developer" && (
+                <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
+              )}
               <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
               <TabsTrigger value="tentang">Tentang</TabsTrigger>
             </>
