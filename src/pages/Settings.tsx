@@ -107,15 +107,53 @@ export default function Settings() {
         <h1 className="text-2xl font-bold">Settings</h1>
       </div>
 
-      <Tabs defaultValue="profil" className="space-y-6">
+      <Tabs defaultValue={role === "agent" ? "password" : "profil"} className="space-y-6">
         <TabsList>
-          <TabsTrigger value="profil">Profil</TabsTrigger>
-          {role !== "agent" && <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>}
-          <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
-          <TabsTrigger value="tentang">Tentang</TabsTrigger>
+          {role === "agent" ? (
+            <TabsTrigger value="password">Ganti Password</TabsTrigger>
+          ) : (
+            <>
+              <TabsTrigger value="profil">Profil</TabsTrigger>
+              <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
+              <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
+              <TabsTrigger value="tentang">Tentang</TabsTrigger>
+            </>
+          )}
         </TabsList>
 
+        {/* Password-only Tab for Agent */}
+        {role === "agent" && (
+          <TabsContent value="password" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Lock className="h-5 w-5 text-primary" />
+                  Ganti Password
+                </CardTitle>
+                <CardDescription>Perbarui password akun Anda secara berkala</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    Email
+                  </Label>
+                  <Input value={user?.email || ""} disabled className="bg-muted" />
+                </div>
+                <Separator />
+                <Input type="password" placeholder="Password baru" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                <Input type="password" placeholder="Konfirmasi password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                <Button onClick={handleChangePassword} disabled={changingPassword || !newPassword}>
+                  {changingPassword && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  Ubah Password
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
+
         {/* Profil Tab */}
+        {role !== "agent" && (
         <TabsContent value="profil" className="space-y-6">
           <Card>
             <CardHeader>
@@ -128,17 +166,13 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="tenantName">Nama Agency / Developer</Label>
-                {role === "agent" ? (
-                  <Input id="tenantName" value={tenantName} disabled className="bg-muted" />
-                ) : (
-                  <div className="flex gap-2">
-                    <Input id="tenantName" value={tenantName} onChange={(e) => setTenantName(e.target.value)} placeholder="Nama bisnis Anda" />
-                    <Button onClick={handleSaveTenantName} disabled={saving}>
-                      {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                      Simpan
-                    </Button>
-                  </div>
-                )}
+                <div className="flex gap-2">
+                  <Input id="tenantName" value={tenantName} onChange={(e) => setTenantName(e.target.value)} placeholder="Nama bisnis Anda" />
+                  <Button onClick={handleSaveTenantName} disabled={saving}>
+                    {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                    Simpan
+                  </Button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
@@ -163,6 +197,7 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
+        )}
 
         {/* Drip Follow-up Tab */}
         {role !== "agent" && (
@@ -172,6 +207,7 @@ export default function Settings() {
         )}
 
         {/* Notifikasi Tab */}
+        {role !== "agent" && (
         <TabsContent value="notifikasi">
           <Card>
             <CardHeader>
@@ -200,8 +236,10 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
+        )}
 
         {/* Tentang Tab */}
+        {role !== "agent" && (
         <TabsContent value="tentang">
           <Card>
             <CardHeader>
@@ -256,6 +294,7 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
+        )}
 
       </Tabs>
     </div>
