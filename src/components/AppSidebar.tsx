@@ -37,6 +37,9 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const { signOut, tenantUser, tenant, user } = useAuth();
   const hotCount = useHotLeadBadge();
+  const role = tenantUser?.role;
+  const visibleMain = role ? mainMenuItems.filter((m) => m.roles.includes(role)) : [];
+  const visibleSettings = role ? settingsMenuItems.filter((m) => m.roles.includes(role)) : settingsMenuItems;
 
   const handleNavClick = () => {
     if (isMobile) {
