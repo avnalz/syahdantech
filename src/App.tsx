@@ -13,6 +13,7 @@ import Leads from "./pages/Leads";
 import AiManager from "./pages/AiManager";
 import Properties from "./pages/Properties";
 import Analytics from "./pages/Analytics";
+import Agents from "./pages/Agents";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
