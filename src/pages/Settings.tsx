@@ -254,7 +254,7 @@ export default function Settings() {
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Paket Saat Ini</span>
-                <span className="text-sm font-semibold text-primary">Pro Plan</span>
+                <span className="text-sm font-semibold text-primary">{planLabel}</span>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
