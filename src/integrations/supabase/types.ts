@@ -14,6 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      agent_sessions: {
+        Row: {
+          created_at: string
+          id: number
+          is_active: boolean
+          tenant_id: number
+          user_id: number
+          wa_session: string
+          wa_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          is_active?: boolean
+          tenant_id: number
+          user_id: number
+          wa_session: string
+          wa_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          is_active?: boolean
+          tenant_id?: number
+          user_id?: number
+          wa_session?: string
+          wa_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_sessions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_sessions_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_sessions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bot_sessions: {
         Row: {
           created_at: string
@@ -469,6 +528,7 @@ export type Database = {
           name: string
           scoring_prompt: string | null
           system_prompt: string | null
+          tenant_type: string
           wa_session: string
           wa_url: string | null
         }
@@ -482,6 +542,7 @@ export type Database = {
           name: string
           scoring_prompt?: string | null
           system_prompt?: string | null
+          tenant_type?: string
           wa_session: string
           wa_url?: string | null
         }
@@ -495,6 +556,7 @@ export type Database = {
           name?: string
           scoring_prompt?: string | null
           system_prompt?: string | null
+          tenant_type?: string
           wa_session?: string
           wa_url?: string | null
         }
@@ -508,8 +570,10 @@ export type Database = {
           is_active: boolean
           name: string
           password_hash: string
+          phone: string | null
           role: string
           tenant_id: number
+          wa_session: string | null
         }
         Insert: {
           created_at?: string
@@ -518,8 +582,10 @@ export type Database = {
           is_active?: boolean
           name: string
           password_hash: string
+          phone?: string | null
           role?: string
           tenant_id: number
+          wa_session?: string | null
         }
         Update: {
           created_at?: string
@@ -528,8 +594,10 @@ export type Database = {
           is_active?: boolean
           name?: string
           password_hash?: string
+          phone?: string | null
           role?: string
           tenant_id?: number
+          wa_session?: string | null
         }
         Relationships: [
           {
