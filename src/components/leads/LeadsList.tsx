@@ -1,9 +1,12 @@
-import { Search } from "lucide-react";
+import { Search, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { Contact } from "@/pages/Leads";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import type { Contact, AgentOption } from "@/pages/Leads";
 
 const FILTERS = [
   { label: "Semua", value: "all" },
@@ -39,6 +42,11 @@ interface LeadsListProps {
   onSelect: (c: Contact) => void;
   getLastMessage: (c: Contact) => string;
   loading: boolean;
+  agents?: AgentOption[];
+  agentMap?: Map<number, string>;
+  agentFilter?: string;
+  onAgentFilterChange?: (v: string) => void;
+  showAgentColumn?: boolean;
 }
 
 export function LeadsList({
@@ -51,6 +59,11 @@ export function LeadsList({
   onSelect,
   getLastMessage,
   loading,
+  agents,
+  agentMap,
+  agentFilter = "all",
+  onAgentFilterChange,
+  showAgentColumn,
 }: LeadsListProps) {
   return (
     <>
