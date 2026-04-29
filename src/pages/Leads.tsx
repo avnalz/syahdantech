@@ -22,7 +22,6 @@ export interface Contact {
   budget: number | null;
   timeline: string | null;
   properti_diminati: string[] | null;
-  assigned_to: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -37,70 +36,28 @@ export interface ChatMessage {
   tenant_id: number | null;
 }
 
-export interface AgentOption {
-  id: number;
-  name: string;
-}
-
 export default function Leads() {
   const [searchParams] = useSearchParams();
-  const { tenantId, role, currentUserRowId } = useAuth();
+  const { tenantId } = useAuth();
   const isMobile = useIsMobile();
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [agentMap, setAgentMap] = useState<Map<number, string>>(new Map());
-  const [agents, setAgents] = useState<AgentOption[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<string>(searchParams.get("filter") || "all");
-  const [agentFilter, setAgentFilter] = useState<string>("all");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const isAdmin = role === "admin_agent" || role === "admin_developer";
-
-  // Fetch agents (untuk admin: re-assign + filter)
-  useEffect(() => {
-    if (!tenantId || !isAdmin) return;
-    void (async () => {
-      const { data } = await supabase
-        .from("users")
-        .select("id, name")
-        .eq("tenant_id", tenantId)
-        .eq("is_active", true)
-        .order("name");
-      if (data) {
-        setAgents(data);
-        setAgentMap(new Map(data.map((u) => [u.id, u.name])));
-      }
-    })();
-  }, [tenantId, isAdmin]);
 
   // Fetch contacts
   const fetchContacts = useCallback(async () => {
     if (!tenantId) return;
-    let query = supabase
+    const { data } = await supabase
       .from("contacts")
       .select("*")
       .eq("tenant_id", tenantId)
       .order("last_chat_at", { ascending: false });
-    // Agent biasa: hanya leads yang di-assign ke dirinya
-    if (role === "agent" && currentUserRowId != null) {
-      query = query.eq("assigned_to", currentUserRowId);
-    }
-    const { data } = await query;
     if (data) setContacts(data);
     setLoading(false);
-  }, [tenantId, role, currentUserRowId]);
-
-  const handleReassign = useCallback(async (contactId: number, newAgentId: number | null) => {
-    const { error } = await supabase
-      .from("contacts")
-      .update({ assigned_to: newAgentId })
-      .eq("id", contactId);
-    if (error) return;
-    setContacts((prev) => prev.map((c) => (c.id === contactId ? { ...c, assigned_to: newAgentId } : c)));
-    setSelectedContact((prev) => (prev && prev.id === contactId ? { ...prev, assigned_to: newAgentId } : prev));
-  }, []);
+  }, [tenantId]);
 
   // Fetch messages for selected contact
   const fetchMessages = useCallback(async (phoneNumber: string) => {
@@ -200,14 +157,7 @@ export default function Leads() {
           new Date(c.last_chat_at).getTime() < needsActionCutoff &&
           (c.lead_label === "hot" || c.lead_label === "warm");
       else matchFilter = c.lead_label === filter;
-
-      let matchAgent = true;
-      if (isAdmin && agentFilter !== "all") {
-        matchAgent = agentFilter === "unassigned"
-          ? c.assigned_to == null
-          : String(c.assigned_to) === agentFilter;
-      }
-      return matchSearch && matchFilter && matchAgent;
+      return matchSearch && matchFilter;
     })
     .sort((a, b) => {
       if (filter === "needs_action") {
@@ -235,8 +185,6 @@ export default function Leads() {
           onStageChange={handleStageChange}
           onDelete={handleDelete}
           onMessageSent={handleMessageSent}
-          agents={isAdmin ? agents : undefined}
-          onReassign={isAdmin ? handleReassign : undefined}
           isMobile
         />
       </div>
@@ -257,11 +205,6 @@ export default function Leads() {
           onSelect={handleSelectContact}
           getLastMessage={getLastMessage}
           loading={loading}
-          agents={isAdmin ? agents : undefined}
-          agentMap={agentMap}
-          agentFilter={agentFilter}
-          onAgentFilterChange={setAgentFilter}
-          showAgentColumn={isAdmin}
         />
       </div>
 
@@ -278,8 +221,6 @@ export default function Leads() {
               onStageChange={handleStageChange}
               onDelete={handleDelete}
               onMessageSent={handleMessageSent}
-              agents={isAdmin ? agents : undefined}
-              onReassign={isAdmin ? handleReassign : undefined}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center text-muted-foreground">

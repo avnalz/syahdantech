@@ -12,10 +12,9 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DripFollowupTab from "@/components/settings/DripFollowupTab";
-import { RoleBadge } from "@/components/RoleBadge";
 
 export default function Settings() {
-  const { user, tenantId, tenantUser, tenant, tenantType, role, refreshTenant } = useAuth();
+  const { user, tenantId, tenantUser, tenant, refreshTenant } = useAuth();
   const [tenantName, setTenantName] = useState("");
   const [joinDate, setJoinDate] = useState("");
   const [loading, setLoading] = useState(true);
@@ -107,55 +106,15 @@ export default function Settings() {
         <h1 className="text-2xl font-bold">Settings</h1>
       </div>
 
-      <Tabs defaultValue={role === "agent" ? "password" : "profil"} className="space-y-6">
+      <Tabs defaultValue="profil" className="space-y-6">
         <TabsList>
-          {role === "agent" ? (
-            <TabsTrigger value="password">Ganti Password</TabsTrigger>
-          ) : (
-            <>
-              <TabsTrigger value="profil">Profil</TabsTrigger>
-              {role === "admin_developer" && (
-                <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
-              )}
-              <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
-              <TabsTrigger value="tentang">Tentang</TabsTrigger>
-            </>
-          )}
+          <TabsTrigger value="profil">Profil</TabsTrigger>
+          <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
+          <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
+          <TabsTrigger value="tentang">Tentang</TabsTrigger>
         </TabsList>
 
-        {/* Password-only Tab for Agent */}
-        {role === "agent" && (
-          <TabsContent value="password" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Lock className="h-5 w-5 text-primary" />
-                  Ganti Password
-                </CardTitle>
-                <CardDescription>Perbarui password akun Anda secara berkala</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-2">
-                  <Label className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    Email
-                  </Label>
-                  <Input value={user?.email || ""} disabled className="bg-muted" />
-                </div>
-                <Separator />
-                <Input type="password" placeholder="Password baru" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
-                <Input type="password" placeholder="Konfirmasi password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-                <Button onClick={handleChangePassword} disabled={changingPassword || !newPassword}>
-                  {changingPassword && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  Ubah Password
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
-
         {/* Profil Tab */}
-        {role !== "agent" && (
         <TabsContent value="profil" className="space-y-6">
           <Card>
             <CardHeader>
@@ -199,17 +158,13 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
-        )}
 
-        {/* Drip Follow-up Tab — hanya untuk admin_developer (Paket Pro) */}
-        {role === "admin_developer" && (
-          <TabsContent value="drip">
-            <DripFollowupTab />
-          </TabsContent>
-        )}
+        {/* Drip Follow-up Tab */}
+        <TabsContent value="drip">
+          <DripFollowupTab />
+        </TabsContent>
 
         {/* Notifikasi Tab */}
-        {role !== "agent" && (
         <TabsContent value="notifikasi">
           <Card>
             <CardHeader>
@@ -238,10 +193,8 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
-        )}
 
         {/* Tentang Tab */}
-        {role !== "agent" && (
         <TabsContent value="tentang">
           <Card>
             <CardHeader>
@@ -249,35 +202,11 @@ export default function Settings() {
                 <CreditCard className="h-5 w-5 text-primary" />
                 Informasi Paket
               </CardTitle>
-              <CardDescription>
-                {tenantType === "developer"
-                  ? "Paket Pro — kelola tim agent & analisis performa"
-                  : "Paket Starter — agent mandiri"}
-              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Paket Saat Ini</span>
-                <span className="text-sm font-semibold text-primary">
-                  {tenantType === "developer" ? "Pro" : "Starter"}
-                </span>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Role Anda</span>
-                <RoleBadge role={role} />
-              </div>
-              <Separator />
-              <div>
-                <p className="text-sm font-medium mb-1.5">Fitur Aktif</p>
-                <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Dashboard & Leads</li>
-                  <li>Properti</li>
-                  {(role === "admin_agent" || role === "admin_developer") && <li>AI Manager (system & scoring prompt)</li>}
-                  {tenantType === "developer" && <li>Manajemen Agent (unlimited)</li>}
-                  {tenantType === "developer" && <li>Analisis performa per agent</li>}
-                  {tenantType === "developer" && <li>Drip follow-up otomatis</li>}
-                </ul>
+                <span className="text-sm font-semibold text-primary">Pro Plan</span>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
@@ -296,7 +225,6 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
-        )}
 
       </Tabs>
     </div>

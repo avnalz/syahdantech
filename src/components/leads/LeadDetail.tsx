@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { LeadChat } from "./LeadChat";
-import type { Contact, ChatMessage, AgentOption } from "@/pages/Leads";
+import type { Contact, ChatMessage } from "@/pages/Leads";
 
 const labelColors: Record<string, string> = {
   hot: "bg-destructive text-destructive-foreground",
@@ -50,8 +50,6 @@ interface LeadDetailProps {
   onStageChange?: (contactId: number, newStage: string) => void;
   onDelete?: (contactId: number) => void;
   onMessageSent?: (msg: ChatMessage) => void;
-  agents?: AgentOption[];
-  onReassign?: (contactId: number, agentId: number | null) => void | Promise<void>;
   isMobile?: boolean;
 }
 
@@ -79,7 +77,7 @@ function formatCurrency(value: number | null) {
   return new Intl.NumberFormat("id-ID").format(value);
 }
 
-export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, onStageChange, onDelete, onMessageSent, agents, onReassign, isMobile }: LeadDetailProps) {
+export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, onStageChange, onDelete, onMessageSent, isMobile }: LeadDetailProps) {
   const [dripLogs, setDripLogs] = useState<DripLog[]>([]);
   const [humanMode, setHumanMode] = useState(contact.mode === "human_mode");
 
@@ -377,37 +375,6 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
                   {hasActiveDrip ? "Pause Drip" : "Resume Drip"}
                 </Button>
               </div>
-
-              {/* Re-assign Agent (admin only) */}
-              {agents && onReassign && (
-                <div className="rounded-lg border border-border bg-muted/30 px-3 py-2.5 space-y-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <div>
-                      <p className="text-sm font-medium">Assigned Agent</p>
-                      <p className="text-xs text-muted-foreground">Pindahkan lead ke agent lain</p>
-                    </div>
-                    <Select
-                      value={contact.assigned_to == null ? "unassigned" : String(contact.assigned_to)}
-                      onValueChange={(v) => {
-                        const next = v === "unassigned" ? null : Number(v);
-                        void onReassign(contact.id, next);
-                      }}
-                    >
-                      <SelectTrigger className="h-8 text-xs w-[180px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="unassigned" className="text-xs">— Belum di-assign —</SelectItem>
-                        {agents.map((a) => (
-                          <SelectItem key={a.id} value={String(a.id)} className="text-xs">
-                            {a.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              )}
 
               <Separator />
 

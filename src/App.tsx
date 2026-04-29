@@ -13,26 +13,16 @@ import Leads from "./pages/Leads";
 import AiManager from "./pages/AiManager";
 import Properties from "./pages/Properties";
 import Analytics from "./pages/Analytics";
-import Agents from "./pages/Agents";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-import type { AppRole } from "@/contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
-const ProtectedPage = ({
-  children,
-  allowedRoles,
-}: {
-  children: React.ReactNode;
-  allowedRoles?: AppRole[];
-}) => (
-  <ProtectedRoute allowedRoles={allowedRoles}>
+const ProtectedPage = ({ children }: { children: React.ReactNode }) => (
+  <ProtectedRoute>
     <AppLayout>{children}</AppLayout>
   </ProtectedRoute>
 );
-
-const ADMINS: AppRole[] = ["admin_agent", "admin_developer"];
 
 const App = () => (
   <ErrorBoundary>
@@ -46,10 +36,9 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<ProtectedPage><Index /></ProtectedPage>} />
                 <Route path="/leads" element={<ProtectedPage><Leads /></ProtectedPage>} />
-                <Route path="/ai-manager" element={<ProtectedPage allowedRoles={ADMINS}><AiManager /></ProtectedPage>} />
+                <Route path="/ai-manager" element={<ProtectedPage><AiManager /></ProtectedPage>} />
                 <Route path="/properties" element={<ProtectedPage><Properties /></ProtectedPage>} />
-                <Route path="/analytics" element={<ProtectedPage allowedRoles={["admin_developer"]}><Analytics /></ProtectedPage>} />
-                <Route path="/agents" element={<ProtectedPage allowedRoles={["admin_developer"]}><Agents /></ProtectedPage>} />
+                <Route path="/analytics" element={<ProtectedPage><Analytics /></ProtectedPage>} />
                 <Route path="/settings" element={<ProtectedPage><Settings /></ProtectedPage>} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

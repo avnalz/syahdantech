@@ -34,7 +34,7 @@ export interface LabelCount {
   count: number;
 }
 
-export function useAnalyticsData(monthOffset = 0, agentId: number | "all" = "all") {
+export function useAnalyticsData(monthOffset = 0) {
   const { tenantId } = useAuth();
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<AnalyticsSummary>({
@@ -58,48 +58,31 @@ export function useAnalyticsData(monthOffset = 0, agentId: number | "all" = "all
     const startStr = monthStart.toISOString();
     const endStr = monthEnd.toISOString();
 
-    // Fetch all contacts for this tenant (optionally filtered by agent)
-    let allQ = supabase.from("contacts").select("*").eq("tenant_id", tenantId);
-    if (agentId !== "all") allQ = allQ.eq("assigned_to", agentId);
-    const { data: contacts } = await allQ;
+    // Fetch all contacts for this tenant
+    const { data: contacts } = await supabase
+      .from("contacts")
+      .select("*")
+      .eq("tenant_id", tenantId);
 
     // Fetch contacts created this month
-    let monthQ = supabase
+    const { data: newContacts } = await supabase
       .from("contacts")
       .select("*")
       .eq("tenant_id", tenantId)
       .gte("created_at", startStr)
       .lte("created_at", endStr);
-    if (agentId !== "all") monthQ = monthQ.eq("assigned_to", agentId);
-    const { data: newContacts } = await monthQ;
 
-    // Fetch chat logs this month — scoped to agent's contact phones if filtered
-    let chatLogs: { id: number; created_at: string; phone_number: string }[] = [];
-    if (agentId === "all") {
-      const { data } = await supabase
-        .from("chat_logs")
-        .select("id, created_at, phone_number")
-        .eq("tenant_id", tenantId)
-        .gte("created_at", startStr)
-        .lte("created_at", endStr);
-      chatLogs = data ?? [];
-    } else {
-      const phones = Array.from(new Set((contacts ?? []).map(c => c.phone_number).filter(Boolean)));
-      if (phones.length > 0) {
-        const { data } = await supabase
-          .from("chat_logs")
-          .select("id, created_at, phone_number")
-          .eq("tenant_id", tenantId)
-          .gte("created_at", startStr)
-          .lte("created_at", endStr)
-          .in("phone_number", phones);
-        chatLogs = data ?? [];
-      }
-    }
+    // Fetch chat logs this month
+    const { data: chatLogs } = await supabase
+      .from("chat_logs")
+      .select("id, created_at, phone_number")
+      .eq("tenant_id", tenantId)
+      .gte("created_at", startStr)
+      .lte("created_at", endStr);
 
     const allContacts = contacts || [];
     const monthContacts = newContacts || [];
-    const chats = chatLogs;
+    const chats = chatLogs || [];
 
     // Summary
     const hot = allContacts.filter(c => c.lead_label === "hot").length;
@@ -169,7 +152,7 @@ export function useAnalyticsData(monthOffset = 0, agentId: number | "all" = "all
     setLabelData(lCounts);
 
     setLoading(false);
-  }, [tenantId, monthOffset, agentId]);
+  }, [tenantId, monthOffset]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
