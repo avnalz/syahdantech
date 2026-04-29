@@ -169,7 +169,7 @@ export function useAnalyticsData(monthOffset = 0, agentId: number | "all" = "all
     setLabelData(lCounts);
 
     setLoading(false);
-  }, [tenantId, monthOffset]);
+  }, [tenantId, monthOffset, agentId]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
