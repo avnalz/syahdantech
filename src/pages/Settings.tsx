@@ -12,9 +12,10 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DripFollowupTab from "@/components/settings/DripFollowupTab";
+import { RoleBadge } from "@/components/RoleBadge";
 
 export default function Settings() {
-  const { user, tenantId, tenantUser, tenant, refreshTenant } = useAuth();
+  const { user, tenantId, tenantUser, tenant, tenantType, role, refreshTenant } = useAuth();
   const [tenantName, setTenantName] = useState("");
   const [joinDate, setJoinDate] = useState("");
   const [loading, setLoading] = useState(true);
