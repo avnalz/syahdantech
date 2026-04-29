@@ -55,12 +55,11 @@ export default function Settings() {
   useEffect(() => {
     if (!tenantId || !isDeveloper) return;
     supabase
-      .from("users")
+      .from("users_safe" as never)
       .select("id", { count: "exact", head: true })
-      .eq("tenant_id", tenantId)
       .eq("role", "agent")
       .eq("is_active", true)
-      .then(({ count }) => setActiveAgentCount(count ?? 0));
+      .then(({ count }: { count: number | null }) => setActiveAgentCount(count ?? 0));
   }, [tenantId, isDeveloper]);
 
   // Keep input in sync when global tenant updates
