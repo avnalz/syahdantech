@@ -714,6 +714,16 @@ export type Database = {
     }
     Functions: {
       current_tenant_id: { Args: never; Returns: number }
+      current_user_profile: {
+        Args: never
+        Returns: {
+          email: string
+          name: string
+          role: string
+          tenant_id: number
+          user_row_id: number
+        }[]
+      }
       current_user_role: { Args: never; Returns: string }
       current_user_row_id: { Args: never; Returns: number }
     }
