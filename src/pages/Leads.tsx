@@ -22,6 +22,7 @@ export interface Contact {
   budget: number | null;
   timeline: string | null;
   properti_diminati: string[] | null;
+  assigned_to: number | null;
   created_at: string;
   updated_at: string;
 }
