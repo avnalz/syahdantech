@@ -159,19 +159,7 @@ Deno.serve(async (req) => {
         return json(400, { error: "Format email tidak valid" });
       }
 
-      // 1. Create auth user
-      const { data: authData, error: authErr } = await admin.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-        user_metadata: { full_name: name },
-      });
-      if (authErr || !authData?.user) {
-        return json(400, { error: authErr?.message ?? "Gagal membuat auth user" });
-      }
-      const authUserId = authData.user.id;
-
-      // 2. Insert into public.users
+      // 1. Pre-insert users row FIRST so handle_new_user trigger can resolve tenant_id by email
       const { data: userRow, error: userErr } = await admin
         .from("users")
         .insert({
@@ -187,11 +175,24 @@ Deno.serve(async (req) => {
         .select("id")
         .single();
       if (userErr || !userRow) {
-        await admin.auth.admin.deleteUser(authUserId).catch(() => {});
         return json(500, { error: userErr?.message ?? "Gagal insert users" });
       }
 
-      // 3. Upsert profiles (handle_new_user trigger may have already created one)
+      // 2. Create auth user (trigger will now find tenant_id via email lookup)
+      const { data: authData, error: authErr } = await admin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { full_name: name, tenant_id: tenantId },
+      });
+      if (authErr || !authData?.user) {
+        // Rollback users insert
+        await admin.from("users").delete().eq("id", userRow.id);
+        return json(400, { error: authErr?.message ?? "Gagal membuat auth user" });
+      }
+      const authUserId = authData.user.id;
+
+      // 3. Ensure profiles row has correct tenant_id
       const { error: profErr } = await admin
         .from("profiles")
         .upsert({ id: authUserId, tenant_id: tenantId, full_name: name }, { onConflict: "id" });
