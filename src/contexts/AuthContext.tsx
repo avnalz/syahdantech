@@ -80,11 +80,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const tenantId = Number(profile.tenant_id);
     console.log("[Auth] Step 3 — tenant_id:", tenantId);
 
+    // Fetch role + canonical name from users table (RLS: select own row by email)
+    const { data: userRow, error: userErr } = await supabase
+      .from("users")
+      .select("id, name, role")
+      .eq("tenant_id", tenantId)
+      .eq("email", authUser.email ?? "")
+      .maybeSingle();
+
+    if (userErr) {
+      console.warn("[Auth] users query error:", userErr.message);
+    }
+    console.log("[Auth] Step 4 — users row:", userRow);
+
+    const role = ((userRow?.role as AppRole) ?? "agent") as AppRole;
+
     setTenantUser({
       id: profile.id,
-      name: profile.full_name ?? authUser.email ?? "",
+      name: userRow?.name ?? profile.full_name ?? authUser.email ?? "",
       email: authUser.email ?? "",
       tenant_id: tenantId,
+      role,
+      user_row_id: userRow?.id,
     });
     await fetchTenantInfo(tenantId);
   };
