@@ -245,20 +245,31 @@ export default function Agents() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      {a.is_active ? (
-                        <Button size="sm" variant="outline" onClick={() => setConfirmTarget(a)}>
-                          Nonaktifkan
-                        </Button>
-                      ) : (
+                      <div className="flex items-center justify-end gap-2">
+                        {a.is_active ? (
+                          <Button size="sm" variant="outline" onClick={() => setConfirmTarget(a)}>
+                            Nonaktifkan
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => void handleSetActive(a, true)}
+                            disabled={actionLoading}
+                          >
+                            Aktifkan
+                          </Button>
+                        )}
                         <Button
                           size="sm"
-                          variant="outline"
-                          onClick={() => void handleSetActive(a, true)}
-                          disabled={actionLoading}
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => setDeleteTarget(a)}
+                          aria-label="Hapus agent"
                         >
-                          Aktifkan
+                          <Trash2 className="h-4 w-4" />
                         </Button>
-                      )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
