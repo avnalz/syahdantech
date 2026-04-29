@@ -61,6 +61,7 @@ export default function Agents() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [confirmTarget, setConfirmTarget] = useState<AgentRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AgentRow | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchAgents = useCallback(async () => {
