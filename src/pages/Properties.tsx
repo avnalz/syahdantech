@@ -13,7 +13,8 @@ import type { Tables } from "@/integrations/supabase/types";
 export type Property = Tables<"properties">;
 
 export default function Properties() {
-  const { tenantId } = useAuth();
+  const { tenantId, role } = useAuth();
+  const canManage = role === "admin_agent" || role === "admin_developer";
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -115,12 +116,16 @@ export default function Properties() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Properties</h1>
-          <p className="text-muted-foreground text-sm">Kelola listing properti Anda</p>
+          <p className="text-muted-foreground text-sm">
+            {canManage ? "Kelola listing properti Anda" : "Daftar properti tenant Anda"}
+          </p>
         </div>
-        <Button onClick={handleAdd}>
-          <Plus className="h-4 w-4 mr-2" />
-          Tambah Properti
-        </Button>
+        {canManage && (
+          <Button onClick={handleAdd}>
+            <Plus className="h-4 w-4 mr-2" />
+            Tambah Properti
+          </Button>
+        )}
       </div>
 
       {/* Filters */}
@@ -167,6 +172,7 @@ export default function Properties() {
               onEdit={handleEdit}
               onDelete={handleDelete}
               onToggleActive={handleToggleActive}
+              readOnly={!canManage}
             />
           ))}
         </div>
