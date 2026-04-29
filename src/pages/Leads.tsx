@@ -36,16 +36,43 @@ export interface ChatMessage {
   tenant_id: number | null;
 }
 
+export interface AgentOption {
+  id: number;
+  name: string;
+}
+
 export default function Leads() {
   const [searchParams] = useSearchParams();
   const { tenantId, role, currentUserRowId } = useAuth();
   const isMobile = useIsMobile();
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [agentMap, setAgentMap] = useState<Map<number, string>>(new Map());
+  const [agents, setAgents] = useState<AgentOption[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<string>(searchParams.get("filter") || "all");
+  const [agentFilter, setAgentFilter] = useState<string>("all");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const isAdmin = role === "admin_agent" || role === "admin_developer";
+
+  // Fetch agents (untuk admin: re-assign + filter)
+  useEffect(() => {
+    if (!tenantId || !isAdmin) return;
+    void (async () => {
+      const { data } = await supabase
+        .from("users")
+        .select("id, name")
+        .eq("tenant_id", tenantId)
+        .eq("is_active", true)
+        .order("name");
+      if (data) {
+        setAgents(data);
+        setAgentMap(new Map(data.map((u) => [u.id, u.name])));
+      }
+    })();
+  }, [tenantId, isAdmin]);
 
   // Fetch contacts
   const fetchContacts = useCallback(async () => {
@@ -63,6 +90,16 @@ export default function Leads() {
     if (data) setContacts(data);
     setLoading(false);
   }, [tenantId, role, currentUserRowId]);
+
+  const handleReassign = useCallback(async (contactId: number, newAgentId: number | null) => {
+    const { error } = await supabase
+      .from("contacts")
+      .update({ assigned_to: newAgentId })
+      .eq("id", contactId);
+    if (error) return;
+    setContacts((prev) => prev.map((c) => (c.id === contactId ? { ...c, assigned_to: newAgentId } : c)));
+    setSelectedContact((prev) => (prev && prev.id === contactId ? { ...prev, assigned_to: newAgentId } : prev));
+  }, []);
 
   // Fetch messages for selected contact
   const fetchMessages = useCallback(async (phoneNumber: string) => {
