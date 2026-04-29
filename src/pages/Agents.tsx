@@ -388,6 +388,34 @@ export default function Agents() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Confirm delete */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus agent?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Agent <strong>{deleteTarget?.name}</strong> ({deleteTarget?.email}) akan
+              dihapus permanen, termasuk akun login dan WA Session-nya. Tindakan ini
+              tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={actionLoading}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                if (deleteTarget) void handleDelete(deleteTarget);
+              }}
+              disabled={actionLoading}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {actionLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
