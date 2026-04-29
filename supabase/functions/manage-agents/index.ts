@@ -28,7 +28,12 @@ interface ListBody {
   action: "list";
 }
 
-type Body = CreateAgentBody | SetActiveBody | ListBody;
+interface DeleteAgentBody {
+  action: "delete";
+  user_id: number;
+}
+
+type Body = CreateAgentBody | SetActiveBody | ListBody | DeleteAgentBody;
 
 function json(status: number, payload: unknown) {
   return new Response(JSON.stringify(payload), {
