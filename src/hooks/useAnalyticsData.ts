@@ -58,31 +58,48 @@ export function useAnalyticsData(monthOffset = 0, agentId: number | "all" = "all
     const startStr = monthStart.toISOString();
     const endStr = monthEnd.toISOString();
 
-    // Fetch all contacts for this tenant
-    const { data: contacts } = await supabase
-      .from("contacts")
-      .select("*")
-      .eq("tenant_id", tenantId);
+    // Fetch all contacts for this tenant (optionally filtered by agent)
+    let allQ = supabase.from("contacts").select("*").eq("tenant_id", tenantId);
+    if (agentId !== "all") allQ = allQ.eq("assigned_to", agentId);
+    const { data: contacts } = await allQ;
 
     // Fetch contacts created this month
-    const { data: newContacts } = await supabase
+    let monthQ = supabase
       .from("contacts")
       .select("*")
       .eq("tenant_id", tenantId)
       .gte("created_at", startStr)
       .lte("created_at", endStr);
+    if (agentId !== "all") monthQ = monthQ.eq("assigned_to", agentId);
+    const { data: newContacts } = await monthQ;
 
-    // Fetch chat logs this month
-    const { data: chatLogs } = await supabase
-      .from("chat_logs")
-      .select("id, created_at, phone_number")
-      .eq("tenant_id", tenantId)
-      .gte("created_at", startStr)
-      .lte("created_at", endStr);
+    // Fetch chat logs this month — scoped to agent's contact phones if filtered
+    let chatLogs: { id: number; created_at: string; phone_number: string }[] = [];
+    if (agentId === "all") {
+      const { data } = await supabase
+        .from("chat_logs")
+        .select("id, created_at, phone_number")
+        .eq("tenant_id", tenantId)
+        .gte("created_at", startStr)
+        .lte("created_at", endStr);
+      chatLogs = data ?? [];
+    } else {
+      const phones = Array.from(new Set((contacts ?? []).map(c => c.phone_number).filter(Boolean)));
+      if (phones.length > 0) {
+        const { data } = await supabase
+          .from("chat_logs")
+          .select("id, created_at, phone_number")
+          .eq("tenant_id", tenantId)
+          .gte("created_at", startStr)
+          .lte("created_at", endStr)
+          .in("phone_number", phones);
+        chatLogs = data ?? [];
+      }
+    }
 
     const allContacts = contacts || [];
     const monthContacts = newContacts || [];
-    const chats = chatLogs || [];
+    const chats = chatLogs;
 
     // Summary
     const hot = allContacts.filter(c => c.lead_label === "hot").length;
