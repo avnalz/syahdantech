@@ -620,16 +620,37 @@ export type Database = {
     Views: {
       tenants_safe: {
         Row: {
+          admin_name: string | null
+          admin_phone: string | null
+          ai_model: string | null
+          created_at: string | null
           id: number | null
+          is_active: boolean | null
           name: string | null
+          tenant_type: string | null
+          wa_session: string | null
         }
         Insert: {
+          admin_name?: string | null
+          admin_phone?: string | null
+          ai_model?: string | null
+          created_at?: string | null
           id?: number | null
+          is_active?: boolean | null
           name?: string | null
+          tenant_type?: string | null
+          wa_session?: string | null
         }
         Update: {
+          admin_name?: string | null
+          admin_phone?: string | null
+          ai_model?: string | null
+          created_at?: string | null
           id?: number | null
+          is_active?: boolean | null
           name?: string | null
+          tenant_type?: string | null
+          wa_session?: string | null
         }
         Relationships: []
       }
@@ -640,8 +661,10 @@ export type Database = {
           id: number | null
           is_active: boolean | null
           name: string | null
+          phone: string | null
           role: string | null
           tenant_id: number | null
+          wa_session: string | null
         }
         Insert: {
           created_at?: string | null
@@ -649,8 +672,10 @@ export type Database = {
           id?: number | null
           is_active?: boolean | null
           name?: string | null
+          phone?: string | null
           role?: string | null
           tenant_id?: number | null
+          wa_session?: string | null
         }
         Update: {
           created_at?: string | null
@@ -658,8 +683,10 @@ export type Database = {
           id?: number | null
           is_active?: boolean | null
           name?: string | null
+          phone?: string | null
           role?: string | null
           tenant_id?: number | null
+          wa_session?: string | null
         }
         Relationships: [
           {

@@ -114,7 +114,9 @@ export default function Settings() {
           ) : (
             <>
               <TabsTrigger value="profil">Profil</TabsTrigger>
-              <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
+              {role === "admin_developer" && (
+                <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
+              )}
               <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
               <TabsTrigger value="tentang">Tentang</TabsTrigger>
             </>
@@ -199,8 +201,8 @@ export default function Settings() {
         </TabsContent>
         )}
 
-        {/* Drip Follow-up Tab */}
-        {role !== "agent" && (
+        {/* Drip Follow-up Tab — hanya untuk admin_developer (Paket Pro) */}
+        {role === "admin_developer" && (
           <TabsContent value="drip">
             <DripFollowupTab />
           </TabsContent>
@@ -274,7 +276,7 @@ export default function Settings() {
                   {(role === "admin_agent" || role === "admin_developer") && <li>AI Manager (system & scoring prompt)</li>}
                   {tenantType === "developer" && <li>Manajemen Agent (unlimited)</li>}
                   {tenantType === "developer" && <li>Analisis performa per agent</li>}
-                  <li>Drip follow-up otomatis</li>
+                  {tenantType === "developer" && <li>Drip follow-up otomatis</li>}
                 </ul>
               </div>
               <Separator />
