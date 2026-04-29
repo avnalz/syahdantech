@@ -95,7 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setTenantUser({
       id: profile.id,
       userRowId: userRow?.id ?? null,
-      name: userRow?.name ?? profile.full_name ?? authUser.email ?? "",
+      // Selalu prioritaskan users.name (nama orang). Hindari fallback ke profile.full_name
+      // karena field tersebut sering berisi nama bisnis dari registrasi awal.
+      name: userRow?.name?.trim() || (authUser.email?.split("@")[0] ?? ""),
       email: authUser.email ?? "",
       tenant_id: tenantId,
       role,
