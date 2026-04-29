@@ -132,8 +132,9 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-border p-3">
         {!collapsed && (tenant || user) && (
           <div className="mb-2 px-2">
-            <p className="text-sm font-medium truncate">{tenant?.name ?? tenantUser?.name ?? "—"}</p>
+            <p className="text-sm font-medium truncate">{tenantUser?.name ?? user?.email ?? "—"}</p>
             <p className="text-xs text-muted-foreground truncate">{user?.email ?? tenantUser?.email ?? ""}</p>
+            {role && <div className="mt-1.5"><RoleBadge role={role} /></div>}
           </div>
         )}
         <Button
