@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Users, Plus, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Users, Plus, Eye, EyeOff, Loader2, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,6 +61,7 @@ export default function Agents() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [confirmTarget, setConfirmTarget] = useState<AgentRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AgentRow | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchAgents = useCallback(async () => {
@@ -147,6 +148,21 @@ export default function Agents() {
     void fetchAgents();
   };
 
+  const handleDelete = async (agent: AgentRow) => {
+    setActionLoading(true);
+    const { data, error } = await supabase.functions.invoke("manage-agents", {
+      body: { action: "delete", user_id: agent.id },
+    });
+    setActionLoading(false);
+    setDeleteTarget(null);
+    if (error || data?.error) {
+      toast.error(data?.error ?? error?.message ?? "Gagal menghapus agent");
+      return;
+    }
+    toast.success("Agent berhasil dihapus");
+    void fetchAgents();
+  };
+
   const openAddDialog = () => {
     setForm(emptyForm);
     setShowPassword(false);
@@ -229,20 +245,31 @@ export default function Agents() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      {a.is_active ? (
-                        <Button size="sm" variant="outline" onClick={() => setConfirmTarget(a)}>
-                          Nonaktifkan
-                        </Button>
-                      ) : (
+                      <div className="flex items-center justify-end gap-2">
+                        {a.is_active ? (
+                          <Button size="sm" variant="outline" onClick={() => setConfirmTarget(a)}>
+                            Nonaktifkan
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => void handleSetActive(a, true)}
+                            disabled={actionLoading}
+                          >
+                            Aktifkan
+                          </Button>
+                        )}
                         <Button
                           size="sm"
-                          variant="outline"
-                          onClick={() => void handleSetActive(a, true)}
-                          disabled={actionLoading}
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => setDeleteTarget(a)}
+                          aria-label="Hapus agent"
                         >
-                          Aktifkan
+                          <Trash2 className="h-4 w-4" />
                         </Button>
-                      )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -357,6 +384,34 @@ export default function Agents() {
             >
               {actionLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Nonaktifkan
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Confirm delete */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus agent?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Agent <strong>{deleteTarget?.name}</strong> ({deleteTarget?.email}) akan
+              dihapus permanen, termasuk akun login dan WA Session-nya. Tindakan ini
+              tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={actionLoading}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                if (deleteTarget) void handleDelete(deleteTarget);
+              }}
+              disabled={actionLoading}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {actionLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Hapus
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
