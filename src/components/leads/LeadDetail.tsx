@@ -378,6 +378,37 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
                 </Button>
               </div>
 
+              {/* Re-assign Agent (admin only) */}
+              {agents && onReassign && (
+                <div className="rounded-lg border border-border bg-muted/30 px-3 py-2.5 space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-medium">Assigned Agent</p>
+                      <p className="text-xs text-muted-foreground">Pindahkan lead ke agent lain</p>
+                    </div>
+                    <Select
+                      value={contact.assigned_to == null ? "unassigned" : String(contact.assigned_to)}
+                      onValueChange={(v) => {
+                        const next = v === "unassigned" ? null : Number(v);
+                        void onReassign(contact.id, next);
+                      }}
+                    >
+                      <SelectTrigger className="h-8 text-xs w-[180px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="unassigned" className="text-xs">— Belum di-assign —</SelectItem>
+                        {agents.map((a) => (
+                          <SelectItem key={a.id} value={String(a.id)} className="text-xs">
+                            {a.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+
               <Separator />
 
               {/* AI Summary */}
