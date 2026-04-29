@@ -33,8 +33,9 @@ export function useHotLeadBadge() {
 
   useEffect(() => {
     if (!tenantId) return;
-    const channel = supabase
-      .channel(`hot-lead-badge-${tenantId}`)
+    const channelName = `hot-lead-badge-${tenantId}-${Math.random().toString(36).slice(2, 8)}`;
+    const channel = supabase.channel(channelName);
+    channel
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "contacts", filter: `tenant_id=eq.${tenantId}` },
