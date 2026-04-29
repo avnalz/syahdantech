@@ -66,12 +66,29 @@ export default function Analytics() {
   return (
     <div className="space-y-6">
       {/* Header with month nav */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Analisis CRM</h1>
-          <p className="text-muted-foreground text-sm">Ringkasan performa bulan ini</p>
+          <p className="text-muted-foreground text-sm">
+            {agentFilter === "all"
+              ? "Ringkasan performa bulan ini"
+              : `Performa agent: ${onlyAgents.find(a => a.id === Number(agentFilter))?.name ?? "-"}`}
+          </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          {showAgentFilter && (
+            <Select value={agentFilter} onValueChange={setAgentFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Pilih agent" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua Agent</SelectItem>
+                {onlyAgents.map(a => (
+                  <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
           <Button variant="outline" size="icon" onClick={() => setMonthOffset(o => o + 1)}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
