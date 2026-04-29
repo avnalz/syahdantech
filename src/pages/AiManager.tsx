@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface ChatMessage {
@@ -22,7 +23,7 @@ const QUICK_PROMPTS = [
 ];
 
 export default function AiManager() {
-  const { tenantId } = useAuth();
+  const { tenantId, tenantUser } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,10 +47,27 @@ export default function AiManager() {
     try {
       if (!webhookUrl) throw new Error("VITE_N8N_AI_MANAGER_URL belum dikonfigurasi");
 
+      const role = tenantUser?.role ?? "agent";
+      const payload: Record<string, unknown> = {
+        question: question.trim(),
+        tenantId: String(tenantId),
+        role,
+      };
+
+      if (role === "admin_developer") {
+        const { count } = await supabase
+          .from("users")
+          .select("id", { count: "exact", head: true })
+          .eq("tenant_id", tenantId)
+          .eq("role", "agent")
+          .eq("is_active", true);
+        payload.agentCount = count ?? 0;
+      }
+
       const res = await fetch(webhookUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: question.trim(), tenantId: String(tenantId) }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();

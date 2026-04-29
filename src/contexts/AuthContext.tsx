@@ -2,11 +2,15 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
+export type AppRole = "admin_agent" | "admin_developer" | "agent";
+
 interface TenantUser {
   id: string;
   name: string;
   email: string;
   tenant_id: number;
+  role: AppRole;
+  user_row_id?: number;
 }
 
 interface TenantInfo {
@@ -76,11 +80,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const tenantId = Number(profile.tenant_id);
     console.log("[Auth] Step 3 — tenant_id:", tenantId);
 
+    // Fetch role + canonical name from users table (RLS: select own row by email)
+    const { data: userRow, error: userErr } = await supabase
+      .from("users")
+      .select("id, name, role")
+      .eq("tenant_id", tenantId)
+      .eq("email", authUser.email ?? "")
+      .maybeSingle();
+
+    if (userErr) {
+      console.warn("[Auth] users query error:", userErr.message);
+    }
+    console.log("[Auth] Step 4 — users row:", userRow);
+
+    const role = ((userRow?.role as AppRole) ?? "agent") as AppRole;
+
     setTenantUser({
       id: profile.id,
-      name: profile.full_name ?? authUser.email ?? "",
+      name: userRow?.name ?? profile.full_name ?? authUser.email ?? "",
       email: authUser.email ?? "",
       tenant_id: tenantId,
+      role,
+      user_row_id: userRow?.id,
     });
     await fetchTenantInfo(tenantId);
   };

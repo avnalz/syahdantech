@@ -15,6 +15,11 @@ import DripFollowupTab from "@/components/settings/DripFollowupTab";
 
 export default function Settings() {
   const { user, tenantId, tenantUser, tenant, refreshTenant } = useAuth();
+  const role = tenantUser?.role ?? "agent";
+  const isAgent = role === "agent";
+  const isDeveloper = role === "admin_developer";
+  const planLabel = isDeveloper ? "Pro Plan" : "Starter Plan";
+  const [activeAgentCount, setActiveAgentCount] = useState<number | null>(null);
   const [tenantName, setTenantName] = useState("");
   const [joinDate, setJoinDate] = useState("");
   const [loading, setLoading] = useState(true);
@@ -45,6 +50,18 @@ export default function Settings() {
     };
     fetchTenant();
   }, [tenantId]);
+
+  // Fetch active agent count for developers
+  useEffect(() => {
+    if (!tenantId || !isDeveloper) return;
+    supabase
+      .from("users")
+      .select("id", { count: "exact", head: true })
+      .eq("tenant_id", tenantId)
+      .eq("role", "agent")
+      .eq("is_active", true)
+      .then(({ count }) => setActiveAgentCount(count ?? 0));
+  }, [tenantId, isDeveloper]);
 
   // Keep input in sync when global tenant updates
   useEffect(() => {
@@ -106,15 +123,17 @@ export default function Settings() {
         <h1 className="text-2xl font-bold">Settings</h1>
       </div>
 
-      <Tabs defaultValue="profil" className="space-y-6">
+      <Tabs defaultValue={isAgent ? "password" : "profil"} className="space-y-6">
         <TabsList>
-          <TabsTrigger value="profil">Profil</TabsTrigger>
-          <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
+          {!isAgent && <TabsTrigger value="profil">Profil</TabsTrigger>}
+          {isAgent && <TabsTrigger value="password">Ganti Password</TabsTrigger>}
+          {!isAgent && <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>}
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
           <TabsTrigger value="tentang">Tentang</TabsTrigger>
         </TabsList>
 
-        {/* Profil Tab */}
+        {/* Profil Tab — only for admins */}
+        {!isAgent && (
         <TabsContent value="profil" className="space-y-6">
           <Card>
             <CardHeader>
@@ -158,12 +177,41 @@ export default function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
+        )}
 
-        {/* Drip Follow-up Tab */}
-        <TabsContent value="drip">
-          <DripFollowupTab />
-        </TabsContent>
+        {/* Password Tab — only for agent */}
+        {isAgent && (
+          <TabsContent value="password" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Lock className="h-5 w-5 text-primary" />
+                  Ganti Password
+                </CardTitle>
+                <CardDescription>Perbarui password akun Anda</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input value={user?.email || ""} disabled className="bg-muted" />
+                </div>
+                <Input type="password" placeholder="Password baru" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                <Input type="password" placeholder="Konfirmasi password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                <Button variant="outline" onClick={handleChangePassword} disabled={changingPassword || !newPassword}>
+                  {changingPassword && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  Ubah Password
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
 
+        {/* Drip Follow-up Tab — only for admins */}
+        {!isAgent && (
+          <TabsContent value="drip">
+            <DripFollowupTab />
+          </TabsContent>
+        )}
         {/* Notifikasi Tab */}
         <TabsContent value="notifikasi">
           <Card>
@@ -206,7 +254,7 @@ export default function Settings() {
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Paket Saat Ini</span>
-                <span className="text-sm font-semibold text-primary">Pro Plan</span>
+                <span className="text-sm font-semibold text-primary">{planLabel}</span>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
@@ -219,6 +267,15 @@ export default function Settings() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Tenant ID</span>
                     <span className="text-sm font-medium">{tenantUser.tenant_id}</span>
+                  </div>
+                </>
+              )}
+              {isDeveloper && (
+                <>
+                  <Separator />
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Agent Aktif</span>
+                    <span className="text-sm font-medium">{activeAgentCount ?? "—"}</span>
                   </div>
                 </>
               )}

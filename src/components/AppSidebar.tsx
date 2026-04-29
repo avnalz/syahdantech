@@ -1,7 +1,8 @@
-import { LayoutDashboard, MessageSquare, Building2, Bot, Settings, LogOut, BarChart3 } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Building2, Bot, Settings, LogOut, BarChart3, Users } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, type AppRole } from "@/contexts/AuthContext";
 import { useHotLeadBadge } from "@/hooks/useHotLeadBadge";
+import { RoleBadge } from "@/components/RoleBadge";
 import {
   Sidebar,
   SidebarContent,
@@ -16,16 +17,19 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 
-const mainMenuItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Leads", url: "/leads", icon: MessageSquare, badge: true },
-  { title: "Properties", url: "/properties", icon: Building2 },
-  { title: "Analisis", url: "/analytics", icon: BarChart3 },
-  { title: "AI Manager", url: "/ai-manager", icon: Bot },
+type MenuItem = { title: string; url: string; icon: typeof LayoutDashboard; badge?: boolean; roles: AppRole[] };
+
+const mainMenuItems: MenuItem[] = [
+  { title: "Dashboard", url: "/", icon: LayoutDashboard, roles: ["admin_agent", "admin_developer", "agent"] },
+  { title: "Leads", url: "/leads", icon: MessageSquare, badge: true, roles: ["admin_agent", "admin_developer", "agent"] },
+  { title: "Properties", url: "/properties", icon: Building2, roles: ["admin_agent", "admin_developer", "agent"] },
+  { title: "Analisis", url: "/analytics", icon: BarChart3, roles: ["admin_developer"] },
+  { title: "AI Manager", url: "/ai-manager", icon: Bot, roles: ["admin_agent", "admin_developer"] },
+  { title: "Manajemen Agent", url: "/agents", icon: Users, roles: ["admin_developer"] },
 ];
 
-const settingsMenuItems = [
-  { title: "Settings", url: "/settings", icon: Settings },
+const settingsMenuItems: MenuItem[] = [
+  { title: "Settings", url: "/settings", icon: Settings, roles: ["admin_agent", "admin_developer", "agent"] },
 ];
 
 export function AppSidebar() {
@@ -33,6 +37,9 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const { signOut, tenantUser, tenant, user } = useAuth();
   const hotCount = useHotLeadBadge();
+  const role = tenantUser?.role;
+  const visibleMain = role ? mainMenuItems.filter((m) => m.roles.includes(role)) : [];
+  const visibleSettings = role ? settingsMenuItems.filter((m) => m.roles.includes(role)) : settingsMenuItems;
 
   const handleNavClick = () => {
     if (isMobile) {
@@ -75,7 +82,7 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainMenuItems.map((item) => (
+              {visibleMain.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
@@ -102,7 +109,7 @@ export function AppSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {settingsMenuItems.map((item) => (
+              {visibleSettings.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <NavLink
@@ -125,8 +132,9 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-border p-3">
         {!collapsed && (tenant || user) && (
           <div className="mb-2 px-2">
-            <p className="text-sm font-medium truncate">{tenant?.name ?? tenantUser?.name ?? "—"}</p>
+            <p className="text-sm font-medium truncate">{tenantUser?.name ?? user?.email ?? "—"}</p>
             <p className="text-xs text-muted-foreground truncate">{user?.email ?? tenantUser?.email ?? ""}</p>
+            {role && <div className="mt-1.5"><RoleBadge role={role} /></div>}
           </div>
         )}
         <Button
