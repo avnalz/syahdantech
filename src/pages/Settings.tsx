@@ -107,10 +107,11 @@ export default function Settings() {
         <h1 className="text-2xl font-bold">Settings</h1>
       </div>
 
-      <Tabs defaultValue="profil" className="space-y-6">
+      {(() => null)()}
+      <Tabs defaultValue={role === "agent" ? "profil" : "profil"} className="space-y-6">
         <TabsList>
           <TabsTrigger value="profil">Profil</TabsTrigger>
-          <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>
+          {role !== "agent" && <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>}
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
           <TabsTrigger value="tentang">Tentang</TabsTrigger>
         </TabsList>
@@ -128,13 +129,17 @@ export default function Settings() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="tenantName">Nama Agency / Developer</Label>
-                <div className="flex gap-2">
-                  <Input id="tenantName" value={tenantName} onChange={(e) => setTenantName(e.target.value)} placeholder="Nama bisnis Anda" />
-                  <Button onClick={handleSaveTenantName} disabled={saving}>
-                    {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                    Simpan
-                  </Button>
-                </div>
+                {role === "agent" ? (
+                  <Input id="tenantName" value={tenantName} disabled className="bg-muted" />
+                ) : (
+                  <div className="flex gap-2">
+                    <Input id="tenantName" value={tenantName} onChange={(e) => setTenantName(e.target.value)} placeholder="Nama bisnis Anda" />
+                    <Button onClick={handleSaveTenantName} disabled={saving}>
+                      {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                      Simpan
+                    </Button>
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
@@ -161,9 +166,11 @@ export default function Settings() {
         </TabsContent>
 
         {/* Drip Follow-up Tab */}
-        <TabsContent value="drip">
-          <DripFollowupTab />
-        </TabsContent>
+        {role !== "agent" && (
+          <TabsContent value="drip">
+            <DripFollowupTab />
+          </TabsContent>
+        )}
 
         {/* Notifikasi Tab */}
         <TabsContent value="notifikasi">
