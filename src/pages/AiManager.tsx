@@ -23,7 +23,7 @@ const QUICK_PROMPTS = [
 ];
 
 export default function AiManager() {
-  const { tenantId } = useAuth();
+  const { tenantId, tenantUser } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
