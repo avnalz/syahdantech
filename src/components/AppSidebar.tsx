@@ -1,4 +1,4 @@
-import { LayoutDashboard, MessageSquare, Building2, Bot, Settings, LogOut, BarChart3 } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Building2, Bot, Settings, LogOut, BarChart3, Users } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/contexts/AuthContext";
 import { useHotLeadBadge } from "@/hooks/useHotLeadBadge";
@@ -30,6 +30,7 @@ const mainMenuItems: MenuItem[] = [
   { title: "Leads", url: "/leads", icon: MessageSquare },
   { title: "Properties", url: "/properties", icon: Building2 },
   { title: "Analisis", url: "/analytics", icon: BarChart3, roles: ["admin_developer"] },
+  { title: "Manajemen Agent", url: "/agents", icon: Users, roles: ["admin_developer"] },
   { title: "AI Manager", url: "/ai-manager", icon: Bot, roles: ["admin_agent", "admin_developer"] },
 ];
 
