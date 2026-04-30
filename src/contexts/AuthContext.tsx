@@ -53,64 +53,74 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const loadProfile = async (authUser: User) => {
-    console.log("[Auth] Step 1 — auth.user.id:", authUser.id, "email:", authUser.email);
+    console.log("[Auth] loading profile for:", authUser.email);
 
-    const { data: profile, error } = await supabase
+    // Step 1: Ambil profile
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("id, tenant_id, full_name")
       .eq("id", authUser.id)
       .maybeSingle();
 
-    console.log("[Auth] Step 2 — profiles query result:", { profile, error: error?.message });
-
-    if (error) {
-      console.error("[Auth] profiles query failed:", error);
-      setTenantUser(null);
-      setTenant(null);
-      return;
-    }
-
-    if (!profile) {
-      console.warn("[Auth] No profile row found for user", authUser.id);
+    if (profileError || !profile) {
+      console.warn("[Auth] no profile found:", profileError?.message);
       setTenantUser(null);
       setTenant(null);
       return;
     }
 
     const tenantId = Number(profile.tenant_id);
-    console.log("[Auth] Step 3 — tenant_id:", tenantId);
+    console.log("[Auth] tenant_id:", tenantId);
 
-    // Primary: direct query dengan .eq email + tenant filter
-    const { data: userRow, error: userError } = await supabase
-      .from("users")
-      .select("id, role, name, wa_session")
-      .eq("email", authUser.email ?? "")
-      .eq("tenant_id", tenantId)
-      .maybeSingle();
-    console.log("[Auth] userRow:", userRow, "error:", userError?.message);
+    // Step 2: Ambil role via RPC SECURITY DEFINER (bypass RLS)
+    let userRowId: number | null = null;
+    let role: AppRole = "agent";
+    let userName = profile.full_name ?? authUser.email ?? "";
 
-    // Fallback: query hanya by email tanpa tenant filter
-    let finalUserRow: { id: number | null; role: string | null; name: string | null } | null = userRow ?? null;
-    if (!userRow && !userError) {
-      const { data: fallback } = await supabase
-        .from("users")
-        .select("id, role, name")
-        .ilike("email", authUser.email ?? "")
-        .maybeSingle();
-      finalUserRow = fallback ?? null;
-      console.log("[Auth] fallback userRow:", fallback);
+    try {
+      const { data: rpcData, error: rpcError } = await supabase.rpc("current_user_profile" as never);
+      console.log("[Auth] RPC result:", rpcData, "error:", rpcError?.message);
+
+      if (!rpcError && rpcData) {
+        const row = (Array.isArray(rpcData) ? rpcData[0] : rpcData) as
+          | { user_row_id?: number; role?: string; name?: string }
+          | undefined;
+        if (row && row.role) {
+          role = row.role as AppRole;
+          userRowId = row.user_row_id ?? null;
+          userName = row.name ?? userName;
+          console.log("[Auth] role from RPC:", role);
+        }
+      }
+    } catch (e) {
+      console.warn("[Auth] RPC threw:", e);
     }
 
-    const role = ((finalUserRow?.role as AppRole) ?? "agent") as AppRole;
-    console.log("[Auth] final role:", role, "name:", finalUserRow?.name);
+    // Step 3: Fallback — query langsung jika RPC tidak menghasilkan role
+    if (role === "agent" && !userRowId) {
+      const { data: userRow, error: userError } = await supabase
+        .from("users")
+        .select("id, role, name")
+        .eq("email", authUser.email ?? "")
+        .maybeSingle();
+      console.log("[Auth] direct query fallback:", userRow, "error:", userError?.message);
+
+      if (!userError && userRow) {
+        role = (userRow.role as AppRole) ?? "agent";
+        userRowId = userRow.id ?? null;
+        userName = userRow.name ?? userName;
+      }
+    }
+
+    console.log("[Auth] FINAL role:", role, "userName:", userName);
 
     setTenantUser({
       id: profile.id,
-      name: finalUserRow?.name ?? profile.full_name ?? authUser.email ?? "",
+      name: userName,
       email: authUser.email ?? "",
       tenant_id: tenantId,
       role,
-      user_row_id: finalUserRow?.id ?? undefined,
+      user_row_id: userRowId ?? undefined,
     });
     await fetchTenantInfo(tenantId);
   };
