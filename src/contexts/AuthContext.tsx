@@ -123,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user_row_id: userRowId ?? undefined,
     });
     await fetchTenantInfo(tenantId);
+  };
 
   const refreshTenant = async () => {
     if (user) await loadProfile(user);
