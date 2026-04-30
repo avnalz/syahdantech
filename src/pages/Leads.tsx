@@ -38,7 +38,7 @@ export interface ChatMessage {
 
 export default function Leads() {
   const [searchParams] = useSearchParams();
-  const { tenantId } = useAuth();
+  const { tenantId, tenantUser } = useAuth();
   const isMobile = useIsMobile();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
@@ -50,14 +50,22 @@ export default function Leads() {
   // Fetch contacts
   const fetchContacts = useCallback(async () => {
     if (!tenantId) return;
-    const { data } = await supabase
+
+    let query = supabase
       .from("contacts")
       .select("*")
       .eq("tenant_id", tenantId)
       .order("last_chat_at", { ascending: false });
+
+    // Agent hanya lihat leads yang di-assign ke mereka
+    if (tenantUser?.role === "agent" && tenantUser?.user_row_id) {
+      query = query.eq("assigned_to", tenantUser.user_row_id);
+    }
+
+    const { data } = await query;
     if (data) setContacts(data);
     setLoading(false);
-  }, [tenantId]);
+  }, [tenantId, tenantUser]);
 
   // Fetch messages for selected contact
   const fetchMessages = useCallback(async (phoneNumber: string) => {
