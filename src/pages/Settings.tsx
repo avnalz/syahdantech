@@ -206,8 +206,8 @@ export default function Settings() {
           </TabsContent>
         )}
 
-        {/* Drip Follow-up Tab — only for admins */}
-        {!isAgent && (
+        {/* Drip Follow-up Tab — only for admin_developer (Pro) */}
+        {isDeveloper && (
           <TabsContent value="drip">
             <DripFollowupTab />
           </TabsContent>
