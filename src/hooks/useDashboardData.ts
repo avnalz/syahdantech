@@ -6,7 +6,7 @@ import type { Tables } from "@/integrations/supabase/types";
 type Contact = Tables<"contacts">;
 
 export function useDashboardData() {
-  const { tenantId, loading: authLoading } = useAuth();
+  const { tenantId, tenantUser, loading: authLoading } = useAuth();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,10 +18,16 @@ export function useDashboardData() {
     }
 
     setLoading(true);
-    const { data, error } = await supabase
+    let query = supabase
       .from("contacts")
       .select("*")
       .eq("tenant_id", tenantId);
+
+    if (tenantUser?.role === "agent" && tenantUser?.user_row_id) {
+      query = query.eq("assigned_to", tenantUser.user_row_id);
+    }
+
+    const { data, error } = await query;
 
     if (!error && data) {
       setContacts(data);
@@ -29,7 +35,7 @@ export function useDashboardData() {
       setContacts([]);
     }
     setLoading(false);
-  }, [tenantId]);
+  }, [tenantId, tenantUser]);
 
   useEffect(() => {
     if (authLoading) return;
