@@ -127,7 +127,7 @@ export default function Settings() {
         <TabsList>
           {!isAgent && <TabsTrigger value="profil">Profil</TabsTrigger>}
           {isAgent && <TabsTrigger value="password">Ganti Password</TabsTrigger>}
-          {!isAgent && <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>}
+          {isDeveloper && <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>}
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
           <TabsTrigger value="tentang">Tentang</TabsTrigger>
         </TabsList>
@@ -206,8 +206,8 @@ export default function Settings() {
           </TabsContent>
         )}
 
-        {/* Drip Follow-up Tab — only for admins */}
-        {!isAgent && (
+        {/* Drip Follow-up Tab — only for admin_developer (Pro) */}
+        {isDeveloper && (
           <TabsContent value="drip">
             <DripFollowupTab />
           </TabsContent>

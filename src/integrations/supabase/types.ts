@@ -717,7 +717,6 @@ export type Database = {
       current_user_profile: {
         Args: never
         Returns: {
-          email: string
           name: string
           role: string
           tenant_id: number

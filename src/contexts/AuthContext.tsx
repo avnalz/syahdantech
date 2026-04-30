@@ -80,24 +80,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const tenantId = Number(profile.tenant_id);
     console.log("[Auth] Step 3 — tenant_id:", tenantId);
 
-    // Use SECURITY DEFINER RPC to reliably fetch own profile (bypasses RLS chicken-and-egg)
-    let finalUserRow: { id: number | null; role: string | null; name: string | null } | null = null;
+    // Primary: direct query dengan .eq email + tenant filter
+    const { data: userRow, error: userError } = await supabase
+      .from("users")
+      .select("id, role, name, wa_session")
+      .eq("email", authUser.email ?? "")
+      .eq("tenant_id", tenantId)
+      .maybeSingle();
+    console.log("[Auth] userRow:", userRow, "error:", userError?.message);
 
-    const { data: rpcRows, error: rpcErr } = await supabase.rpc("current_user_profile" as never);
-    console.log("[Auth] current_user_profile RPC:", rpcRows, "error:", rpcErr?.message);
-
-    const rpcRow = rpcRows && Array.isArray(rpcRows) ? (rpcRows[0] as { user_row_id: number; role: string; name: string } | undefined) : undefined;
-    if (rpcRow) {
-      finalUserRow = { id: rpcRow.user_row_id, role: rpcRow.role, name: rpcRow.name };
-    } else {
-      // Fallback: direct query (relies on "users: select own row" RLS policy)
-      const { data: userRow, error: userError } = await supabase
+    // Fallback: query hanya by email tanpa tenant filter
+    let finalUserRow: { id: number | null; role: string | null; name: string | null } | null = userRow ?? null;
+    if (!userRow && !userError) {
+      const { data: fallback } = await supabase
         .from("users")
         .select("id, role, name")
-        .eq("email", authUser.email ?? "")
+        .ilike("email", authUser.email ?? "")
         .maybeSingle();
-      console.log("[Auth] direct users fallback:", userRow, "error:", userError?.message);
-      finalUserRow = userRow ?? null;
+      finalUserRow = fallback ?? null;
+      console.log("[Auth] fallback userRow:", fallback);
     }
 
     const role = ((finalUserRow?.role as AppRole) ?? "agent") as AppRole;
