@@ -170,6 +170,7 @@ export default function Properties() {
               onEdit={handleEdit}
               onDelete={handleDelete}
               onToggleActive={handleToggleActive}
+              canEdit={canEdit}
             />
           ))}
         </div>
