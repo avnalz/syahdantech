@@ -15,6 +15,7 @@ interface PropertyCardProps {
   onEdit: (p: Property) => void;
   onDelete: (id: number) => void;
   onToggleActive?: (id: number, isActive: boolean) => void;
+  canEdit?: boolean;
 }
 
 function formatRupiah(value: number | null) {
@@ -22,7 +23,7 @@ function formatRupiah(value: number | null) {
   return new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }).format(value);
 }
 
-export function PropertyCard({ property, onEdit, onDelete, onToggleActive }: PropertyCardProps) {
+export function PropertyCard({ property, onEdit, onDelete, onToggleActive, canEdit = true }: PropertyCardProps) {
   const statusColor =
     property.status === "sold"
       ? "bg-destructive/15 text-destructive border-destructive/30"
