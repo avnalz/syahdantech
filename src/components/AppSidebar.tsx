@@ -23,7 +23,7 @@ const mainMenuItems: MenuItem[] = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard, roles: ["admin_agent", "admin_developer", "agent"] },
   { title: "Leads", url: "/leads", icon: MessageSquare, badge: true, roles: ["admin_agent", "admin_developer", "agent"] },
   { title: "Properties", url: "/properties", icon: Building2, roles: ["admin_agent", "admin_developer", "agent"] },
-  { title: "Analisis", url: "/analytics", icon: BarChart3, roles: ["admin_developer"] },
+  { title: "Analisis", url: "/analytics", icon: BarChart3, roles: ["admin_agent", "admin_developer"] },
   { title: "AI Manager", url: "/ai-manager", icon: Bot, roles: ["admin_agent", "admin_developer"] },
   { title: "Manajemen Agent", url: "/agents", icon: Users, roles: ["admin_developer"] },
 ];
