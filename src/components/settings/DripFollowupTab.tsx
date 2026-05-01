@@ -58,7 +58,8 @@ function replaceVars(text: string) {
 }
 
 export default function DripFollowupTab() {
-  const { tenantId } = useAuth();
+  const { tenantId, tenantUser } = useAuth();
+  const userRowId = tenantUser?.user_row_id ?? null;
   const [templates, setTemplates] = useState<DripTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [initializing, setInitializing] = useState(false);
@@ -68,23 +69,24 @@ export default function DripFollowupTab() {
   const [showPreview, setShowPreview] = useState<number | null>(null);
 
   const fetchTemplates = async () => {
-    if (!tenantId) { setLoading(false); return; }
+    if (!tenantId || !userRowId) { setLoading(false); return; }
     const { data } = await supabase
       .from("drip_templates")
       .select("*")
       .eq("tenant_id", tenantId)
+      .eq("user_id", userRowId)
       .order("step", { ascending: true });
     setTemplates((data as DripTemplate[]) || []);
     setLocalEdits({});
     setLoading(false);
   };
 
-  useEffect(() => { fetchTemplates(); }, [tenantId]);
+  useEffect(() => { fetchTemplates(); }, [tenantId, userRowId]);
 
   const handleInit = async () => {
-    if (!tenantId) return;
+    if (!tenantId || !userRowId) return;
     setInitializing(true);
-    const rows = DEFAULT_TEMPLATES.map((t) => ({ ...t, tenant_id: tenantId }));
+    const rows = DEFAULT_TEMPLATES.map((t) => ({ ...t, tenant_id: tenantId, user_id: userRowId }));
     const { error } = await supabase.from("drip_templates").insert(rows);
     if (error) { toast.error("Gagal inisialisasi template"); }
     else { toast.success("6 template default berhasil dibuat"); await fetchTemplates(); }
