@@ -118,10 +118,12 @@ export default function Properties() {
           <h1 className="text-2xl font-bold">Properties</h1>
           <p className="text-muted-foreground text-sm">Kelola listing properti Anda</p>
         </div>
-        <Button onClick={handleAdd}>
-          <Plus className="h-4 w-4 mr-2" />
-          Tambah Properti
-        </Button>
+        {canEdit && (
+          <Button onClick={handleAdd}>
+            <Plus className="h-4 w-4 mr-2" />
+            Tambah Properti
+          </Button>
+        )}
       </div>
 
       {/* Filters */}
