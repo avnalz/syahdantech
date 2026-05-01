@@ -13,7 +13,8 @@ import type { Tables } from "@/integrations/supabase/types";
 export type Property = Tables<"properties">;
 
 export default function Properties() {
-  const { tenantId } = useAuth();
+  const { tenantId, tenantUser } = useAuth();
+  const canEdit = tenantUser?.role === "admin_agent" || tenantUser?.role === "admin_developer";
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
