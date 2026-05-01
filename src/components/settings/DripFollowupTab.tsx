@@ -105,7 +105,7 @@ export default function DripFollowupTab() {
   };
 
   const handleSave = async (step: number) => {
-    if (!tenantId) return;
+    if (!tenantId || !userRowId) return;
     setSavingStep(step);
     const edit = localEdits[step] || {};
     const tpl = templates.find((t) => t.step === step)!;
@@ -118,6 +118,7 @@ export default function DripFollowupTab() {
         is_active: (edit.is_active ?? tpl.is_active),
       })
       .eq("tenant_id", tenantId)
+      .eq("user_id", userRowId)
       .eq("step", step);
     if (error) toast.error("Gagal menyimpan");
     else { toast.success(`Follow-up #${step} disimpan`); await fetchTemplates(); }
@@ -125,11 +126,12 @@ export default function DripFollowupTab() {
   };
 
   const handleToggle = async (step: number, active: boolean) => {
-    if (!tenantId) return;
+    if (!tenantId || !userRowId) return;
     const { error } = await supabase
       .from("drip_templates")
       .update({ is_active: active })
       .eq("tenant_id", tenantId)
+      .eq("user_id", userRowId)
       .eq("step", step);
     if (error) toast.error("Gagal mengubah status");
     else {
