@@ -719,7 +719,6 @@ export type Database = {
         Returns: {
           name: string
           role: string
-          tenant_id: number
           user_row_id: number
         }[]
       }
