@@ -250,6 +250,7 @@ export type Database = {
           step: number
           tenant_id: number
           updated_at: string
+          user_id: number | null
         }
         Insert: {
           chat_id?: string | null
@@ -263,6 +264,7 @@ export type Database = {
           step?: number
           tenant_id: number
           updated_at?: string
+          user_id?: number | null
         }
         Update: {
           chat_id?: string | null
@@ -276,6 +278,7 @@ export type Database = {
           step?: number
           tenant_id?: number
           updated_at?: string
+          user_id?: number | null
         }
         Relationships: [
           {
@@ -312,6 +315,7 @@ export type Database = {
           template_text: string
           tenant_id: number
           updated_at: string | null
+          user_id: number
         }
         Insert: {
           created_at?: string | null
@@ -323,6 +327,7 @@ export type Database = {
           template_text: string
           tenant_id: number
           updated_at?: string | null
+          user_id: number
         }
         Update: {
           created_at?: string | null
@@ -334,6 +339,7 @@ export type Database = {
           template_text?: string
           tenant_id?: number
           updated_at?: string | null
+          user_id?: number
         }
         Relationships: [
           {
