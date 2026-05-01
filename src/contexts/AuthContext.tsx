@@ -78,14 +78,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let userName = profile.full_name ?? authUser.email ?? "";
 
     try {
-      const { data: rpcData, error: rpcError } = await supabase.rpc("current_user_profile" as never);
+      const { data: rpcData, error: rpcError } = await supabase.rpc("current_user_profile");
       console.log("[Auth] RPC result:", rpcData, "error:", rpcError?.message);
 
       if (!rpcError && rpcData) {
-        const row = (Array.isArray(rpcData) ? rpcData[0] : rpcData) as
-          | { user_row_id?: number; role?: string; name?: string }
-          | undefined;
-        if (row && row.role) {
+        const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+        if (row?.role) {
           role = row.role as AppRole;
           userRowId = row.user_row_id ?? null;
           userName = row.name ?? userName;
