@@ -207,8 +207,8 @@ export default function Settings() {
           </TabsContent>
         )}
 
-        {/* Drip Follow-up Tab — only for admin_agent (agent milik developer) */}
-        {isAdminAgent && (
+        {/* Drip Follow-up Tab — for admin_agent and agent (each user manages own templates) */}
+        {!isDeveloper && (
           <TabsContent value="drip">
             <DripFollowupTab />
           </TabsContent>
