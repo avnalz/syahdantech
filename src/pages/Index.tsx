@@ -5,11 +5,14 @@ import { LeadLabelSummary } from "@/components/dashboard/LeadLabelSummary";
 import { HotLeadsTable } from "@/components/dashboard/HotLeadsTable";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { BarChart3, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Index() {
-  const { tenantId } = useAuth();
+  const { tenantId, tenantUser } = useAuth();
+  const canOpenAnalytics = tenantUser?.role === "admin_agent" || tenantUser?.role === "admin_developer";
   const {
     loading,
     totalLeads,
@@ -46,9 +49,19 @@ export default function Index() {
   if (totalLeads === 0) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground text-sm">Overview real-time bisnis properti Anda</p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Dashboard</h1>
+            <p className="text-muted-foreground text-sm">Overview real-time bisnis properti Anda</p>
+          </div>
+          {canOpenAnalytics && (
+            <Button asChild variant="outline" size="sm">
+              <Link to="/analytics">
+                <BarChart3 className="h-4 w-4" />
+                Analisis
+              </Link>
+            </Button>
+          )}
         </div>
         <DashboardStats totalLeads={0} leadsToday={0} hotCount={0} convertedCount={0} conversionRate={0} />
         <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
@@ -64,9 +77,19 @@ export default function Index() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground text-sm">Overview real-time bisnis properti Anda</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground text-sm">Overview real-time bisnis properti Anda</p>
+        </div>
+        {canOpenAnalytics && (
+          <Button asChild variant="outline" size="sm">
+            <Link to="/analytics">
+              <BarChart3 className="h-4 w-4" />
+              Analisis
+            </Link>
+          </Button>
+        )}
       </div>
 
       <DashboardStats
