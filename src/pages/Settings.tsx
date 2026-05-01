@@ -18,6 +18,7 @@ export default function Settings() {
   const role = tenantUser?.role ?? "agent";
   const isAgent = role === "agent";
   const isDeveloper = role === "admin_developer";
+  const isAdminAgent = role === "admin_agent";
   const planLabel = isDeveloper ? "Pro Plan" : "Starter Plan";
   const [activeAgentCount, setActiveAgentCount] = useState<number | null>(null);
   const [tenantName, setTenantName] = useState("");
@@ -127,7 +128,7 @@ export default function Settings() {
         <TabsList>
           {!isAgent && <TabsTrigger value="profil">Profil</TabsTrigger>}
           {isAgent && <TabsTrigger value="password">Ganti Password</TabsTrigger>}
-          {isDeveloper && <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>}
+          {isAdminAgent && <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>}
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
           <TabsTrigger value="tentang">Tentang</TabsTrigger>
         </TabsList>
@@ -206,8 +207,8 @@ export default function Settings() {
           </TabsContent>
         )}
 
-        {/* Drip Follow-up Tab — only for admin_developer (Pro) */}
-        {isDeveloper && (
+        {/* Drip Follow-up Tab — only for admin_agent (agent milik developer) */}
+        {isAdminAgent && (
           <TabsContent value="drip">
             <DripFollowupTab />
           </TabsContent>
