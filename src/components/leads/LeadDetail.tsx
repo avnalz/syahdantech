@@ -13,6 +13,7 @@ import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks, ArrowLeftRight,
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { LeadChat } from "./LeadChat";
 import type { Contact, ChatMessage } from "@/pages/Leads";
 
