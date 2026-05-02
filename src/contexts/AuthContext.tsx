@@ -16,6 +16,7 @@ interface TenantUser {
 interface TenantInfo {
   id: number;
   name: string;
+  tenant_type?: string;
 }
 
 interface AuthContextType {
