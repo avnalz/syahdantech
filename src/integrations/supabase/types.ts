@@ -789,6 +789,7 @@ export type Database = {
     }
     Functions: {
       current_tenant_id: { Args: never; Returns: number }
+      current_user_is_superadmin: { Args: never; Returns: boolean }
       current_user_profile: {
         Args: never
         Returns: {
