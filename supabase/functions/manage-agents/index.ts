@@ -210,7 +210,6 @@ Deno.serve(async (req) => {
         .insert({
           tenant_id: tenantId,
           email,
-          password_hash: "managed_by_supabase_auth",
           name,
           role: "agent",
           wa_session,

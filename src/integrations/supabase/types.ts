@@ -575,7 +575,6 @@ export type Database = {
           id: number
           is_active: boolean
           name: string
-          password_hash: string
           phone: string | null
           role: string
           tenant_id: number
@@ -587,7 +586,6 @@ export type Database = {
           id?: number
           is_active?: boolean
           name: string
-          password_hash: string
           phone?: string | null
           role?: string
           tenant_id: number
@@ -599,7 +597,6 @@ export type Database = {
           id?: number
           is_active?: boolean
           name?: string
-          password_hash?: string
           phone?: string | null
           role?: string
           tenant_id?: number
