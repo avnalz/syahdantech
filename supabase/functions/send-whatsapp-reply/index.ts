@@ -39,19 +39,19 @@ Deno.serve(async (req) => {
     }
 
     // Derive tenant_id server-side from the authenticated user — never trust the client.
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
+    const { data: userRow, error: userLookupErr } = await supabase
+      .from("users")
       .select("tenant_id")
-      .eq("id", userData.user.id)
+      .eq("auth_user_id", userData.user.id)
       .single();
 
-    if (profileError || !profile?.tenant_id) {
+    if (userLookupErr || !userRow?.tenant_id) {
       return new Response(JSON.stringify({ error: "Tenant not found for user" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const authorizedTenantId = profile.tenant_id;
+    const authorizedTenantId = userRow.tenant_id;
 
     const body = await req.json();
     const { phone_number, message, direction } = body ?? {};
