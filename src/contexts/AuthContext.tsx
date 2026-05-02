@@ -58,70 +58,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loadProfile = async (authUser: User) => {
     console.log("[Auth] loading profile for:", authUser.email);
 
-    // Step 1: Ambil profile
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("id, tenant_id, full_name")
-      .eq("id", authUser.id)
+    // Single source of truth: public.users (linked via auth_user_id)
+    const { data: userRow, error: userError } = await supabase
+      .from("users")
+      .select("id, tenant_id, role, name, email")
+      .eq("auth_user_id", authUser.id)
       .maybeSingle();
 
-    if (profileError || !profile) {
-      console.warn("[Auth] no profile found:", profileError?.message);
+    if (userError || !userRow) {
+      console.warn("[Auth] no users row found:", userError?.message);
       setTenantUser(null);
       setTenant(null);
       return;
     }
 
-    const tenantId = Number(profile.tenant_id);
-    console.log("[Auth] tenant_id:", tenantId);
+    const tenantId = Number(userRow.tenant_id);
+    const role = (userRow.role as AppRole) ?? "agent";
+    const userName = userRow.name ?? authUser.email ?? "";
 
-    // Step 2: Ambil role via RPC SECURITY DEFINER (bypass RLS)
-    let userRowId: number | null = null;
-    let role: AppRole = "agent";
-    let userName = profile.full_name ?? authUser.email ?? "";
-
-    try {
-      const { data: rpcData, error: rpcError } = await supabase.rpc("current_user_profile");
-      console.log("[Auth] RPC result:", rpcData, "error:", rpcError?.message);
-
-      if (!rpcError && rpcData) {
-        const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
-        if (row?.role) {
-          role = row.role as AppRole;
-          userRowId = row.user_row_id ?? null;
-          userName = row.name ?? userName;
-          console.log("[Auth] role from RPC:", role);
-        }
-      }
-    } catch (e) {
-      console.warn("[Auth] RPC threw:", e);
-    }
-
-    // Step 3: Fallback — query langsung jika RPC tidak menghasilkan role
-    if (role === "agent" && !userRowId) {
-      const { data: userRow, error: userError } = await supabase
-        .from("users")
-        .select("id, role, name")
-        .eq("email", authUser.email ?? "")
-        .maybeSingle();
-      console.log("[Auth] direct query fallback:", userRow, "error:", userError?.message);
-
-      if (!userError && userRow) {
-        role = (userRow.role as AppRole) ?? "agent";
-        userRowId = userRow.id ?? null;
-        userName = userRow.name ?? userName;
-      }
-    }
-
-    console.log("[Auth] FINAL role:", role, "userName:", userName);
+    console.log("[Auth] FINAL role:", role, "tenant:", tenantId);
 
     setTenantUser({
-      id: profile.id,
+      id: authUser.id,
       name: userName,
       email: authUser.email ?? "",
       tenant_id: tenantId,
       role,
-      user_row_id: userRowId ?? undefined,
+      user_row_id: userRow.id,
     });
     await fetchTenantInfo(tenantId);
   };
