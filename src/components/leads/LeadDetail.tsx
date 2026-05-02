@@ -206,12 +206,19 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
     if (!tenantId) return;
     const { data } = await supabase
       .from("drip_logs")
-      .select("*")
-      .eq("phone_number", contact.phone_number)
+      .select("*, drip_templates:drip_templates!inner(template_text)")
+      .eq("contact_id", contact.id)
       .eq("tenant_id", tenantId)
       .order("step", { ascending: true });
-    if (data) setDripLogs(data);
-  }, [tenantId, contact.phone_number]);
+    if (data) {
+      const enriched = (data as any[]).map((d) => ({
+        ...d,
+        phone_number: contact.phone_number,
+        message: d.drip_templates?.template_text ?? "",
+      })) as DripLog[];
+      setDripLogs(enriched);
+    }
+  }, [tenantId, contact.id, contact.phone_number]);
 
   useEffect(() => {
     fetchDripLogs();
