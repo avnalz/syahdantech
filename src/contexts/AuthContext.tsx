@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchTenantInfo = async (tenantId: number) => {
     const { data, error } = await supabase
       .from("tenants")
-      .select("id, name")
+      .select("id, name, tenant_type")
       .eq("id", tenantId)
       .maybeSingle();
 
