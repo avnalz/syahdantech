@@ -17,7 +17,6 @@ export type Database = {
       activity_logs: {
         Row: {
           action: string
-          actor_email: string | null
           actor_user_id: number | null
           created_at: string
           id: number
@@ -28,7 +27,6 @@ export type Database = {
         }
         Insert: {
           action: string
-          actor_email?: string | null
           actor_user_id?: number | null
           created_at?: string
           id?: number
@@ -39,7 +37,6 @@ export type Database = {
         }
         Update: {
           action?: string
-          actor_email?: string | null
           actor_user_id?: number | null
           created_at?: string
           id?: number
@@ -193,6 +190,39 @@ export type Database = {
           },
         ]
       }
+      contact_properties: {
+        Row: {
+          contact_id: number
+          created_at: string | null
+          property_id: number
+        }
+        Insert: {
+          contact_id: number
+          created_at?: string | null
+          property_id: number
+        }
+        Update: {
+          contact_id?: number
+          created_at?: string | null
+          property_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_properties_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_properties_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           ai_summary: string
@@ -295,8 +325,6 @@ export type Database = {
           created_at: string
           id: number
           is_completed: boolean
-          message: string | null
-          phone_number: string
           sent_at: string | null
           step: number
           tenant_id: number
@@ -309,8 +337,6 @@ export type Database = {
           created_at?: string
           id?: number
           is_completed?: boolean
-          message?: string | null
-          phone_number: string
           sent_at?: string | null
           step?: number
           tenant_id: number
@@ -323,8 +349,6 @@ export type Database = {
           created_at?: string
           id?: number
           is_completed?: boolean
-          message?: string | null
-          phone_number?: string
           sent_at?: string | null
           step?: number
           tenant_id?: number
@@ -351,6 +375,20 @@ export type Database = {
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drip_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "drip_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -408,33 +446,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      history: {
-        Row: {
-          created_at: string
-          id: number
-          message: string | null
-          role: string | null
-          session_id: string
-          tenant_id: number | null
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          message?: string | null
-          role?: string | null
-          session_id: string
-          tenant_id?: number | null
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          message?: string | null
-          role?: string | null
-          session_id?: string
-          tenant_id?: number | null
-        }
-        Relationships: []
       }
       history_v2: {
         Row: {
@@ -555,8 +566,6 @@ export type Database = {
       }
       tenants: {
         Row: {
-          admin_name: string | null
-          admin_phone: string
           ai_model: string
           created_at: string
           id: number
@@ -566,12 +575,8 @@ export type Database = {
           scoring_prompt: string | null
           system_prompt: string | null
           tenant_type: string
-          wa_session: string
-          wa_url: string | null
         }
         Insert: {
-          admin_name?: string | null
-          admin_phone: string
           ai_model?: string
           created_at?: string
           id?: number
@@ -581,12 +586,8 @@ export type Database = {
           scoring_prompt?: string | null
           system_prompt?: string | null
           tenant_type?: string
-          wa_session: string
-          wa_url?: string | null
         }
         Update: {
-          admin_name?: string | null
-          admin_phone?: string
           ai_model?: string
           created_at?: string
           id?: number
@@ -596,8 +597,6 @@ export type Database = {
           scoring_prompt?: string | null
           system_prompt?: string | null
           tenant_type?: string
-          wa_session?: string
-          wa_url?: string | null
         }
         Relationships: [
           {
@@ -677,45 +676,54 @@ export type Database = {
     Views: {
       tenants_safe: {
         Row: {
-          admin_name: string | null
-          admin_phone: string | null
           ai_model: string | null
           created_at: string | null
           id: number | null
           is_active: boolean | null
           name: string | null
+          parent_tenant_id: number | null
           scoring_prompt: string | null
           system_prompt: string | null
           tenant_type: string | null
-          wa_session: string | null
         }
         Insert: {
-          admin_name?: string | null
-          admin_phone?: string | null
           ai_model?: string | null
           created_at?: string | null
           id?: number | null
           is_active?: boolean | null
           name?: string | null
+          parent_tenant_id?: number | null
           scoring_prompt?: string | null
           system_prompt?: string | null
           tenant_type?: string | null
-          wa_session?: string | null
         }
         Update: {
-          admin_name?: string | null
-          admin_phone?: string | null
           ai_model?: string | null
           created_at?: string | null
           id?: number | null
           is_active?: boolean | null
           name?: string | null
+          parent_tenant_id?: number | null
           scoring_prompt?: string | null
           system_prompt?: string | null
           tenant_type?: string | null
-          wa_session?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tenants_parent_tenant_id_fkey"
+            columns: ["parent_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tenants_parent_tenant_id_fkey"
+            columns: ["parent_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_safe"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users_safe: {
         Row: {
