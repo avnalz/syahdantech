@@ -143,7 +143,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
       const { error } = await supabase
         .from("drip_logs")
         .update({ is_completed: true })
-        .eq("phone_number", contact.phone_number)
+        .eq("contact_id", contact.id)
         .eq("tenant_id", tenantId)
         .eq("is_completed", false);
       if (error) toast.error("Gagal pause drip");
@@ -151,8 +151,9 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
     } else {
       // Resume: create a new drip_log entry at step 0
       const { error } = await supabase.from("drip_logs").insert({
-        phone_number: contact.phone_number,
+        contact_id: contact.id,
         tenant_id: tenantId,
+        user_id: userRowId ?? undefined,
         step: 0,
         is_completed: false,
       });
@@ -168,7 +169,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
     // Delete chat logs first
     await supabase.from("chat_logs").delete().eq("phone_number", contact.phone_number).eq("tenant_id", tenantId);
     // Delete drip logs
-    await supabase.from("drip_logs").delete().eq("phone_number", contact.phone_number).eq("tenant_id", tenantId);
+    await supabase.from("drip_logs").delete().eq("contact_id", contact.id).eq("tenant_id", tenantId);
     // Delete contact
     const { error } = await supabase.from("contacts").delete().eq("id", contact.id);
     if (error) {
