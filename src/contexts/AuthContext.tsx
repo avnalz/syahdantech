@@ -16,6 +16,7 @@ interface TenantUser {
 interface TenantInfo {
   id: number;
   name: string;
+  tenant_type?: string;
 }
 
 interface AuthContextType {
@@ -44,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchTenantInfo = async (tenantId: number) => {
     const { data, error } = await supabase
       .from("tenants")
-      .select("id, name")
+      .select("id, name, tenant_type")
       .eq("id", tenantId)
       .maybeSingle();
 
