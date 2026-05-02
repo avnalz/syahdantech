@@ -79,6 +79,8 @@ function formatCurrency(value: number | null) {
 }
 
 export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, onStageChange, onDelete, onMessageSent, isMobile }: LeadDetailProps) {
+  const { tenant } = useAuth();
+  const hideDrip = tenant?.tenant_type === "agent";
   const [dripLogs, setDripLogs] = useState<DripLog[]>([]);
   const [humanMode, setHumanMode] = useState(contact.mode === "human_mode");
 
