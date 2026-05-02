@@ -363,22 +363,24 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
                   )}
                   Tandai Lost
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleToggleDrip}
-                  disabled={quickActionLoading !== null}
-                  className="rounded-full gap-1.5"
-                >
-                  {quickActionLoading === "drip" ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : hasActiveDrip ? (
-                    <PauseCircle className="h-3.5 w-3.5" />
-                  ) : (
-                    <PlayCircle className="h-3.5 w-3.5" />
-                  )}
-                  {hasActiveDrip ? "Pause Drip" : "Resume Drip"}
-                </Button>
+                {!hideDrip && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleToggleDrip}
+                    disabled={quickActionLoading !== null}
+                    className="rounded-full gap-1.5"
+                  >
+                    {quickActionLoading === "drip" ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : hasActiveDrip ? (
+                      <PauseCircle className="h-3.5 w-3.5" />
+                    ) : (
+                      <PlayCircle className="h-3.5 w-3.5" />
+                    )}
+                    {hasActiveDrip ? "Pause Drip" : "Resume Drip"}
+                  </Button>
+                )}
               </div>
 
               <Separator />
