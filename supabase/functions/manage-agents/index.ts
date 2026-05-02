@@ -185,7 +185,6 @@ Deno.serve(async (req) => {
       if (delUserErr) return json(500, { error: delUserErr.message });
 
       if (authUserId) {
-        await admin.from("profiles").delete().eq("id", authUserId);
         await admin.auth.admin.deleteUser(authUserId).catch(() => {});
       }
 
@@ -236,12 +235,13 @@ Deno.serve(async (req) => {
       }
       const authUserId = authData.user.id;
 
-      // 3. Ensure profiles row has correct tenant_id
-      const { error: profErr } = await admin
-        .from("profiles")
-        .upsert({ id: authUserId, tenant_id: tenantId, full_name: name }, { onConflict: "id" });
-      if (profErr) {
-        return json(500, { error: profErr.message });
+      // 3. Link auth user to the pre-inserted users row
+      const { error: linkErr } = await admin
+        .from("users")
+        .update({ auth_user_id: authUserId })
+        .eq("id", userRow.id);
+      if (linkErr) {
+        return json(500, { error: linkErr.message });
       }
 
       // 4. Insert agent_sessions

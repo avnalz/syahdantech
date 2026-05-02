@@ -472,27 +472,6 @@ export type Database = {
           },
         ]
       }
-      profiles: {
-        Row: {
-          created_at: string | null
-          full_name: string | null
-          id: string
-          tenant_id: number
-        }
-        Insert: {
-          created_at?: string | null
-          full_name?: string | null
-          id: string
-          tenant_id: number
-        }
-        Update: {
-          created_at?: string | null
-          full_name?: string | null
-          id?: string
-          tenant_id?: number
-        }
-        Relationships: []
-      }
       properties: {
         Row: {
           area: string | null
@@ -639,6 +618,7 @@ export type Database = {
       }
       users: {
         Row: {
+          auth_user_id: string | null
           created_at: string
           email: string
           id: number
@@ -651,6 +631,7 @@ export type Database = {
           wa_session: string | null
         }
         Insert: {
+          auth_user_id?: string | null
           created_at?: string
           email: string
           id?: number
@@ -663,6 +644,7 @@ export type Database = {
           wa_session?: string | null
         }
         Update: {
+          auth_user_id?: string | null
           created_at?: string
           email?: string
           id?: number
