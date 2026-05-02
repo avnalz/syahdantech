@@ -19,6 +19,8 @@ export default function Settings() {
   const isAgent = role === "agent";
   const isDeveloper = role === "admin_developer";
   const isAdminAgent = role === "admin_agent";
+  const isAgentTenant = tenant?.tenant_type === "agent";
+  const hideDrip = isDeveloper || isAgentTenant;
   const planLabel = isDeveloper ? "Pro Plan" : "Starter Plan";
   const [activeAgentCount, setActiveAgentCount] = useState<number | null>(null);
   const [tenantName, setTenantName] = useState("");
