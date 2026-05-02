@@ -31,13 +31,17 @@ const labelOutlineColors: Record<string, string> = {
 
 interface DripLog {
   id: number;
-  phone_number: string;
+  contact_id: number | null;
   step: number;
   is_completed: boolean;
   sent_at: string | null;
   created_at: string;
   updated_at: string;
   tenant_id: number;
+  user_id: number | null;
+  // Joined fields
+  phone_number?: string;
+  message?: string;
 }
 
 const PIPELINE_STAGES = ["new", "contacted", "qualified", "proposal", "negotiation", "won", "lost"] as const;
