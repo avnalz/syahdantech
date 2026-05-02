@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { useAuth } from "@/contexts/AuthContext";
+import { AgentBreakdown } from "@/components/analytics/AgentBreakdown";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
@@ -41,6 +43,8 @@ function DonutLegend({ data, colors, nameKey }: { data: any[]; colors: string[];
 export default function Analytics() {
   const [monthOffset, setMonthOffset] = useState(0);
   const { loading, summary, dailyLeads, pipelineData, sentimentData, labelData, monthLabel } = useAnalyticsData(monthOffset);
+  const { tenantUser } = useAuth();
+  const isDeveloper = tenantUser?.role === "admin_developer";
 
   if (loading) {
     return (
