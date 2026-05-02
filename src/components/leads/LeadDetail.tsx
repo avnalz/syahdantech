@@ -13,6 +13,7 @@ import { ArrowLeft, User, MessageSquare, UserCircle, ListChecks, ArrowLeftRight,
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { LeadChat } from "./LeadChat";
 import type { Contact, ChatMessage } from "@/pages/Leads";
 
@@ -78,6 +79,8 @@ function formatCurrency(value: number | null) {
 }
 
 export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, onStageChange, onDelete, onMessageSent, isMobile }: LeadDetailProps) {
+  const { tenant } = useAuth();
+  const hideDrip = tenant?.tenant_type === "agent";
   const [dripLogs, setDripLogs] = useState<DripLog[]>([]);
   const [humanMode, setHumanMode] = useState(contact.mode === "human_mode");
 
@@ -290,16 +293,18 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
 
       {/* Tabs */}
       <Tabs defaultValue={isMobile ? "percakapan" : "detail"} className="flex-1 flex flex-col overflow-hidden">
-        <TabsList className="w-full grid grid-cols-3 rounded-none border-b border-border bg-muted/30 h-auto p-1 mx-0">
+        <TabsList className={`w-full grid ${hideDrip ? "grid-cols-2" : "grid-cols-3"} rounded-none border-b border-border bg-muted/30 h-auto p-1 mx-0`}>
           <TabsTrigger value="percakapan" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2">
             <MessageSquare className="h-3.5 w-3.5" /> Percakapan
           </TabsTrigger>
           <TabsTrigger value="detail" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2">
             <UserCircle className="h-3.5 w-3.5" /> Detail
           </TabsTrigger>
-          <TabsTrigger value="drip" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2">
-            <ListChecks className="h-3.5 w-3.5" /> Drip
-          </TabsTrigger>
+          {!hideDrip && (
+            <TabsTrigger value="drip" className="gap-1.5 text-xs rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm py-2">
+              <ListChecks className="h-3.5 w-3.5" /> Drip
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* Percakapan Tab */}
@@ -358,22 +363,24 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
                   )}
                   Tandai Lost
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleToggleDrip}
-                  disabled={quickActionLoading !== null}
-                  className="rounded-full gap-1.5"
-                >
-                  {quickActionLoading === "drip" ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : hasActiveDrip ? (
-                    <PauseCircle className="h-3.5 w-3.5" />
-                  ) : (
-                    <PlayCircle className="h-3.5 w-3.5" />
-                  )}
-                  {hasActiveDrip ? "Pause Drip" : "Resume Drip"}
-                </Button>
+                {!hideDrip && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleToggleDrip}
+                    disabled={quickActionLoading !== null}
+                    className="rounded-full gap-1.5"
+                  >
+                    {quickActionLoading === "drip" ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : hasActiveDrip ? (
+                      <PauseCircle className="h-3.5 w-3.5" />
+                    ) : (
+                      <PlayCircle className="h-3.5 w-3.5" />
+                    )}
+                    {hasActiveDrip ? "Pause Drip" : "Resume Drip"}
+                  </Button>
+                )}
               </div>
 
               <Separator />
@@ -469,35 +476,37 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
 
 
         {/* Drip Log Tab */}
-        <TabsContent value="drip" className="flex-1 mt-0 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-4 max-w-3xl">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Drip Follow-up Log</h3>
-              {dripLogs.length > 0 ? (
-                <div className="space-y-2">
-                  {dripLogs.map((log) => (
-                    <div key={log.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className={`h-2.5 w-2.5 rounded-full ${log.is_completed ? "bg-emerald-500" : "bg-amber-500"}`} />
-                        <div>
-                          <p className="text-sm font-medium">Step {log.step}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {log.sent_at ? formatRelativeTime(log.sent_at) : "Belum dikirim"}
-                          </p>
+        {!hideDrip && (
+          <TabsContent value="drip" className="flex-1 mt-0 overflow-hidden">
+            <ScrollArea className="h-full">
+              <div className="p-4 max-w-3xl">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Drip Follow-up Log</h3>
+                {dripLogs.length > 0 ? (
+                  <div className="space-y-2">
+                    {dripLogs.map((log) => (
+                      <div key={log.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className={`h-2.5 w-2.5 rounded-full ${log.is_completed ? "bg-emerald-500" : "bg-amber-500"}`} />
+                          <div>
+                            <p className="text-sm font-medium">Step {log.step}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {log.sent_at ? formatRelativeTime(log.sent_at) : "Belum dikirim"}
+                            </p>
+                          </div>
                         </div>
+                        <Badge variant="outline" className={`text-[10px] ${log.is_completed ? "border-emerald-500/30 text-emerald-600 dark:text-emerald-400" : "border-amber-500/30 text-amber-600 dark:text-amber-400"}`}>
+                          {log.is_completed ? "Selesai" : "Aktif"}
+                        </Badge>
                       </div>
-                      <Badge variant="outline" className={`text-[10px] ${log.is_completed ? "border-emerald-500/30 text-emerald-600 dark:text-emerald-400" : "border-amber-500/30 text-amber-600 dark:text-amber-400"}`}>
-                        {log.is_completed ? "Selesai" : "Aktif"}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">Belum ada drip log.</p>
-              )}
-            </div>
-          </ScrollArea>
-        </TabsContent>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">Belum ada drip log.</p>
+                )}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
