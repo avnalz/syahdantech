@@ -27,22 +27,27 @@ export function AgentBreakdown() {
       if (!tenantId) return;
       setLoading(true);
 
-      const [{ data: users }, { data: contacts }] = await Promise.all([
+      const [usersRes, contactsRes] = await Promise.all([
         supabase
           .from("users")
           .select("id, name, email, role, is_active")
-          .eq("tenant_id", tenantId)
-          .eq("is_active", true),
+          .eq("tenant_id", tenantId),
         supabase
           .from("contacts")
           .select("assigned_to, lead_label, pipeline_stage")
           .eq("tenant_id", tenantId),
       ]);
 
-      const agentUsers = (users || []).filter(
-        (u) => u.role === "agent" || u.role === "admin_agent"
+      if (usersRes.error) console.error("[AgentBreakdown] users error:", usersRes.error);
+      if (contactsRes.error) console.error("[AgentBreakdown] contacts error:", contactsRes.error);
+
+      const allUsers = usersRes.data || [];
+      console.log("[AgentBreakdown] users fetched:", allUsers.length, allUsers);
+
+      const agentUsers = allUsers.filter(
+        (u) => u.is_active !== false && u.role !== "admin_developer"
       );
-      const allContacts = contacts || [];
+      const allContacts = contactsRes.data || [];
 
       const rows: AgentRow[] = agentUsers.map((u) => {
         const own = allContacts.filter((c) => c.assigned_to === u.id);
