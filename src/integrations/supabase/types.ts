@@ -727,6 +727,21 @@ export type Database = {
       }
       current_user_role: { Args: never; Returns: string }
       current_user_row_id: { Args: never; Returns: number }
+      tenant_agent_performance: {
+        Args: never
+        Returns: {
+          cold: number
+          conversion_rate: number
+          converted: number
+          email: string
+          hot: number
+          name: string
+          role: string
+          total_leads: number
+          user_id: number
+          warm: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

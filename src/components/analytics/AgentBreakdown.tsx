@@ -27,55 +27,27 @@ export function AgentBreakdown() {
       if (!tenantId) return;
       setLoading(true);
 
-      const [usersRes, contactsRes] = await Promise.all([
-        supabase
-          .from("users")
-          .select("id, name, email, role, is_active")
-          .eq("tenant_id", tenantId),
-        supabase
-          .from("contacts")
-          .select("assigned_to, lead_label, pipeline_stage")
-          .eq("tenant_id", tenantId),
-      ]);
+      const { data, error } = await supabase.rpc("tenant_agent_performance");
 
-      if (usersRes.error) console.error("[AgentBreakdown] users error:", usersRes.error);
-      if (contactsRes.error) console.error("[AgentBreakdown] contacts error:", contactsRes.error);
+      if (error) {
+        console.error("[AgentBreakdown] RPC error:", error);
+        setAgents([]);
+        setLoading(false);
+        return;
+      }
 
-      const allUsers = usersRes.data || [];
-      console.log("[AgentBreakdown] users fetched:", allUsers.length, allUsers);
+      const rows: AgentRow[] = (data || []).map((r: any) => ({
+        id: r.user_id,
+        name: r.name || r.email,
+        email: r.email,
+        totalLeads: Number(r.total_leads) || 0,
+        hot: Number(r.hot) || 0,
+        warm: Number(r.warm) || 0,
+        cold: Number(r.cold) || 0,
+        converted: Number(r.converted) || 0,
+        conversionRate: Number(r.conversion_rate) || 0,
+      }));
 
-      const agentUsers = allUsers.filter(
-        (u) => u.is_active !== false && u.role !== "admin_developer"
-      );
-      const allContacts = contactsRes.data || [];
-
-      const rows: AgentRow[] = agentUsers.map((u) => {
-        const own = allContacts.filter((c) => c.assigned_to === u.id);
-        const hot = own.filter((c) => c.lead_label === "hot").length;
-        const warm = own.filter((c) => c.lead_label === "warm").length;
-        const cold = own.filter((c) => c.lead_label === "cold").length;
-        const converted = own.filter(
-          (c) =>
-            c.pipeline_stage === "won" ||
-            c.pipeline_stage === "closed_won" ||
-            c.pipeline_stage === "converted"
-        ).length;
-        const conversionRate =
-          own.length > 0 ? Math.round((converted / own.length) * 100) : 0;
-        return {
-          id: u.id,
-          name: u.name || u.email,
-          email: u.email,
-          totalLeads: own.length,
-          hot,
-          warm,
-          cold,
-          converted,
-          conversionRate,
-        };
-      });
-
-      rows.sort((a, b) => b.totalLeads - a.totalLeads);
       setAgents(rows);
       setLoading(false);
     };
