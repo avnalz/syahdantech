@@ -25,6 +25,7 @@ interface AuthContextType {
   tenant: TenantInfo | null;
   tenantId: number | null;
   loading: boolean;
+  profileLoaded: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshTenant: () => Promise<void>;
