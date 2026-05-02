@@ -248,6 +248,8 @@ export default function Analytics() {
           </div>
         </CardContent>
       </Card>
+
+      {isDeveloper && <AgentBreakdown />}
     </div>
   );
 }
