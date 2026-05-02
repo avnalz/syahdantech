@@ -77,6 +77,12 @@ export default function Analytics() {
         </div>
       </div>
 
+      {isDeveloper && (
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Analisis Keseluruhan</h2>
+        </div>
+      )}
+
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <StatCard icon={Users} label="Total Leads" value={summary.totalLeads} color="text-primary" />
