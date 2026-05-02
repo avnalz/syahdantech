@@ -130,7 +130,7 @@ export default function Settings() {
         <TabsList>
           {!isAgent && <TabsTrigger value="profil">Profil</TabsTrigger>}
           {isAgent && <TabsTrigger value="password">Ganti Password</TabsTrigger>}
-          {!isDeveloper && <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>}
+          {!hideDrip && <TabsTrigger value="drip">Drip Follow-up</TabsTrigger>}
           <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
           <TabsTrigger value="tentang">Tentang</TabsTrigger>
         </TabsList>
