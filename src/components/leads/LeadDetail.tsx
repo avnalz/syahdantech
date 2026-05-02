@@ -206,18 +206,30 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
     if (!tenantId) return;
     const { data } = await supabase
       .from("drip_logs")
-      .select("*, drip_templates:drip_templates!inner(template_text)")
+      .select("*")
       .eq("contact_id", contact.id)
       .eq("tenant_id", tenantId)
       .order("step", { ascending: true });
-    if (data) {
-      const enriched = (data as any[]).map((d) => ({
-        ...d,
-        phone_number: contact.phone_number,
-        message: d.drip_templates?.template_text ?? "",
-      })) as DripLog[];
-      setDripLogs(enriched);
+    if (!data) return;
+
+    // Look up template message text per step from drip_templates
+    const steps = [...new Set(data.map((d) => d.step))];
+    let templatesByStep = new Map<number, string>();
+    if (steps.length > 0) {
+      const { data: templates } = await supabase
+        .from("drip_templates")
+        .select("step, template_text")
+        .eq("tenant_id", tenantId)
+        .in("step", steps);
+      templatesByStep = new Map((templates ?? []).map((t) => [t.step, t.template_text]));
     }
+
+    const enriched: DripLog[] = data.map((d) => ({
+      ...d,
+      phone_number: contact.phone_number,
+      message: templatesByStep.get(d.step) ?? "",
+    }));
+    setDripLogs(enriched);
   }, [tenantId, contact.id, contact.phone_number]);
 
   useEffect(() => {
