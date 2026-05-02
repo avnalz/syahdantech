@@ -139,10 +139,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(nextSession?.user ?? null);
 
       if (nextSession?.user) {
+        setProfileLoaded(false);
         await loadProfile(nextSession.user);
+        if (isMounted) setProfileLoaded(true);
       } else {
         setTenantUser(null);
         setTenant(null);
+        if (isMounted) setProfileLoaded(true);
       }
 
       if (isMounted) setLoading(false);
