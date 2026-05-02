@@ -209,8 +209,8 @@ export default function Settings() {
           </TabsContent>
         )}
 
-        {/* Drip Follow-up Tab — for admin_agent and agent (each user manages own templates) */}
-        {!isDeveloper && (
+        {/* Drip Follow-up Tab — disembunyikan untuk developer & tenant tipe 'agent' (mandiri) */}
+        {!hideDrip && (
           <TabsContent value="drip">
             <DripFollowupTab />
           </TabsContent>
