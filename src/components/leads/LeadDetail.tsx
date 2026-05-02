@@ -31,13 +31,17 @@ const labelOutlineColors: Record<string, string> = {
 
 interface DripLog {
   id: number;
-  phone_number: string;
+  contact_id: number | null;
   step: number;
   is_completed: boolean;
   sent_at: string | null;
   created_at: string;
   updated_at: string;
   tenant_id: number;
+  user_id: number | null;
+  // Joined fields
+  phone_number?: string;
+  message?: string;
 }
 
 const PIPELINE_STAGES = ["new", "contacted", "qualified", "proposal", "negotiation", "won", "lost"] as const;
@@ -79,7 +83,8 @@ function formatCurrency(value: number | null) {
 }
 
 export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, onStageChange, onDelete, onMessageSent, isMobile }: LeadDetailProps) {
-  const { tenant } = useAuth();
+  const { tenant, tenantUser } = useAuth();
+  const userRowId = tenantUser?.user_row_id ?? null;
   const hideDrip = tenant?.tenant_type === "agent";
   const [dripLogs, setDripLogs] = useState<DripLog[]>([]);
   const [humanMode, setHumanMode] = useState(contact.mode === "human_mode");
@@ -138,7 +143,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
       const { error } = await supabase
         .from("drip_logs")
         .update({ is_completed: true })
-        .eq("phone_number", contact.phone_number)
+        .eq("contact_id", contact.id)
         .eq("tenant_id", tenantId)
         .eq("is_completed", false);
       if (error) toast.error("Gagal pause drip");
@@ -146,8 +151,9 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
     } else {
       // Resume: create a new drip_log entry at step 0
       const { error } = await supabase.from("drip_logs").insert({
-        phone_number: contact.phone_number,
+        contact_id: contact.id,
         tenant_id: tenantId,
+        user_id: userRowId ?? undefined,
         step: 0,
         is_completed: false,
       });
@@ -163,7 +169,7 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
     // Delete chat logs first
     await supabase.from("chat_logs").delete().eq("phone_number", contact.phone_number).eq("tenant_id", tenantId);
     // Delete drip logs
-    await supabase.from("drip_logs").delete().eq("phone_number", contact.phone_number).eq("tenant_id", tenantId);
+    await supabase.from("drip_logs").delete().eq("contact_id", contact.id).eq("tenant_id", tenantId);
     // Delete contact
     const { error } = await supabase.from("contacts").delete().eq("id", contact.id);
     if (error) {
@@ -201,11 +207,30 @@ export function LeadDetail({ contact, messages, tenantId, onBack, onModeChange, 
     const { data } = await supabase
       .from("drip_logs")
       .select("*")
-      .eq("phone_number", contact.phone_number)
+      .eq("contact_id", contact.id)
       .eq("tenant_id", tenantId)
       .order("step", { ascending: true });
-    if (data) setDripLogs(data);
-  }, [tenantId, contact.phone_number]);
+    if (!data) return;
+
+    // Look up template message text per step from drip_templates
+    const steps = [...new Set(data.map((d) => d.step))];
+    let templatesByStep = new Map<number, string>();
+    if (steps.length > 0) {
+      const { data: templates } = await supabase
+        .from("drip_templates")
+        .select("step, template_text")
+        .eq("tenant_id", tenantId)
+        .in("step", steps);
+      templatesByStep = new Map((templates ?? []).map((t) => [t.step, t.template_text]));
+    }
+
+    const enriched: DripLog[] = data.map((d) => ({
+      ...d,
+      phone_number: contact.phone_number,
+      message: templatesByStep.get(d.step) ?? "",
+    }));
+    setDripLogs(enriched);
+  }, [tenantId, contact.id, contact.phone_number]);
 
   useEffect(() => {
     fetchDripLogs();
