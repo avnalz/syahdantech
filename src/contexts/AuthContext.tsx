@@ -189,6 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         tenant,
         tenantId: tenantUser?.tenant_id ?? null,
         loading,
+        profileLoaded,
         signIn,
         signOut,
         refreshTenant,
