@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action: string
+          actor_email: string | null
+          actor_user_id: number | null
+          created_at: string
+          id: number
+          metadata: Json | null
+          target_id: number | null
+          target_name: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action: string
+          actor_email?: string | null
+          actor_user_id?: number | null
+          created_at?: string
+          id?: number
+          metadata?: Json | null
+          target_id?: number | null
+          target_name?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action?: string
+          actor_email?: string | null
+          actor_user_id?: number | null
+          created_at?: string
+          id?: number
+          metadata?: Json | null
+          target_id?: number | null
+          target_name?: string | null
+          target_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_logs_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "users_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_sessions: {
         Row: {
           created_at: string
@@ -532,6 +583,7 @@ export type Database = {
           id: number
           is_active: boolean
           name: string
+          parent_tenant_id: number | null
           scoring_prompt: string | null
           system_prompt: string | null
           tenant_type: string
@@ -546,6 +598,7 @@ export type Database = {
           id?: number
           is_active?: boolean
           name: string
+          parent_tenant_id?: number | null
           scoring_prompt?: string | null
           system_prompt?: string | null
           tenant_type?: string
@@ -560,13 +613,29 @@ export type Database = {
           id?: number
           is_active?: boolean
           name?: string
+          parent_tenant_id?: number | null
           scoring_prompt?: string | null
           system_prompt?: string | null
           tenant_type?: string
           wa_session?: string
           wa_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tenants_parent_tenant_id_fkey"
+            columns: ["parent_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tenants_parent_tenant_id_fkey"
+            columns: ["parent_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_safe"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {
@@ -574,6 +643,7 @@ export type Database = {
           email: string
           id: number
           is_active: boolean
+          is_superadmin: boolean
           name: string
           phone: string | null
           role: string
@@ -585,6 +655,7 @@ export type Database = {
           email: string
           id?: number
           is_active?: boolean
+          is_superadmin?: boolean
           name: string
           phone?: string | null
           role?: string
@@ -596,6 +667,7 @@ export type Database = {
           email?: string
           id?: number
           is_active?: boolean
+          is_superadmin?: boolean
           name?: string
           phone?: string | null
           role?: string
