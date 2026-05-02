@@ -83,7 +83,7 @@ export default function Index() {
           <p className="text-muted-foreground text-sm">Overview real-time bisnis properti Anda</p>
         </div>
         {canOpenAnalytics && (
-          <Button asChild variant="outline" size="sm">
+          <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex">
             <Link to="/analytics">
               <BarChart3 className="h-4 w-4" />
               Analisis
@@ -107,6 +107,17 @@ export default function Index() {
       <HotLeadsTable leads={hotLeads} />
 
       <RecentActivity tenantId={tenantId} />
+
+      {canOpenAnalytics && (
+        <div className="sm:hidden pt-2">
+          <Button asChild variant="outline" size="sm" className="w-full">
+            <Link to="/analytics">
+              <BarChart3 className="h-4 w-4" />
+              Analisis
+            </Link>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
