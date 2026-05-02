@@ -185,7 +185,6 @@ Deno.serve(async (req) => {
       if (delUserErr) return json(500, { error: delUserErr.message });
 
       if (authUserId) {
-        await admin.from("profiles").delete().eq("id", authUserId);
         await admin.auth.admin.deleteUser(authUserId).catch(() => {});
       }
 
