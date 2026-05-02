@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAnalyticsData } from "@/hooks/useAnalyticsData";
+import { useAuth } from "@/contexts/AuthContext";
+import { AgentBreakdown } from "@/components/analytics/AgentBreakdown";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell,
@@ -41,6 +43,8 @@ function DonutLegend({ data, colors, nameKey }: { data: any[]; colors: string[];
 export default function Analytics() {
   const [monthOffset, setMonthOffset] = useState(0);
   const { loading, summary, dailyLeads, pipelineData, sentimentData, labelData, monthLabel } = useAnalyticsData(monthOffset);
+  const { tenantUser } = useAuth();
+  const isDeveloper = tenantUser?.role === "admin_developer";
 
   if (loading) {
     return (
@@ -72,6 +76,12 @@ export default function Analytics() {
           </Button>
         </div>
       </div>
+
+      {isDeveloper && (
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Analisis Keseluruhan</h2>
+        </div>
+      )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -238,6 +248,8 @@ export default function Analytics() {
           </div>
         </CardContent>
       </Card>
+
+      {isDeveloper && <AgentBreakdown />}
     </div>
   );
 }
