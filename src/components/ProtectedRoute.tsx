@@ -4,11 +4,11 @@ import { Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, tenantUser, tenantId, loading, signOut } = useAuth();
+  const { user, tenantUser, tenantId, loading, profileLoaded, signOut } = useAuth();
   const location = useLocation();
 
-  // 1. Auth still resolving
-  if (loading) {
+  // 1. Auth still resolving (or profile lookup belum selesai untuk user yang sudah login)
+  if (loading || (user && !profileLoaded)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

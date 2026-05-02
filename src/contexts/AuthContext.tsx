@@ -25,6 +25,7 @@ interface AuthContextType {
   tenant: TenantInfo | null;
   tenantId: number | null;
   loading: boolean;
+  profileLoaded: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshTenant: () => Promise<void>;
@@ -38,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [tenantUser, setTenantUser] = useState<TenantUser | null>(null);
   const [tenant, setTenant] = useState<TenantInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   const fetchTenantInfo = async (tenantId: number) => {
     const { data, error } = await supabase
@@ -137,10 +139,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(nextSession?.user ?? null);
 
       if (nextSession?.user) {
+        setProfileLoaded(false);
         await loadProfile(nextSession.user);
+        if (isMounted) setProfileLoaded(true);
       } else {
         setTenantUser(null);
         setTenant(null);
+        if (isMounted) setProfileLoaded(true);
       }
 
       if (isMounted) setLoading(false);
@@ -184,6 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         tenant,
         tenantId: tenantUser?.tenant_id ?? null,
         loading,
+        profileLoaded,
         signIn,
         signOut,
         refreshTenant,
